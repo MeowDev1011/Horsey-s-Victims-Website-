@@ -1,1710 +1,2200 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Horsey's Victims - Horsey Dollars System</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-  body {
-    background-color: #f8fafc;
-    color: #1e293b;
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    margin: 0; padding: 0; overflow-x: hidden;
-  }
-  .yellow-gradient { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
-  .main-card {
-    background: #ffffff;
-    border: 1px solid rgba(217, 119, 6, 0.18);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
-  }
-  .btn-action { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-  .btn-action:hover { transform: translateY(-2px); filter: brightness(1.05); }
-  .fade-in { animation: fadeIn 0.4s ease-in forwards; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-  .custom-scroll::-webkit-scrollbar { width: 6px; }
-  .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
-  .custom-scroll::-webkit-scrollbar-thumb { background: #d97706; border-radius: 8px; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  .site-card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 1.5rem;
-    padding: 1.75rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  }
-  .site-card:hover {
-    box-shadow: 0 12px 30px rgba(217, 119, 6, 0.12);
-    transform: translateY(-3px);
-    border-color: #fbbf24;
-  }
-  .site-card h3 {
-    color: #d97706; font-weight: 900; font-size: 1.25rem;
-    margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
-  }
-  .site-card .card-content { color: #475569; line-height: 1.6; font-size: 0.95rem; }
-  .site-card .card-content a { color: #d97706; font-weight: 700; text-decoration: underline; }
-  .site-card .card-content ul { padding-left: 1.25rem; margin: 0.5rem 0; }
-  .site-card .card-content li { margin-bottom: 0.25rem; }
-  .site-card .card-content img { max-width: 100%; border-radius: 0.75rem; margin: 0.5rem 0; }
+  <!-- FAVICON EN PNG -->
+  <link rel="icon" type="image/png" href="horsey.png">
+  <link rel="apple-touch-icon" href="horsey.png">
 
-  .score-display { font-size: 5rem; font-weight: 900; color: #d97706; line-height: 1; }
+  <title>Horsey's Victims - Horsey Dollars System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 
-  .game-play-area {
-    width: 100%; height: 280px; background: #f9fafb;
-    border-radius: 16px; position: relative; margin: 1.5rem 0;
-    overflow: hidden; border: 1px solid rgba(217, 119, 6, 0.2);
-  }
-  .interactive-target {
-    position: absolute; width: 65px; height: 65px;
-    cursor: crosshair; user-select: none; transition: top 0.2s, left 0.2s;
-  }
-  #santaGameCanvas { width: 100%; height: 100%; display: block; cursor: none; }
+  <style>
+    /* ============================================================
+       GLOBAL RESET & BASE
+       ============================================================ */
+    body {
+      background-color: #f8fafc;
+      color: #1e293b;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
 
-  .lang-switcher {
-    display: inline-flex; gap: 4px; background: #fff;
-    border: 1px solid #e2e8f0; border-radius: 9999px; padding: 4px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  }
-  .lang-btn {
-    padding: 6px 12px; border-radius: 9999px; font-size: 12px;
-    font-weight: 900; cursor: pointer; border: none; background: transparent;
-    color: #64748b; transition: all 0.2s;
-  }
-  .lang-btn:hover { background: #f1f5f9; color: #1e293b; }
-  .lang-btn.active { background: #d97706; color: #fff; }
-</style>
+    /* ============================================================
+       YELLOW GRADIENT (PRIMARY BUTTONS)
+       ============================================================ */
+    .yellow-gradient {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    /* ============================================================
+       MAIN CARD
+       ============================================================ */
+    .main-card {
+      background: #ffffff;
+      border: 1px solid rgba(217, 119, 6, 0.18);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+    }
+
+    /* ============================================================
+       BUTTON ANIMATIONS
+       ============================================================ */
+    .btn-action {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .btn-action:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.05);
+    }
+
+    /* ============================================================
+       FADE-IN ANIMATION
+       ============================================================ */
+    .fade-in {
+      animation: fadeIn 0.4s ease-in forwards;
+    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ============================================================
+       CUSTOM SCROLLBAR
+       ============================================================ */
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #d97706;
+      border-radius: 8px;
+    }
+
+    /* ============================================================
+       SITE CARDS
+       ============================================================ */
+    .site-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 1.5rem;
+      padding: 1.75rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    .site-card:hover {
+      box-shadow: 0 12px 30px rgba(217, 119, 6, 0.12);
+      transform: translateY(-3px);
+      border-color: #fbbf24;
+    }
+    .site-card h3 {
+      color: #d97706;
+      font-weight: 900;
+      font-size: 1.25rem;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .site-card .card-content {
+      color: #475569;
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+    .site-card .card-content a {
+      color: #d97706;
+      font-weight: 700;
+      text-decoration: underline;
+    }
+    .site-card .card-content ul {
+      padding-left: 1.25rem;
+      margin: 0.5rem 0;
+    }
+    .site-card .card-content li {
+      margin-bottom: 0.25rem;
+    }
+    .site-card .card-content img {
+      max-width: 100%;
+      border-radius: 0.75rem;
+      margin: 0.5rem 0;
+    }
+
+    /* ============================================================
+       SCORE DISPLAY
+       ============================================================ */
+    .score-display {
+      font-size: 5rem;
+      font-weight: 900;
+      color: #d97706;
+      line-height: 1;
+    }
+
+    /* ============================================================
+       GAME PLAY AREA
+       ============================================================ */
+    .game-play-area {
+      width: 100%;
+      height: 280px;
+      background: #f9fafb;
+      border-radius: 16px;
+      position: relative;
+      margin: 1.5rem 0;
+      overflow: hidden;
+      border: 1px solid rgba(217, 119, 6, 0.2);
+    }
+    .interactive-target {
+      position: absolute;
+      width: 65px;
+      height: 65px;
+      cursor: crosshair;
+      user-select: none;
+      transition: top 0.2s, left 0.2s;
+    }
+    #santaGameCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: none;
+    }
+
+    /* ============================================================
+       LANGUAGE SWITCHER
+       ============================================================ */
+    .lang-switcher {
+      display: inline-flex;
+      gap: 4px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 9999px;
+      padding: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    .lang-btn {
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 900;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: #64748b;
+      transition: all 0.2s;
+    }
+    .lang-btn:hover {
+      background: #f1f5f9;
+      color: #1e293b;
+    }
+    .lang-btn.active {
+      background: #d97706;
+      color: #fff;
+    }
+  </style>
 </head>
+
 <body class="min-h-screen flex items-center justify-center p-4 sm:p-8">
 
-<!-- LANGUAGE SWITCHER (fixed top-right) -->
-<div class="fixed top-4 right-4 z-40 lang-switcher">
-  <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">🇬🇧 EN</button>
-  <button class="lang-btn" data-lang="es" onclick="setLanguage('es')">🇪🇸 ES</button>
-  <button class="lang-btn" data-lang="ru" onclick="setLanguage('ru')">🇷🇺 RU</button>
-</div>
-
-<!-- ============================================ -->
-<!-- INITIAL SETUP                                  -->
-<!-- ============================================ -->
-<div id="setupBox" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-100 px-4">
-  <div class="w-full max-w-[380px] bg-white border-2 border-amber-500 rounded-3xl p-10 shadow-2xl text-center">
-    <div class="text-6xl mb-4">🐴</div>
-    <h2 class="text-amber-600 font-black text-2xl mb-4 italic" data-i18n="setup.title">HORSEY DOLLARS SETUP</h2>
-    <p class="text-slate-500 text-[10px] mb-4 uppercase font-bold tracking-widest" data-i18n="setup.subtitle">Create Admin Password</p>
-    <input type="text" id="initialPass" data-i18n-ph="setup.placeholder" placeholder="New Password..." class="w-full bg-slate-50 border border-slate-300 p-4 mb-6 text-center text-slate-800 rounded-xl outline-none focus:border-amber-500">
-    <button onclick="savePassword()" class="btn-action yellow-gradient text-white font-black uppercase w-full py-4 rounded-xl" data-i18n="setup.button">INITIALIZE SYSTEM</button>
-  </div>
-</div>
-
-<!-- ============================================ -->
-<!-- MAIN APP                                       -->
-<!-- ============================================ -->
-<div id="mainApp" class="hidden w-full max-w-3xl mx-auto fade-in">
-
-  <!-- HEADER -->
-  <div class="text-center mb-10">
-    <div class="w-28 h-28 bg-white border-4 border-amber-500 rounded-full flex items-center justify-center text-6xl mx-auto mb-4 shadow-[0_0_30px_rgba(217,119,6,0.2)]">🐴</div>
-    <h1 class="text-4xl md:text-6xl font-black italic tracking-tighter uppercase text-slate-800" data-i18n="header.title">Horsey's Victims</h1>
-    <p class="text-amber-600 text-xs font-bold tracking-[0.3em] mt-2 uppercase" data-i18n="header.subtitle">Official Horsey Dollars System</p>
+  <!-- ============================================================
+       LANGUAGE SWITCHER
+       ============================================================ -->
+  <div class="fixed top-4 right-4 z-40 lang-switcher">
+    <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">🇬🇧 EN</button>
+    <button class="lang-btn" data-lang="es" onclick="setLanguage('es')">🇪🇸 ES</button>
+    <button class="lang-btn" data-lang="ru" onclick="setLanguage('ru')">🇷🇺 RU</button>
   </div>
 
-  <!-- ROLE SELECTOR -->
-  <div id="roleScreen" class="main-card rounded-[2.5rem] p-8 md:p-12 text-center">
-    <h2 class="text-slate-400 text-sm font-bold uppercase mb-10 tracking-widest" data-i18n="role.identify">Identify Yourself</h2>
-    <div class="grid grid-cols-1 gap-5">
-      <button onclick="showScreen('memberScreen')" class="btn-action w-full bg-slate-100 border border-slate-300 text-slate-800 font-black py-6 rounded-2xl uppercase tracking-widest text-xl hover:bg-slate-200" data-i18n="role.member">Member Portal</button>
-      <button onclick="showScreen('loginScreen')" class="btn-action yellow-gradient text-white font-black w-full py-6 rounded-2xl uppercase tracking-widest text-xl shadow-lg" data-i18n="role.admin">HORSEY DOLLARS ADMIN</button>
+  <!-- ============================================================
+       SETUP BOX (first-time only)
+       ============================================================ -->
+  <div id="setupBox" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-100 px-4">
+    <div class="w-full max-w-[380px] bg-white border-2 border-amber-500 rounded-3xl p-10 shadow-2xl text-center">
+      <div class="text-6xl mb-4">🐴</div>
+      <h2 class="text-amber-600 font-black text-2xl mb-4 italic" data-i18n="setup.title">HORSEY DOLLARS SETUP</h2>
+      <p class="text-slate-500 text-[10px] mb-4 uppercase font-bold tracking-widest" data-i18n="setup.subtitle">Create Admin Password</p>
+      <input type="text"
+             id="initialPass"
+             data-i18n-ph="setup.placeholder"
+             placeholder="New Password..."
+             class="w-full bg-slate-50 border border-slate-300 p-4 mb-6 text-center text-slate-800 rounded-xl outline-none focus:border-amber-500">
+      <button onclick="savePassword()"
+              class="btn-action yellow-gradient text-white font-black uppercase w-full py-4 rounded-xl"
+              data-i18n="setup.button">INITIALIZE SYSTEM</button>
+      <p id="setupError" class="text-red-500 text-xs mt-4 hidden"></p>
     </div>
   </div>
 
-  <!-- PUBLIC SITE CARDS -->
-  <div id="publicCardsSection" class="mt-8">
-    <h2 class="text-slate-400 text-xs font-bold uppercase mb-4 tracking-widest text-center" data-i18n="public.title">📌 Team Info</h2>
-    <div id="publicCardsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-  </div>
+  <!-- ============================================================
+       MAIN APP
+       ============================================================ -->
+  <div id="mainApp" class="hidden w-full max-w-3xl mx-auto fade-in">
 
-  <!-- ============================================ -->
-  <!-- MEMBER PORTAL                                  -->
-  <!-- ============================================ -->
-  <div id="memberScreen" class="hidden main-card rounded-[2.5rem] p-6 md:p-10 mt-8">
-    <div class="flex flex-wrap justify-center gap-4 mb-8">
-      <button onclick="toggleMemberTab('coins')" id="tabCoins" class="text-xs font-black uppercase tracking-widest border-b-2 border-amber-500 pb-2 text-slate-800" data-i18n="member.tabs.coins">🐴 Horsey Dollars</button>
-      <button onclick="toggleMemberTab('markets')" id="tabMarkets" class="text-xs font-black uppercase tracking-widest border-b-2 border-transparent pb-2 text-slate-400" data-i18n="member.tabs.markets">Official Market</button>
-      <button onclick="toggleMemberTab('cards')" id="tabCards" class="text-xs font-black uppercase tracking-widest border-b-2 border-transparent pb-2 text-slate-400" data-i18n="member.tabs.cards">Info Cards</button>
-      <button onclick="toggleMemberTab('games')" id="tabGames" class="text-xs font-black uppercase tracking-widest border-b-2 border-transparent pb-2 text-slate-400" data-i18n="member.tabs.games">🎮 Games</button>
+    <!-- ============================================================
+         HEADER
+         ============================================================ -->
+    <div class="text-center mb-10">
+      <div class="w-28 h-28 bg-white border-4 border-amber-500 rounded-full flex items-center justify-center text-6xl mx-auto mb-4 shadow-[0_0_30px_rgba(217,119,6,0.2)]">🐴</div>
+      <h1 class="text-4xl md:text-6xl font-black italic tracking-tighter uppercase text-slate-800" data-i18n="header.title">Horsey's Victims</h1>
+      <p class="text-amber-600 text-xs font-bold tracking-[0.3em] mt-2 uppercase" data-i18n="header.subtitle">Official Horsey Dollars System</p>
     </div>
 
-    <!-- COINS -->
-    <div id="coinsContent" class="fade-in">
-      <div class="text-center mb-8">
-        <div class="relative max-w-sm mx-auto">
-          <input type="text" id="memberSearch" data-i18n-ph="coins.search" placeholder="Enter Lichess User..." autocomplete="off"
-                 oninput="showSuggestions('memberSearch', 'memberSuggestions')"
-                 class="w-full bg-slate-50 border border-slate-300 p-5 rounded-2xl text-center text-xl outline-none focus:border-amber-500 text-slate-800 placeholder-slate-400">
-          <ul id="memberSuggestions" class="absolute z-10 w-full bg-white border border-slate-300 rounded-xl mt-2 hidden max-h-48 overflow-y-auto custom-scroll shadow-2xl"></ul>
-        </div>
-        <div class="flex flex-wrap justify-center gap-3 mt-6">
-          <button onclick="checkPoints()" id="checkBtn" class="bg-slate-200 text-slate-800 px-8 py-4 rounded-xl font-black uppercase text-xs hover:bg-slate-300 transition-colors" data-i18n="coins.find">Find Horsey Dollars</button>
-          <button onclick="showLeaderboard()" class="yellow-gradient text-white px-8 py-4 rounded-xl font-black uppercase text-xs flex items-center gap-2" data-i18n="coins.leaderboard">Leaderboard 🏆</button>
-        </div>
-      </div>
-
-      <div id="scoreDisplay" class="hidden fade-in mb-10">
-        <div class="p-8 bg-amber-50 rounded-3xl border border-amber-200 text-center">
-          <p class="text-slate-500 text-[10px] uppercase font-bold tracking-widest mb-1" id="resName"></p>
-          <div class="score-display flex items-center justify-center">
-            <span id="resPoints">0</span><span class="text-5xl ml-2">🐴</span>
-          </div>
-          <p class="text-slate-500 text-sm mt-4 italic border-t border-amber-200 pt-4" id="resReason"></p>
-        </div>
-      </div>
-
-      <div id="leaderboardDisplay" class="hidden fade-in mb-10">
-        <div class="bg-slate-50 p-6 rounded-3xl border border-slate-200">
-          <h3 class="text-amber-600 font-black uppercase italic mb-6 text-center" data-i18n="coins.topHolders">🏆 Top Horsey Holders</h3>
-          <div id="leaderboardList" class="space-y-3 max-h-72 overflow-y-auto custom-scroll pr-2"></div>
-        </div>
+    <!-- ============================================================
+         ROLE SELECTOR
+         ============================================================ -->
+    <div id="roleScreen" class="main-card rounded-[2.5rem] p-8 md:p-12 text-center">
+      <h2 class="text-slate-400 text-sm font-bold uppercase mb-10 tracking-widest" data-i18n="role.identify">Identify Yourself</h2>
+      <div class="grid grid-cols-1 gap-5">
+        <button onclick="showScreen('memberScreen')"
+                class="btn-action w-full bg-slate-100 border border-slate-300 text-slate-800 font-black py-6 rounded-2xl uppercase tracking-widest text-xl hover:bg-slate-200"
+                data-i18n="role.member">Member Portal</button>
+        <button onclick="showScreen('loginScreen')"
+                class="btn-action yellow-gradient text-white font-black w-full py-6 rounded-2xl uppercase tracking-widest text-xl shadow-lg"
+                data-i18n="role.admin">HORSEY DOLLARS ADMIN</button>
       </div>
     </div>
 
-    <!-- MARKET -->
-    <div id="marketsContent" class="hidden fade-in space-y-6">
-      <div class="p-4 bg-amber-50 border border-amber-300 rounded-2xl text-center mb-4">
-        <p class="text-amber-700 text-xs font-bold uppercase tracking-wider">
-          <span data-i18n="market.notice1">🛒 DM the seller to purchase and DM</span>
-          <span class="text-slate-800">@rajul_s</span>
-          <span data-i18n="market.notice2">to make it official.</span>
-        </p>
-      </div>
-      <h3 class="text-center text-slate-800 font-black italic uppercase tracking-widest text-xl mb-4" data-i18n="market.title">🏪 Official Marketplace</h3>
-      <div id="marketList" class="grid grid-cols-1 gap-4 max-h-[500px] overflow-y-auto custom-scroll pr-2">
-        <p class="text-center text-slate-400 text-xs italic py-10" data-i18n="market.empty">No items available yet.</p>
-      </div>
+    <!-- ============================================================
+         PUBLIC SITE CARDS
+         ============================================================ -->
+    <div id="publicCardsSection" class="mt-8">
+      <h2 class="text-slate-400 text-xs font-bold uppercase mb-4 tracking-widest text-center" data-i18n="public.title">📌 Team Info</h2>
+      <div id="publicCardsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </div>
 
-    <!-- CARDS -->
-    <div id="cardsContent" class="hidden fade-in">
-      <h3 class="text-center text-slate-800 font-black italic uppercase tracking-widest text-xl mb-4" data-i18n="cards.title">📌 Team Information</h3>
-      <div id="memberCardsList" class="grid grid-cols-1 gap-4">
-        <p class="text-center text-slate-400 text-xs italic py-10" data-i18n="cards.empty">No cards available yet.</p>
-      </div>
-    </div>
+    <!-- ============================================================
+         MEMBER PORTAL
+         ============================================================ -->
+    <div id="memberScreen" class="hidden main-card rounded-[2.5rem] p-6 md:p-10 mt-8">
 
-    <!-- GAMES -->
-    <div id="gamesContent" class="hidden fade-in">
-      <h3 class="text-center text-slate-800 font-black italic uppercase tracking-widest text-xl mb-6" data-i18n="games.title">🎮 Horsey Arcade</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Game 1 -->
-        <div class="bg-slate-50 border-2 border-dashed border-amber-400 rounded-2xl p-6 flex flex-col items-center text-center">
-          <div class="text-5xl mb-3">🐴</div>
-          <h4 class="text-amber-700 font-black uppercase" data-i18n="games.g1.title">Catch Horsey!</h4>
-          <p class="text-slate-500 text-xs mt-2 mb-3" data-i18n="games.g1.desc">Click Horsey before he jumps away!</p>
-          <div class="game-play-area" id="gameArea1">
-            <div id="targetHorsey" class="interactive-target" style="top:100px;left:120px;font-size:55px;text-align:center;line-height:65px;">🐴</div>
+      <!-- Member tabs -->
+      <div class="flex flex-wrap justify-center gap-4 mb-8">
+        <button onclick="toggleMemberTab('coins')"
+                id="tabCoins"
+                class="text-xs font-black uppercase tracking-widest border-b-2 border-amber-500 pb-2 text-slate-800"
+                data-i18n="member.tabs.coins">🐴 Horsey Dollars</button>
+        <button onclick="toggleMemberTab('markets')"
+                id="tabMarkets"
+                class="text-xs font-black uppercase tracking-widest border-b-2 border-transparent pb-2 text-slate-400"
+                data-i18n="member.tabs.markets">Official Market</button>
+        <button onclick="toggleMemberTab('cards')"
+                id="tabCards"
+                class="text-xs font-black uppercase tracking-widest border-b-2 border-transparent pb-2 text-slate-400"
+                data-i18n="member.tabs.cards">Info Cards</button>
+        <button onclick="toggleMemberTab('games')"
+                id="tabGames"
+                class="text-xs font-black uppercase tracking-widest border-b-2 border-transparent pb-2 text-slate-400"
+                data-i18n="member.tabs.games">🎮 Games</button>
+      </div>
+
+      <!-- ========================================================
+           COINS TAB
+           ======================================================== -->
+      <div id="coinsContent" class="fade-in">
+        <div class="text-center mb-8">
+          <div class="relative max-w-sm mx-auto">
+            <input type="text"
+                   id="memberSearch"
+                   data-i18n-ph="coins.search"
+                   placeholder="Enter Lichess User..."
+                   autocomplete="off"
+                   oninput="showSuggestions('memberSearch', 'memberSuggestions')"
+                   class="w-full bg-slate-50 border border-slate-300 p-5 rounded-2xl text-center text-xl outline-none focus:border-amber-500 text-slate-800 placeholder-slate-400">
+            <ul id="memberSuggestions"
+                class="absolute z-10 w-full bg-white border border-slate-300 rounded-xl mt-2 hidden max-h-48 overflow-y-auto custom-scroll shadow-2xl"></ul>
           </div>
-          <div class="bg-amber-100 text-amber-700 font-bold px-5 py-2 rounded-full mb-4" id="scoreDisplay1">Score: 0</div>
-          <button onclick="resetGame1()" class="btn-action yellow-gradient text-white font-black px-6 py-3 rounded-2xl uppercase text-sm" data-i18n="games.g1.button">Start / Reset</button>
+          <div class="flex flex-wrap justify-center gap-3 mt-6">
+            <button onclick="checkPoints()"
+                    id="checkBtn"
+                    class="bg-slate-200 text-slate-800 px-8 py-4 rounded-xl font-black uppercase text-xs hover:bg-slate-300 transition-colors"
+                    data-i18n="coins.find">Find Horsey Dollars</button>
+            <button onclick="showLeaderboard()"
+                    class="yellow-gradient text-white px-8 py-4 rounded-xl font-black uppercase text-xs flex items-center gap-2"
+                    data-i18n="coins.leaderboard">Leaderboard 🏆</button>
+          </div>
         </div>
-        <!-- Game 2 -->
-        <div class="bg-slate-50 border-2 border-dashed border-amber-400 rounded-2xl p-6 flex flex-col items-center text-center">
-          <div class="text-5xl mb-3">🎅🐴</div>
-          <h4 class="text-amber-700 font-black uppercase" data-i18n="games.g2.title">Santa Horsey's Drop</h4>
-          <p class="text-slate-500 text-xs mt-2 mb-3" data-i18n="games.g2.desc">Catch gifts 🎁, avoid bombs 💣</p>
-          <div class="game-play-area">
-            <canvas id="santaGameCanvas"></canvas>
-          </div>
-          <div class="bg-amber-100 text-amber-700 font-bold px-5 py-2 rounded-full mb-4" id="scoreDisplay2">Gifts: 0 | Lives: 3</div>
-          <button onclick="startSantaGame()" class="btn-action yellow-gradient text-white font-black px-6 py-3 rounded-2xl uppercase text-sm" data-i18n="games.g2.button">Play Game</button>
-        </div>
-      </div>
-    </div>
 
-    <!-- EARNING RATES + LINKS -->
-    <div class="space-y-4 border-t border-slate-200 pt-8 mt-10">
-      <div class="grid grid-cols-1 gap-3">
-        <a href="https://lichess.org/team/horseys-victims" target="_blank" class="inline-block w-full bg-amber-100 border border-amber-500 text-amber-700 font-black py-4 rounded-2xl uppercase tracking-widest text-sm text-center btn-action" data-i18n="links.join">♞ Join Horsey's Victims on Lichess</a>
-        <a href="https://lichess.org/forum" target="_blank" class="inline-block w-full bg-red-100 border border-red-400 text-red-600 font-black py-4 rounded-2xl uppercase tracking-widest text-sm text-center btn-action" data-i18n="links.report">🚩 Report Horsey Dollar Theft</a>
-      </div>
-
-      <div class="p-6 bg-amber-50 border-l-4 border-amber-500 rounded-r-2xl mt-4">
-        <h3 class="text-amber-700 font-black uppercase text-sm mb-3" data-i18n="claim.title">⚠️ Claim Horsey Dollars Rule</h3>
-        <p class="text-slate-700 text-sm leading-relaxed mb-4" data-i18n="claim.text">To add Horsey Dollars you must claim them to:</p>
-        <a href="https://lichess.org/msg/rajul_s" target="_blank" class="text-amber-700 font-bold hover:underline">@rajul_s</a>
-      </div>
-
-      <div class="pt-6">
-        <h3 class="text-slate-800 font-black uppercase italic tracking-widest text-center mb-6" data-i18n="earn.title">📈 How to Earn Horsey Dollars</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-          <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
-            <span class="text-2xl mb-2 block" data-i18n="earn.battles.title">⚔️ Team Battles</span>
-            <ul class="space-y-2 text-slate-600">
-              <li class="flex justify-between"><span data-i18n="earn.battles.rule">Every 3 points scored:</span> <b class="text-slate-800">+1 🐴</b></li>
-            </ul>
-          </div>
-          <div class="bg-amber-50 p-5 rounded-2xl border-2 border-amber-400">
-            <span class="text-2xl mb-2 block" data-i18n="earn.lmao.title">🔥 LMAO Team Fights</span>
-            <ul class="space-y-2 text-slate-600">
-              <li class="flex justify-between"><span data-i18n="earn.lmao.rule">Every 1 point scored:</span> <b class="text-amber-700">+1 🐴</b></li>
-            </ul>
-            <p class="text-amber-600 text-[10px] mt-2 italic font-bold" data-i18n="earn.lmao.special">SPECIAL EVENT RATIO</p>
-          </div>
-          <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 col-span-1 md:col-span-2">
-            <span class="text-2xl mb-2 block" data-i18n="earn.recruit.title">👥 Recruitment</span>
-            <ul class="space-y-2 text-slate-600">
-              <li class="flex justify-between"><span data-i18n="earn.recruit.rule">Every 2 members added to the team:</span> <b class="text-slate-800">+1 🐴</b></li>
-            </ul>
-          </div>
-          <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 col-span-1 md:col-span-2">
-            <span class="text-2xl mb-2 block" data-i18n="earn.titles.title">💎 Bonus Title Points</span>
-            <div class="grid grid-cols-2 gap-2 mt-3 text-slate-600">
-              <div class="flex justify-between"><span>ACM:</span> <b class="text-slate-800">+20 🐴</b></div>
-              <div class="flex justify-between"><span>AFM:</span> <b class="text-slate-800">+30 🐴</b></div>
-              <div class="flex justify-between"><span>AIM:</span> <b class="text-slate-800">+40 🐴</b></div>
-              <div class="flex justify-between"><span>AGM:</span> <b class="text-slate-800">+50 🐴</b></div>
-              <div class="flex justify-between"><span>NM / WNM:</span> <b class="text-slate-800">+60 🐴</b></div>
-              <div class="flex justify-between"><span>CM / WCM:</span> <b class="text-slate-800">+80 🐴</b></div>
-              <div class="flex justify-between"><span>FM / WFM:</span> <b class="text-slate-800">+100 🐴</b></div>
-              <div class="flex justify-between"><span>IM / WIM:</span> <b class="text-slate-800">+115 🐴</b></div>
-              <div class="flex justify-between"><span>GM / WGM:</span> <b class="text-slate-800">+130 🐴</b></div>
+        <div id="scoreDisplay" class="hidden fade-in mb-10">
+          <div class="p-8 bg-amber-50 rounded-3xl border border-amber-200 text-center">
+            <p class="text-slate-500 text-[10px] uppercase font-bold tracking-widest mb-1" id="resName"></p>
+            <div class="score-display flex items-center justify-center">
+              <span id="resPoints">0</span>
+              <span class="text-5xl ml-2">🐴</span>
             </div>
-            <p class="text-slate-500 mt-3 italic text-center text-xs" data-i18n="earn.titles.note">All claims must be sent to @rajul_s.</p>
+            <p class="text-slate-500 text-sm mt-4 italic border-t border-amber-200 pt-4" id="resReason"></p>
+          </div>
+        </div>
+
+        <div id="leaderboardDisplay" class="hidden fade-in mb-10">
+          <div class="bg-slate-50 p-6 rounded-3xl border border-slate-200">
+            <h3 class="text-amber-600 font-black uppercase italic mb-6 text-center" data-i18n="coins.topHolders">🏆 Top Horsey Holders</h3>
+            <div id="leaderboardList" class="space-y-3 max-h-72 overflow-y-auto custom-scroll pr-2"></div>
           </div>
         </div>
       </div>
-    </div>
 
-    <button onclick="showScreen('roleScreen')" class="mt-12 text-slate-400 hover:text-slate-800 text-[10px] uppercase font-bold tracking-[0.3em] w-full text-center" data-i18n="member.return">← Return to Dashboard</button>
-  </div>
-
-  <!-- ADMIN LOGIN -->
-  <div id="loginScreen" class="hidden main-card rounded-[2.5rem] p-10 text-center mt-8">
-    <h2 class="text-amber-600 text-xs font-black uppercase mb-8 tracking-widest" data-i18n="login.title">Authentication Required</h2>
-    <p id="errorLogin" class="text-red-500 text-[10px] font-bold mb-4 hidden" data-i18n="login.error">Access Denied: Invalid Key</p>
-    <input type="password" id="adminPassInput" data-i18n-ph="login.placeholder" placeholder="Enter Admin Password..." class="w-full bg-slate-50 border border-slate-300 p-5 rounded-2xl text-center outline-none focus:border-amber-500 mb-6 text-slate-800 text-xl">
-    <button onclick="verifyAdmin()" class="btn-action yellow-gradient text-white font-black w-full py-5 rounded-2xl uppercase tracking-widest" data-i18n="login.button">Login HORSEY DOLLARS ADMIN</button>
-    <button onclick="showScreen('roleScreen')" class="mt-8 text-slate-400 text-[10px] font-bold uppercase" data-i18n="login.cancel">Cancel</button>
-  </div>
-
-  <!-- ADMIN EDITOR -->
-  <div id="adminEditor" class="hidden main-card rounded-[2.5rem] p-8 md:p-12 mt-8">
-    <div class="flex flex-wrap justify-around gap-2 mb-10 bg-slate-100 p-2 rounded-2xl border border-slate-200">
-      <button onclick="toggleAdminTab('coins')" id="adminTabCoins" class="flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl bg-amber-600 text-white" data-i18n="admin.tabs.coins">Manage Coins</button>
-      <button onclick="toggleAdminTab('markets')" id="adminTabMarkets" class="flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl text-slate-500" data-i18n="admin.tabs.markets">Market</button>
-      <button onclick="toggleAdminTab('cards')" id="adminTabCards" class="flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl text-slate-500" data-i18n="admin.tabs.cards">Site Cards</button>
-      <button onclick="toggleAdminTab('games')" id="adminTabGames" class="flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl text-slate-500" data-i18n="admin.tabs.games">Games</button>
-      <button onclick="toggleAdminTab('expel')" id="adminTabExpel" class="flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl text-slate-500" data-i18n="admin.tabs.expel">Expel</button>
-    </div>
-
-    <!-- ADMIN: COINS -->
-    <div id="adminCoins" class="space-y-6">
-      <h2 class="text-amber-600 text-xl font-black italic uppercase text-center" data-i18n="admin.coins.title">🐴 Horsey Dollars Editor</h2>
-      <div>
-        <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.coins.user">Lichess User</label>
-        <input type="text" id="targetUser" data-i18n-ph="admin.coins.userPh" placeholder="Username..." oninput="showSuggestions('targetUser', 'targetSuggestions')" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800">
-        <ul id="targetSuggestions" class="absolute z-20 w-full bg-white border border-slate-300 rounded-xl mt-1 hidden max-h-40 overflow-y-auto custom-scroll shadow-2xl"></ul>
-      </div>
-      <div>
-        <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.coins.total">Total Horsey Dollars</label>
-        <input type="number" id="targetVal" placeholder="0" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800">
-      </div>
-      <div>
-        <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.coins.reason">Reason</label>
-        <textarea id="targetReason" rows="2" data-i18n-ph="admin.coins.reasonPh" placeholder="Reason for Horsey Dollars..." class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm"></textarea>
-      </div>
-      <button onclick="executeAdminAction('coins')" class="btn-action w-full yellow-gradient text-white font-black py-5 rounded-2xl uppercase shadow-lg" data-i18n="admin.coins.button">Update User Horsey Dollars</button>
-    </div>
-
-    <!-- ADMIN: MARKETS -->
-    <div id="adminMarkets" class="hidden space-y-6">
-      <h2 class="text-amber-600 text-xl font-black italic uppercase text-center" data-i18n="admin.market.title">🏪 Market Editor</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.market.seller">Seller Name</label>
-          <input type="text" id="mktSeller" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm">
+      <!-- ========================================================
+           MARKET TAB
+           ======================================================== -->
+      <div id="marketsContent" class="hidden fade-in space-y-6">
+        <div class="p-4 bg-amber-50 border border-amber-300 rounded-2xl text-center mb-4">
+          <p class="text-amber-700 text-xs font-bold uppercase tracking-wider">
+            <span data-i18n="market.notice1">🛒 DM the seller to purchase and DM</span>
+            <span class="text-slate-800">@rajul_s</span>
+            <span data-i18n="market.notice2">to make it official.</span>
+          </p>
         </div>
-        <div>
-          <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.market.item">Item Name</label>
-          <input type="text" id="mktItem" data-i18n-ph="admin.market.itemPh" placeholder="Ex: Premium Lessons" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm">
+        <h3 class="text-center text-slate-800 font-black italic uppercase tracking-widest text-xl mb-4" data-i18n="market.title">🏪 Official Marketplace</h3>
+        <div id="marketList" class="grid grid-cols-1 gap-4 max-h-[500px] overflow-y-auto custom-scroll pr-2">
+          <p class="text-center text-slate-400 text-xs italic py-10" data-i18n="market.empty">No items available yet.</p>
         </div>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+      <!-- ========================================================
+           CARDS TAB
+           ======================================================== -->
+      <div id="cardsContent" class="hidden fade-in">
+        <h3 class="text-center text-slate-800 font-black italic uppercase tracking-widest text-xl mb-4" data-i18n="cards.title">📌 Team Information</h3>
+        <div id="memberCardsList" class="grid grid-cols-1 gap-4">
+          <p class="text-center text-slate-400 text-xs italic py-10" data-i18n="cards.empty">No cards available yet.</p>
+        </div>
+      </div>
+
+      <!-- ========================================================
+           GAMES TAB
+           ======================================================== -->
+      <div id="gamesContent" class="hidden fade-in">
+        <h3 class="text-center text-slate-800 font-black italic uppercase tracking-widest text-xl mb-6" data-i18n="games.title">🎮 Horsey Arcade</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          <!-- Game 1 -->
+          <div class="bg-slate-50 border-2 border-dashed border-amber-400 rounded-2xl p-6 flex flex-col items-center text-center">
+            <div class="text-5xl mb-3">🐴</div>
+            <h4 class="text-amber-700 font-black uppercase" data-i18n="games.g1.title">Catch Horsey!</h4>
+            <p class="text-slate-500 text-xs mt-2 mb-3" data-i18n="games.g1.desc">Click Horsey before he jumps away!</p>
+            <div class="game-play-area" id="gameArea1">
+              <div id="targetHorsey"
+                   class="interactive-target"
+                   style="top:100px;left:120px;font-size:55px;text-align:center;line-height:65px;">🐴</div>
+            </div>
+            <div class="bg-amber-100 text-amber-700 font-bold px-5 py-2 rounded-full mb-4" id="scoreDisplay1">Score: 0</div>
+            <button onclick="resetGame1()"
+                    class="btn-action yellow-gradient text-white font-black px-6 py-3 rounded-2xl uppercase text-sm"
+                    data-i18n="games.g1.button">Start / Reset</button>
+          </div>
+
+          <!-- Game 2 -->
+          <div class="bg-slate-50 border-2 border-dashed border-amber-400 rounded-2xl p-6 flex flex-col items-center text-center">
+            <div class="text-5xl mb-3">🎅🐴</div>
+            <h4 class="text-amber-700 font-black uppercase" data-i18n="games.g2.title">Santa Horsey's Drop</h4>
+            <p class="text-slate-500 text-xs mt-2 mb-3" data-i18n="games.g2.desc">Catch gifts 🎁, avoid bombs 💣</p>
+            <div class="game-play-area">
+              <canvas id="santaGameCanvas"></canvas>
+            </div>
+            <div class="bg-amber-100 text-amber-700 font-bold px-5 py-2 rounded-full mb-4" id="scoreDisplay2">Gifts: 0 | Lives: 3</div>
+            <button onclick="startSantaGame()"
+                    class="btn-action yellow-gradient text-white font-black px-6 py-3 rounded-2xl uppercase text-sm"
+                    data-i18n="games.g2.button">Play Game</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================================
+           EARNING RATES + LINKS
+           ======================================================== -->
+      <div class="space-y-4 border-t border-slate-200 pt-8 mt-10">
+
+        <div class="grid grid-cols-1 gap-3">
+          <a href="https://lichess.org/team/horseys-victims"
+             target="_blank"
+             class="inline-block w-full bg-amber-100 border border-amber-500 text-amber-700 font-black py-4 rounded-2xl uppercase tracking-widest text-sm text-center btn-action"
+             data-i18n="links.join">♞ Join Horsey's Victims on Lichess</a>
+          <a href="https://lichess.org/forum"
+             target="_blank"
+             class="inline-block w-full bg-red-100 border border-red-400 text-red-600 font-black py-4 rounded-2xl uppercase tracking-widest text-sm text-center btn-action"
+             data-i18n="links.report">🚩 Report Horsey Dollar Theft</a>
+        </div>
+
+        <div class="p-6 bg-amber-50 border-l-4 border-amber-500 rounded-r-2xl mt-4">
+          <h3 class="text-amber-700 font-black uppercase text-sm mb-3" data-i18n="claim.title">⚠️ Claim Horsey Dollars Rule</h3>
+          <p class="text-slate-700 text-sm leading-relaxed mb-4" data-i18n="claim.text">To add Horsey Dollars you must claim them to:</p>
+          <a href="https://lichess.org/msg/rajul_s"
+             target="_blank"
+             class="text-amber-700 font-bold hover:underline">@rajul_s</a>
+        </div>
+
+        <div class="pt-6">
+          <h3 class="text-slate-800 font-black uppercase italic tracking-widest text-center mb-6" data-i18n="earn.title">📈 How to Earn Horsey Dollars</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+
+            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+              <span class="text-2xl mb-2 block" data-i18n="earn.battles.title">⚔️ Team Battles</span>
+              <ul class="space-y-2 text-slate-600">
+                <li class="flex justify-between">
+                  <span data-i18n="earn.battles.rule">Every 3 points scored:</span>
+                  <b class="text-slate-800">+1 🐴</b>
+                </li>
+              </ul>
+            </div>
+
+            <div class="bg-amber-50 p-5 rounded-2xl border-2 border-amber-400">
+              <span class="text-2xl mb-2 block" data-i18n="earn.lmao.title">🔥 LMAO Team Fights</span>
+              <ul class="space-y-2 text-slate-600">
+                <li class="flex justify-between">
+                  <span data-i18n="earn.lmao.rule">Every 1 point scored:</span>
+                  <b class="text-amber-700">+1 🐴</b>
+                </li>
+              </ul>
+              <p class="text-amber-600 text-[10px] mt-2 italic font-bold" data-i18n="earn.lmao.special">SPECIAL EVENT RATIO</p>
+            </div>
+
+            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 col-span-1 md:col-span-2">
+              <span class="text-2xl mb-2 block" data-i18n="earn.recruit.title">👥 Recruitment</span>
+              <ul class="space-y-2 text-slate-600">
+                <li class="flex justify-between">
+                  <span data-i18n="earn.recruit.rule">Every 2 members added to the team:</span>
+                  <b class="text-slate-800">+1 🐴</b>
+                </li>
+              </ul>
+            </div>
+
+            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 col-span-1 md:col-span-2">
+              <span class="text-2xl mb-2 block" data-i18n="earn.titles.title">💎 Bonus Title Points</span>
+              <div class="grid grid-cols-2 gap-2 mt-3 text-slate-600">
+                <div class="flex justify-between"><span>ACM:</span> <b class="text-slate-800">+20 🐴</b></div>
+                <div class="flex justify-between"><span>AFM:</span> <b class="text-slate-800">+30 🐴</b></div>
+                <div class="flex justify-between"><span>AIM:</span> <b class="text-slate-800">+40 🐴</b></div>
+                <div class="flex justify-between"><span>AGM:</span> <b class="text-slate-800">+50 🐴</b></div>
+                <div class="flex justify-between"><span>NM / WNM:</span> <b class="text-slate-800">+60 🐴</b></div>
+                <div class="flex justify-between"><span>CM / WCM:</span> <b class="text-slate-800">+80 🐴</b></div>
+                <div class="flex justify-between"><span>FM / WFM:</span> <b class="text-slate-800">+100 🐴</b></div>
+                <div class="flex justify-between"><span>IM / WIM:</span> <b class="text-slate-800">+115 🐴</b></div>
+                <div class="flex justify-between"><span>GM / WGM:</span> <b class="text-slate-800">+130 🐴</b></div>
+              </div>
+              <p class="text-slate-500 mt-3 italic text-center text-xs" data-i18n="earn.titles.note">All claims must be sent to @rajul_s.</p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <button onclick="showScreen('roleScreen')"
+              class="mt-12 text-slate-400 hover:text-slate-800 text-[10px] uppercase font-bold tracking-[0.3em] w-full text-center"
+              data-i18n="member.return">← Return to Dashboard</button>
+    </div>
+
+    <!-- ============================================================
+         ADMIN LOGIN
+         ============================================================ -->
+    <div id="loginScreen" class="hidden main-card rounded-[2.5rem] p-10 text-center mt-8">
+      <h2 class="text-amber-600 text-xs font-black uppercase mb-8 tracking-widest" data-i18n="login.title">Authentication Required</h2>
+      <p id="errorLogin" class="text-red-500 text-[10px] font-bold mb-4 hidden" data-i18n="login.error">Access Denied: Invalid Key</p>
+      <input type="password"
+             id="adminPassInput"
+             data-i18n-ph="login.placeholder"
+             placeholder="Enter Admin Password..."
+             class="w-full bg-slate-50 border border-slate-300 p-5 rounded-2xl text-center outline-none focus:border-amber-500 mb-6 text-slate-800 text-xl">
+      <button onclick="verifyAdmin()"
+              class="btn-action yellow-gradient text-white font-black w-full py-5 rounded-2xl uppercase tracking-widest"
+              data-i18n="login.button">Login HORSEY DOLLARS ADMIN</button>
+      <button onclick="showScreen('roleScreen')"
+              class="mt-8 text-slate-400 text-[10px] font-bold uppercase"
+              data-i18n="login.cancel">Cancel</button>
+    </div>
+
+    <!-- ============================================================
+         ADMIN EDITOR
+         ============================================================ -->
+    <div id="adminEditor" class="hidden main-card rounded-[2.5rem] p-8 md:p-12 mt-8">
+
+      <!-- Admin tabs -->
+      <div class="flex flex-wrap justify-around gap-2 mb-10 bg-slate-100 p-2 rounded-2xl border border-slate-200">
+        <button onclick="toggleAdminTab('coins')"
+                id="adminTabCoins"
+                class="flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl bg-amber-600 text-white"
+                data-i18n="admin.tabs.coins">Manage Coins</button>
+        <button onclick="toggleAdminTab('markets')"
+                id="adminTabMarkets"
+                class="flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl text-slate-500"
+                data-i18n="admin.tabs.markets">Market</button>
+        <button onclick="toggleAdminTab('cards')"
+                id="adminTabCards"
+                class="flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl text-slate-500"
+                data-i18n="admin.tabs.cards">Site Cards</button>
+        <button onclick="toggleAdminTab('games')"
+                id="adminTabGames"
+                class="flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl text-slate-500"
+                data-i18n="admin.tabs.games">Games</button>
+        <button onclick="toggleAdminTab('expel')"
+                id="adminTabExpel"
+                class="flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl text-slate-500"
+                data-i18n="admin.tabs.expel">Expel</button>
+      </div>
+
+      <!-- ADMIN COINS -->
+      <div id="adminCoins" class="space-y-6">
+        <h2 class="text-amber-600 text-xl font-black italic uppercase text-center" data-i18n="admin.coins.title">🐴 Horsey Dollars Editor</h2>
         <div>
-          <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.market.price">Price (Horsey Dollars)</label>
-          <input type="number" id="mktPrice" placeholder="0" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm">
+          <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.coins.user">Lichess User</label>
+          <input type="text"
+                 id="targetUser"
+                 data-i18n-ph="admin.coins.userPh"
+                 placeholder="Username..."
+                 oninput="showSuggestions('targetUser', 'targetSuggestions')"
+                 class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800">
+          <ul id="targetSuggestions"
+              class="absolute z-20 w-full bg-white border border-slate-300 rounded-xl mt-1 hidden max-h-40 overflow-y-auto custom-scroll shadow-2xl"></ul>
         </div>
         <div>
-          <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.market.profile">Lichess Profile URL</label>
-          <input type="text" id="mktLichess" placeholder="https://lichess.org/@/..." class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm">
+          <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.coins.total">Total Horsey Dollars</label>
+          <input type="number"
+                 id="targetVal"
+                 placeholder="0"
+                 class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800">
         </div>
-      </div>
-      <div>
-        <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.market.desc">Item Description</label>
-        <textarea id="mktDesc" rows="3" data-i18n-ph="admin.market.descPh" placeholder="Describe the item..." class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm"></textarea>
-      </div>
-      <button onclick="executeAdminAction('markets')" class="btn-action w-full bg-amber-700 text-white font-black py-5 rounded-2xl uppercase shadow-lg" data-i18n="admin.market.button">Publish to Market</button>
-      <div class="border-t border-slate-200 pt-6 mt-6">
-        <h3 class="text-slate-500 font-black uppercase text-xs mb-4" data-i18n="admin.market.list">Current Listings</h3>
-        <div id="adminMarketList" class="grid grid-cols-1 gap-4 max-h-[400px] overflow-y-auto custom-scroll pr-2"></div>
-      </div>
-    </div>
-
-    <!-- ADMIN: SITE CARDS -->
-    <div id="adminCards" class="hidden space-y-6">
-      <h2 class="text-amber-600 text-xl font-black italic uppercase text-center" data-i18n="admin.cards.title">📌 Site Cards Editor</h2>
-      <p class="text-slate-500 text-xs text-center" data-i18n="admin.cards.hint">Create, edit, or delete info cards. HTML allowed!</p>
-
-      <input type="hidden" id="cardEditId" value="">
-
-      <div>
-        <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.cards.cardTitle">Card Title</label>
-        <input type="text" id="cardTitle" data-i18n-ph="admin.cards.cardTitlePh" placeholder="Ex: Welcome!" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm">
-      </div>
-      <div>
-        <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.cards.cardContent">Card Content (HTML allowed)</label>
-        <textarea id="cardContent" rows="6" placeholder="<p>Your <strong>HTML</strong> content here...</p>" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm font-mono"></textarea>
-      </div>
-      <div>
-        <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.cards.order">Display Order (lower = first)</label>
-        <input type="number" id="cardOrder" placeholder="0" value="0" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm">
-      </div>
-      <div class="flex gap-3">
-        <button onclick="saveCard()" id="cardSaveBtn" class="btn-action flex-1 yellow-gradient text-white font-black py-5 rounded-2xl uppercase shadow-lg" data-i18n="admin.cards.save">Create Card</button>
-        <button onclick="cancelCardEdit()" id="cardCancelBtn" class="hidden btn-action flex-1 bg-slate-300 text-slate-700 font-black py-5 rounded-2xl uppercase" data-i18n="admin.cancel">Cancel</button>
+        <div>
+          <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.coins.reason">Reason</label>
+          <textarea id="targetReason"
+                    rows="2"
+                    data-i18n-ph="admin.coins.reasonPh"
+                    placeholder="Reason for Horsey Dollars..."
+                    class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm"></textarea>
+        </div>
+        <button onclick="executeAdminAction('coins')"
+                class="btn-action w-full yellow-gradient text-white font-black py-5 rounded-2xl uppercase shadow-lg"
+                data-i18n="admin.coins.button">Update User Horsey Dollars</button>
       </div>
 
-      <div class="border-t border-slate-200 pt-6 mt-6">
-        <h3 class="text-slate-500 font-black uppercase text-xs mb-4" data-i18n="admin.cards.existing">Existing Cards</h3>
-        <div id="adminCardsList" class="grid grid-cols-1 gap-4 max-h-[500px] overflow-y-auto custom-scroll pr-2"></div>
-      </div>
-    </div>
-
-    <!-- ADMIN: GAMES EDITOR -->
-    <div id="adminGames" class="hidden space-y-6">
-      <h2 class="text-amber-600 text-xl font-black italic uppercase text-center" data-i18n="admin.games.title">🎮 Games Editor</h2>
-      <p class="text-slate-500 text-xs text-center" data-i18n="admin.games.hint">Edit the instructions/HTML that appears above each game in the Arcade section.</p>
-
-      <input type="hidden" id="gameEditId" value="">
-
-      <div>
-        <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.games.gameTitle">Game Title</label>
-        <input type="text" id="gameTitle" data-i18n-ph="admin.games.gameTitlePh" placeholder="Ex: Catch Horsey!" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm">
-      </div>
-      <div>
-        <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.games.icon">Game Icon (emoji)</label>
-        <input type="text" id="gameIcon" placeholder="🐴" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm">
-      </div>
-      <div>
-        <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.games.desc">Game Instructions (HTML allowed)</label>
-        <textarea id="gameDesc" rows="3" placeholder="<p>Click Horsey before he jumps away!</p>" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm font-mono"></textarea>
-      </div>
-      <div class="flex gap-3">
-        <button onclick="saveGame()" id="gameSaveBtn" class="btn-action flex-1 yellow-gradient text-white font-black py-5 rounded-2xl uppercase shadow-lg" data-i18n="admin.games.save">Create Game Info</button>
-        <button onclick="cancelGameEdit()" id="gameCancelBtn" class="hidden btn-action flex-1 bg-slate-300 text-slate-700 font-black py-5 rounded-2xl uppercase" data-i18n="admin.cancel">Cancel</button>
-      </div>
-
-      <div class="border-t border-slate-200 pt-6 mt-6">
-        <h3 class="text-slate-500 font-black uppercase text-xs mb-4" data-i18n="admin.games.existing">Existing Game Info</h3>
-        <div id="adminGamesList" class="grid grid-cols-1 gap-4 max-h-[500px] overflow-y-auto custom-scroll pr-2"></div>
-      </div>
-    </div>
-
-    <!-- ADMIN: EXPEL -->
-    <div id="adminExpel" class="hidden space-y-6">
-      <h2 class="text-red-500 text-xl font-black italic uppercase text-center" data-i18n="admin.expel.title">Expel Member</h2>
-      <p class="text-slate-500 text-xs text-center" data-i18n="admin.expel.hint">Remove a user and all their Horsey Dollars.</p>
-      <div>
-        <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.expel.user">Lichess Username</label>
-        <input type="text" id="expelUser" data-i18n-ph="admin.expel.userPh" placeholder="Username to expel..." class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-red-500 text-slate-800">
-      </div>
-      <button onclick="expelMember()" class="btn-action w-full bg-red-100 border border-red-500 text-red-600 font-black py-5 rounded-2xl uppercase shadow-lg" data-i18n="admin.expel.button">Expel Member</button>
-      <p id="expelFeedback" class="text-center text-[10px] font-bold uppercase tracking-widest h-4 text-red-500 mt-2"></p>
-    </div>
-
-    <p id="adminFeedback" class="text-center text-[10px] font-bold uppercase tracking-widest h-4 text-amber-600 mt-4"></p>
-    <button onclick="logoutAdmin()" class="mt-10 text-slate-400 text-[10px] font-bold w-full uppercase tracking-widest" data-i18n="admin.logout">Terminate Session</button>
-  </div>
-
-  <!-- FOOTER -->
-  <footer class="mt-16 text-center pb-12">
-    <p class="text-slate-400 text-[10px] tracking-[0.4em] uppercase font-bold">
-      <span data-i18n="footer.created">Created by</span>
-      <a href="https://lichess.org/@/GatoChess89" target="_blank" class="text-amber-600 font-black">@GatoChess89</a>
-    </p>
-  </footer>
-</div>
-
-<!-- ============================================ -->
-<!-- FIREBASE + I18N + APP LOGIC                    -->
-<!-- ============================================ -->
-<script type="module">
-  // ============================================================
-  //  FIREBASE CONFIGURATION
-  // ============================================================
-  const firebaseConfig = {
-    apiKey: "AIzaSyA_ZFD3mnWGxwX9eSvUkViqS_o95f1kFCQ",
-    authDomain: "horsey-victims.firebaseapp.com",
-    projectId: "horsey-victims",
-    storageBucket: "horsey-victims.firebasestorage.app",
-    messagingSenderId: "586530411765",
-    appId: "1:586530411765:web:374a728ed312a53566a1bc"
-  };
-  const appId = 'horsey-dollars-v1';
-
-  // ============================================================
-  //  IMPORTS
-  // ============================================================
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-  import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-  import {
-    getFirestore, doc, setDoc, getDoc, collection, onSnapshot,
-    addDoc, deleteDoc, updateDoc
-  } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-
-  signInAnonymously(auth).catch(err => console.error("Auth error:", err));
-
-  // ============================================================
-  //  TRANSLATIONS
-  // ============================================================
-  const translations = {
-    en: {
-      "setup.title": "HORSEY DOLLARS SETUP",
-      "setup.subtitle": "Create Admin Password",
-      "setup.placeholder": "New Password...",
-      "setup.button": "INITIALIZE SYSTEM",
-      "header.title": "Horsey's Victims",
-      "header.subtitle": "Official Horsey Dollars System",
-      "role.identify": "Identify Yourself",
-      "role.member": "Member Portal",
-      "role.admin": "HORSEY DOLLARS ADMIN",
-      "public.title": "📌 Team Info",
-      "member.tabs.coins": "🐴 Horsey Dollars",
-      "member.tabs.markets": "Official Market",
-      "member.tabs.cards": "Info Cards",
-      "member.tabs.games": "🎮 Games",
-      "coins.search": "Enter Lichess User...",
-      "coins.find": "Find Horsey Dollars",
-      "coins.leaderboard": "Leaderboard 🏆",
-      "coins.topHolders": "🏆 Top Horsey Holders",
-      "market.notice1": "🛒 DM the seller to purchase and DM",
-      "market.notice2": "to make it official.",
-      "market.title": "🏪 Official Marketplace",
-      "market.empty": "No items available yet.",
-      "cards.title": "📌 Team Information",
-      "cards.empty": "No cards available yet.",
-      "games.title": "🎮 Horsey Arcade",
-      "games.g1.title": "Catch Horsey!",
-      "games.g1.desc": "Click Horsey before he jumps away!",
-      "games.g1.button": "Start / Reset",
-      "games.g2.title": "Santa Horsey's Drop",
-      "games.g2.desc": "Catch gifts 🎁, avoid bombs 💣",
-      "games.g2.button": "Play Game",
-      "links.join": "♞ Join Horsey's Victims on Lichess",
-      "links.report": "🚩 Report Horsey Dollar Theft",
-      "claim.title": "⚠️ Claim Horsey Dollars Rule",
-      "claim.text": "To add Horsey Dollars you must claim them to:",
-      "earn.title": "📈 How to Earn Horsey Dollars",
-      "earn.battles.title": "⚔️ Team Battles",
-      "earn.battles.rule": "Every 3 points scored:",
-      "earn.lmao.title": "🔥 LMAO Team Fights",
-      "earn.lmao.rule": "Every 1 point scored:",
-      "earn.lmao.special": "SPECIAL EVENT RATIO",
-      "earn.recruit.title": "👥 Recruitment",
-      "earn.recruit.rule": "Every 2 members added to the team:",
-      "earn.titles.title": "💎 Bonus Title Points",
-      "earn.titles.note": "All claims must be sent to @rajul_s.",
-      "member.return": "← Return to Dashboard",
-      "login.title": "Authentication Required",
-      "login.error": "Access Denied: Invalid Key",
-      "login.placeholder": "Enter Admin Password...",
-      "login.button": "Login HORSEY DOLLARS ADMIN",
-      "login.cancel": "Cancel",
-      "admin.tabs.coins": "Manage Coins",
-      "admin.tabs.markets": "Market",
-      "admin.tabs.cards": "Site Cards",
-      "admin.tabs.games": "Games",
-      "admin.tabs.expel": "Expel",
-      "admin.cancel": "Cancel",
-      "admin.coins.title": "🐴 Horsey Dollars Editor",
-      "admin.coins.user": "Lichess User",
-      "admin.coins.userPh": "Username...",
-      "admin.coins.total": "Total Horsey Dollars",
-      "admin.coins.reason": "Reason",
-      "admin.coins.reasonPh": "Reason for Horsey Dollars...",
-      "admin.coins.button": "Update User Horsey Dollars",
-      "admin.market.title": "🏪 Market Editor",
-      "admin.market.seller": "Seller Name",
-      "admin.market.item": "Item Name",
-      "admin.market.itemPh": "Ex: Premium Lessons",
-      "admin.market.price": "Price (Horsey Dollars)",
-      "admin.market.profile": "Lichess Profile URL",
-      "admin.market.desc": "Item Description",
-      "admin.market.descPh": "Describe the item...",
-      "admin.market.button": "Publish to Market",
-      "admin.market.list": "Current Listings",
-      "admin.cards.title": "📌 Site Cards Editor",
-      "admin.cards.hint": "Create, edit, or delete info cards. HTML allowed!",
-      "admin.cards.cardTitle": "Card Title",
-      "admin.cards.cardTitlePh": "Ex: Welcome!",
-      "admin.cards.cardContent": "Card Content (HTML allowed)",
-      "admin.cards.order": "Display Order (lower = first)",
-      "admin.cards.save": "Create Card",
-      "admin.cards.existing": "Existing Cards",
-      "admin.games.title": "🎮 Games Editor",
-      "admin.games.hint": "Edit the instructions/HTML that appears above each game in the Arcade section.",
-      "admin.games.gameTitle": "Game Title",
-      "admin.games.gameTitlePh": "Ex: Catch Horsey!",
-      "admin.games.icon": "Game Icon (emoji)",
-      "admin.games.desc": "Game Instructions (HTML allowed)",
-      "admin.games.save": "Create Game Info",
-      "admin.games.existing": "Existing Game Info",
-      "admin.expel.title": "Expel Member",
-      "admin.expel.hint": "Remove a user and all their Horsey Dollars.",
-      "admin.expel.user": "Lichess Username",
-      "admin.expel.userPh": "Username to expel...",
-      "admin.expel.button": "Expel Member",
-      "admin.logout": "Terminate Session",
-      "footer.created": "Created by",
-      "js.score": "Score: ",
-      "js.gifts": "Gifts: ",
-      "js.lives": " | Lives: ",
-      "js.member": "Horsey's Victims Member.",
-      "js.notRegistered": "Account not registered in Horsey Dollars system.",
-      "js.accessing": "ACCESSING...",
-      "js.findCoins": "Find Horsey Dollars",
-      "js.finalGifts": "Final Gifts: ",
-      "js.gameOver": "GAME OVER",
-      "js.clickPlay": "Click \"Play Game\"",
-      "js.edit": "✏️ Edit",
-      "js.delete": "🗑 Delete",
-      "js.deleteCard": "Delete this card?",
-      "js.deleteGame": "Delete this game info?",
-      "js.deleteMarket": "Remove this market item?",
-      "js.editCard": "Update Card",
-      "js.createCard": "Create Card",
-      "js.editGame": "Update Game",
-      "js.createGame": "Create Game Info",
-      "js.userNotExist": "does not exist.",
-      "js.deleteUserConfirm": "Delete user and all their Horsey Dollars?",
-      "js.expelled": "expelled successfully.",
-      "js.enterUsername": "Enter a username.",
-      "js.checking": "Checking user...",
-      "js.expelling": "Expelling...",
-      "js.saving": "Saving...",
-      "js.cardUpdated": "Card updated!",
-      "js.cardCreated": "Card created!",
-      "js.gameUpdated": "Game updated!",
-      "js.gameCreated": "Game created!",
-      "js.titleContentRequired": "Title and content are required.",
-      "js.titleDescRequired": "Title and instructions are required.",
-      "js.uploading": "UPLOADING...",
-      "js.success": "SUCCESSFULLY UPDATED!",
-      "js.missingUser": "Missing User",
-      "js.missingMarket": "Missing Market Info",
-      "js.error": "Error: ",
-      "js.noItems": "No items available yet.",
-      "js.noCards": "No info cards yet.",
-      "js.noCardsMember": "No cards available yet.",
-      "js.noCardsAdmin": "No cards yet.",
-      "js.noGames": "No custom game info yet.",
-      "js.order": "Order: "
-    },
-    es: {
-      "setup.title": "CONFIGURACIÓN HORSEY DOLLARS",
-      "setup.subtitle": "Crear Contraseña de Admin",
-      "setup.placeholder": "Nueva Contraseña...",
-      "setup.button": "INICIALIZAR SISTEMA",
-      "header.title": "Horsey's Victims",
-      "header.subtitle": "Sistema Oficial de Horsey Dollars",
-      "role.identify": "Identifícate",
-      "role.member": "Portal de Miembros",
-      "role.admin": "ADMIN HORSEY DOLLARS",
-      "public.title": "📌 Información del Equipo",
-      "member.tabs.coins": "🐴 Horsey Dollars",
-      "member.tabs.markets": "Mercado Oficial",
-      "member.tabs.cards": "Tarjetas de Info",
-      "member.tabs.games": "🎮 Juegos",
-      "coins.search": "Ingresa usuario de Lichess...",
-      "coins.find": "Buscar Horsey Dollars",
-      "coins.leaderboard": "Clasificación 🏆",
-      "coins.topHolders": "🏆 Top de Horsey Dollars",
-      "market.notice1": "🛒 Envía DM al vendedor para comprar y DM a",
-      "market.notice2": "para hacerlo oficial.",
-      "market.title": "🏪 Mercado Oficial",
-      "market.empty": "No hay artículos disponibles aún.",
-      "cards.title": "📌 Información del Equipo",
-      "cards.empty": "No hay tarjetas disponibles aún.",
-      "games.title": "🎮 Arcade de Horsey",
-      "games.g1.title": "¡Atrapa a Horsey!",
-      "games.g1.desc": "¡Haz clic en Horsey antes de que salte!",
-      "games.g1.button": "Iniciar / Reiniciar",
-      "games.g2.title": "La Caída de Santa Horsey",
-      "games.g2.desc": "Atrapa regalos 🎁, evita bombas 💣",
-      "games.g2.button": "Jugar",
-      "links.join": "♞ Únete a Horsey's Victims en Lichess",
-      "links.report": "🚩 Reportar Robo de Horsey Dollars",
-      "claim.title": "⚠️ Regla de Reclamo de Horsey Dollars",
-      "claim.text": "Para agregar Horsey Dollars debes reclamarlos a:",
-      "earn.title": "📈 Cómo Ganar Horsey Dollars",
-      "earn.battles.title": "⚔️ Batallas de Equipo",
-      "earn.battles.rule": "Cada 3 puntos anotados:",
-      "earn.lmao.title": "🔥 Peleas LMAO",
-      "earn.lmao.rule": "Cada 1 punto anotado:",
-      "earn.lmao.special": "RATIO ESPECIAL DE EVENTO",
-      "earn.recruit.title": "👥 Reclutamiento",
-      "earn.recruit.rule": "Cada 2 miembros añadidos al equipo:",
-      "earn.titles.title": "💎 Puntos Extra por Título",
-      "earn.titles.note": "Todos los reclamos deben enviarse a @rajul_s.",
-      "member.return": "← Volver al Panel",
-      "login.title": "Autenticación Requerida",
-      "login.error": "Acceso Denegado: Clave Inválida",
-      "login.placeholder": "Ingresa la Contraseña de Admin...",
-      "login.button": "Iniciar ADMIN HORSEY DOLLARS",
-      "login.cancel": "Cancelar",
-      "admin.tabs.coins": "Gestionar Monedas",
-      "admin.tabs.markets": "Mercado",
-      "admin.tabs.cards": "Tarjetas del Sitio",
-      "admin.tabs.games": "Juegos",
-      "admin.tabs.expel": "Expulsar",
-      "admin.cancel": "Cancelar",
-      "admin.coins.title": "🐴 Editor de Horsey Dollars",
-      "admin.coins.user": "Usuario de Lichess",
-      "admin.coins.userPh": "Nombre de usuario...",
-      "admin.coins.total": "Total de Horsey Dollars",
-      "admin.coins.reason": "Razón",
-      "admin.coins.reasonPh": "Razón de los Horsey Dollars...",
-      "admin.coins.button": "Actualizar Horsey Dollars",
-      "admin.market.title": "🏪 Editor del Mercado",
-      "admin.market.seller": "Nombre del Vendedor",
-      "admin.market.item": "Nombre del Artículo",
-      "admin.market.itemPh": "Ej: Clases Premium",
-      "admin.market.price": "Precio (Horsey Dollars)",
-      "admin.market.profile": "URL de Perfil de Lichess",
-      "admin.market.desc": "Descripción del Artículo",
-      "admin.market.descPh": "Describe el artículo...",
-      "admin.market.button": "Publicar en el Mercado",
-      "admin.market.list": "Listados Actuales",
-      "admin.cards.title": "📌 Editor de Tarjetas",
-      "admin.cards.hint": "¡Crea, edita o elimina tarjetas de info. HTML permitido!",
-      "admin.cards.cardTitle": "Título de la Tarjeta",
-      "admin.cards.cardTitlePh": "Ej: ¡Bienvenido!",
-      "admin.cards.cardContent": "Contenido de la Tarjeta (HTML permitido)",
-      "admin.cards.order": "Orden de Visualización (menor = primero)",
-      "admin.cards.save": "Crear Tarjeta",
-      "admin.cards.existing": "Tarjetas Existentes",
-      "admin.games.title": "🎮 Editor de Juegos",
-      "admin.games.hint": "Edita las instrucciones/HTML que aparecen arriba de cada juego en el Arcade.",
-      "admin.games.gameTitle": "Título del Juego",
-      "admin.games.gameTitlePh": "Ej: ¡Atrapa a Horsey!",
-      "admin.games.icon": "Icono del Juego (emoji)",
-      "admin.games.desc": "Instrucciones del Juego (HTML permitido)",
-      "admin.games.save": "Crear Info del Juego",
-      "admin.games.existing": "Info de Juegos Existente",
-      "admin.expel.title": "Expulsar Miembro",
-      "admin.expel.hint": "Elimina un usuario y todos sus Horsey Dollars.",
-      "admin.expel.user": "Usuario de Lichess",
-      "admin.expel.userPh": "Usuario a expulsar...",
-      "admin.expel.button": "Expulsar Miembro",
-      "admin.logout": "Terminar Sesión",
-      "footer.created": "Creado por",
-      "js.score": "Puntuación: ",
-      "js.gifts": "Regalos: ",
-      "js.lives": " | Vidas: ",
-      "js.member": "Miembro de Horsey's Victims.",
-      "js.notRegistered": "Cuenta no registrada en el sistema de Horsey Dollars.",
-      "js.accessing": "ACCEDIENDO...",
-      "js.findCoins": "Buscar Horsey Dollars",
-      "js.finalGifts": "Regalos Finales: ",
-      "js.gameOver": "JUEGO TERMINADO",
-      "js.clickPlay": "Clic en \"Jugar\"",
-      "js.edit": "✏️ Editar",
-      "js.delete": "🗑 Borrar",
-      "js.deleteCard": "¿Eliminar esta tarjeta?",
-      "js.deleteGame": "¿Eliminar esta info de juego?",
-      "js.deleteMarket": "¿Quitar este artículo del mercado?",
-      "js.editCard": "Actualizar Tarjeta",
-      "js.createCard": "Crear Tarjeta",
-      "js.editGame": "Actualizar Juego",
-      "js.createGame": "Crear Info del Juego",
-      "js.userNotExist": "no existe.",
-      "js.deleteUserConfirm": "¿Eliminar usuario y todos sus Horsey Dollars?",
-      "js.expelled": "expulsado correctamente.",
-      "js.enterUsername": "Ingresa un usuario.",
-      "js.checking": "Verificando usuario...",
-      "js.expelling": "Expulsando...",
-      "js.saving": "Guardando...",
-      "js.cardUpdated": "¡Tarjeta actualizada!",
-      "js.cardCreated": "¡Tarjeta creada!",
-      "js.gameUpdated": "¡Juego actualizado!",
-      "js.gameCreated": "¡Juego creado!",
-      "js.titleContentRequired": "Se requiere título y contenido.",
-      "js.titleDescRequired": "Se requiere título e instrucciones.",
-      "js.uploading": "SUBIENDO...",
-      "js.success": "¡ACTUALIZADO CON ÉXITO!",
-      "js.missingUser": "Falta Usuario",
-      "js.missingMarket": "Falta Info del Mercado",
-      "js.error": "Error: ",
-      "js.noItems": "No hay artículos disponibles aún.",
-      "js.noCards": "No hay tarjetas de info aún.",
-      "js.noCardsMember": "No hay tarjetas disponibles aún.",
-      "js.noCardsAdmin": "No hay tarjetas aún.",
-      "js.noGames": "No hay info de juegos personalizada aún.",
-      "js.order": "Orden: "
-    },
-    ru: {
-      "setup.title": "НАСТРОЙКА HORSEY DOLLARS",
-      "setup.subtitle": "Создать Пароль Админа",
-      "setup.placeholder": "Новый Пароль...",
-      "setup.button": "ИНИЦИАЛИЗИРОВАТЬ СИСТЕМУ",
-      "header.title": "Horsey's Victims",
-      "header.subtitle": "Официальная Система Horsey Dollars",
-      "role.identify": "Идентифицируйте Себя",
-      "role.member": "Портал Участника",
-      "role.admin": "АДМИН HORSEY DOLLARS",
-      "public.title": "📌 Информация о Команде",
-      "member.tabs.coins": "🐴 Horsey Dollars",
-      "member.tabs.markets": "Официальный Рынок",
-      "member.tabs.cards": "Инфо-Карточки",
-      "member.tabs.games": "🎮 Игры",
-      "coins.search": "Введите пользователя Lichess...",
-      "coins.find": "Найти Horsey Dollars",
-      "coins.leaderboard": "Рейтинг 🏆",
-      "coins.topHolders": "🏆 Топ Держателей Horsey",
-      "market.notice1": "🛒 Напишите продавцу для покупки и напишите",
-      "market.notice2": "чтобы сделать это официальным.",
-      "market.title": "🏪 Официальный Рынок",
-      "market.empty": "Пока нет доступных товаров.",
-      "cards.title": "📌 Информация о Команде",
-      "cards.empty": "Пока нет доступных карточек.",
-      "games.title": "🎮 Аркада Horsey",
-      "games.g1.title": "Поймай Horsey!",
-      "games.g1.desc": "Кликните по Horsey до того как он ускачет!",
-      "games.g1.button": "Старт / Сброс",
-      "games.g2.title": "Падение Санты Horsey",
-      "games.g2.desc": "Ловите подарки 🎁, избегайте бомб 💣",
-      "games.g2.button": "Играть",
-      "links.join": "♞ Присоединиться к Horsey's Victims в Lichess",
-      "links.report": "🚩 Сообщить о Краже Horsey Dollars",
-      "claim.title": "⚠️ Правило Получения Horsey Dollars",
-      "claim.text": "Чтобы добавить Horsey Dollars, вы должны заявить их:",
-      "earn.title": "📈 Как Заработать Horsey Dollars",
-      "earn.battles.title": "⚔️ Командные Битвы",
-      "earn.battles.rule": "За каждые 3 очка:",
-      "earn.lmao.title": "🔥 Битвы LMAO",
-      "earn.lmao.rule": "За каждое 1 очко:",
-      "earn.lmao.special": "СПЕЦИАЛЬНОЕ СООТНОШЕНИЕ СОБЫТИЯ",
-      "earn.recruit.title": "👥 Набор",
-      "earn.recruit.rule": "За каждых 2 добавленных участников:",
-      "earn.titles.title": "💎 Бонусные Очки за Титул",
-      "earn.titles.note": "Все заявки должны быть отправлены @rajul_s.",
-      "member.return": "← Вернуться на Панель",
-      "login.title": "Требуется Аутентификация",
-      "login.error": "Доступ Запрещён: Неверный Ключ",
-      "login.placeholder": "Введите Пароль Админа...",
-      "login.button": "Войти в АДМИН HORSEY DOLLARS",
-      "login.cancel": "Отмена",
-      "admin.tabs.coins": "Управление Монетами",
-      "admin.tabs.markets": "Рынок",
-      "admin.tabs.cards": "Карточки Сайта",
-      "admin.tabs.games": "Игры",
-      "admin.tabs.expel": "Исключить",
-      "admin.cancel": "Отмена",
-      "admin.coins.title": "🐴 Редактор Horsey Dollars",
-      "admin.coins.user": "Пользователь Lichess",
-      "admin.coins.userPh": "Имя пользователя...",
-      "admin.coins.total": "Всего Horsey Dollars",
-      "admin.coins.reason": "Причина",
-      "admin.coins.reasonPh": "Причина Horsey Dollars...",
-      "admin.coins.button": "Обновить Horsey Dollars",
-      "admin.market.title": "🏪 Редактор Рынка",
-      "admin.market.seller": "Имя Продавца",
-      "admin.market.item": "Название Товара",
-      "admin.market.itemPh": "Напр: Премиум Уроки",
-      "admin.market.price": "Цена (Horsey Dollars)",
-      "admin.market.profile": "URL Профиля Lichess",
-      "admin.market.desc": "Описание Товара",
-      "admin.market.descPh": "Опишите товар...",
-      "admin.market.button": "Опубликовать на Рынке",
-      "admin.market.list": "Текущие Объявления",
-      "admin.cards.title": "📌 Редактор Карточек",
-      "admin.cards.hint": "Создавайте, редактируйте или удаляйте карточки. HTML разрешён!",
-      "admin.cards.cardTitle": "Заголовок Карточки",
-      "admin.cards.cardTitlePh": "Напр: Добро пожаловать!",
-      "admin.cards.cardContent": "Содержимое (HTML разрешён)",
-      "admin.cards.order": "Порядок (меньше = первый)",
-      "admin.cards.save": "Создать Карточку",
-      "admin.cards.existing": "Существующие Карточки",
-      "admin.games.title": "🎮 Редактор Игр",
-      "admin.games.hint": "Редактируйте инструкции/HTML над каждой игрой в Аркаде.",
-      "admin.games.gameTitle": "Название Игры",
-      "admin.games.gameTitlePh": "Напр: Поймай Horsey!",
-      "admin.games.icon": "Иконка Игры (эмодзи)",
-      "admin.games.desc": "Инструкции Игры (HTML разрешён)",
-      "admin.games.save": "Создать Инфо Игры",
-      "admin.games.existing": "Существующая Инфо Игр",
-      "admin.expel.title": "Исключить Участника",
-      "admin.expel.hint": "Удалить пользователя и все его Horsey Dollars.",
-      "admin.expel.user": "Имя Пользователя Lichess",
-      "admin.expel.userPh": "Пользователь для исключения...",
-      "admin.expel.button": "Исключить Участника",
-      "admin.logout": "Завершить Сессию",
-      "footer.created": "Создано",
-      "js.score": "Счёт: ",
-      "js.gifts": "Подарки: ",
-      "js.lives": " | Жизни: ",
-      "js.member": "Участник Horsey's Victims.",
-      "js.notRegistered": "Аккаунт не зарегистрирован в системе Horsey Dollars.",
-      "js.accessing": "ДОСТУП...",
-      "js.findCoins": "Найти Horsey Dollars",
-      "js.finalGifts": "Финальные Подарки: ",
-      "js.gameOver": "ИГРА ОКОНЧЕНА",
-      "js.clickPlay": "Нажмите \"Играть\"",
-      "js.edit": "✏️ Редактировать",
-      "js.delete": "🗑 Удалить",
-      "js.deleteCard": "Удалить эту карточку?",
-      "js.deleteGame": "Удалить инфо этой игры?",
-      "js.deleteMarket": "Убрать этот товар с рынка?",
-      "js.editCard": "Обновить Карточку",
-      "js.createCard": "Создать Карточку",
-      "js.editGame": "Обновить Игру",
-      "js.createGame": "Создать Инфо Игры",
-      "js.userNotExist": "не существует.",
-      "js.deleteUserConfirm": "Удалить пользователя и все его Horsey Dollars?",
-      "js.expelled": "успешно исключён.",
-      "js.enterUsername": "Введите имя пользователя.",
-      "js.checking": "Проверка пользователя...",
-      "js.expelling": "Исключение...",
-      "js.saving": "Сохранение...",
-      "js.cardUpdated": "Карточка обновлена!",
-      "js.cardCreated": "Карточка создана!",
-      "js.gameUpdated": "Игра обновлена!",
-      "js.gameCreated": "Игра создана!",
-      "js.titleContentRequired": "Требуется заголовок и содержимое.",
-      "js.titleDescRequired": "Требуется название и инструкции.",
-      "js.uploading": "ЗАГРУЗКА...",
-      "js.success": "УСПЕШНО ОБНОВЛЕНО!",
-      "js.missingUser": "Отсутствует Пользователь",
-      "js.missingMarket": "Отсутствует Инфо Рынка",
-      "js.error": "Ошибка: ",
-      "js.noItems": "Пока нет доступных товаров.",
-      "js.noCards": "Пока нет инфо-карточек.",
-      "js.noCardsMember": "Пока нет доступных карточек.",
-      "js.noCardsAdmin": "Пока нет карточек.",
-      "js.noGames": "Пока нет пользовательской инфо игр.",
-      "js.order": "Порядок: "
-    }
-  };
-
-  // ============================================================
-  //  I18N SYSTEM
-  // ============================================================
-  let currentLang = 'en';
-
-  function detectLanguage() {
-    const saved = localStorage.getItem('horsey_lang');
-    if (saved && ['en', 'es', 'ru'].includes(saved)) return saved;
-    const browserLang = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
-    if (browserLang.startsWith('es')) return 'es';
-    if (browserLang.startsWith('ru')) return 'ru';
-    return 'en';
-  }
-
-  function t(key) {
-    return (translations[currentLang] && translations[currentLang][key]) 
-        || (translations.en[key]) 
-        || key;
-  }
-
-  function applyTranslations() {
-    // Text content
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-      const key = el.getAttribute('data-i18n');
-      el.textContent = t(key);
-    });
-    // Placeholders
-    document.querySelectorAll('[data-i18n-ph]').forEach(el => {
-      const key = el.getAttribute('data-i18n-ph');
-      el.setAttribute('placeholder', t(key));
-    });
-    // HTML lang attribute
-    document.documentElement.lang = currentLang;
-    // Update language buttons
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-      if (btn.dataset.lang === currentLang) btn.classList.add('active');
-      else btn.classList.remove('active');
-    });
-    // Refresh dynamic content that contains translations
-    if (typeof renderPublicCards === 'function') {
-      renderPublicCards();
-      renderMemberCards();
-      renderAdminCards();
-      renderMemberMarket();
-      renderAdminMarket();
-      renderAdminGames();
-    }
-  }
-
-  window.setLanguage = function(lang) {
-    if (!['en', 'es', 'ru'].includes(lang)) return;
-    currentLang = lang;
-    localStorage.setItem('horsey_lang', lang);
-    applyTranslations();
-  };
-
-  // ============================================================
-  //  STATE
-  // ============================================================
-  let allUsersData = [];
-  let marketData = [];
-  let cardsData = [];
-  let gamesData = [];
-
-  // ============================================================
-  //  INIT
-  // ============================================================
-  currentLang = detectLanguage();
-  applyTranslations();
-
-  async function init() {
-    const snap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'config', 'admin'));
-    if (!snap.exists()) {
-      document.getElementById('setupBox').classList.remove('hidden');
-    } else {
-      document.getElementById('mainApp').classList.remove('hidden');
-      setupListeners();
-      setTimeout(() => {
-        initCatchHorsey();
-        initSantaGame();
-      }, 300);
-    }
-  }
-
-  function setupListeners() {
-    onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'scores'), (snap) => {
-      allUsersData = snap.docs.map(d => ({ id: d.id, name: d.id, ...d.data() }));
-    }, err => console.error(err));
-
-    onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'market'), (snap) => {
-      marketData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      renderMemberMarket();
-      renderAdminMarket();
-    }, err => console.error(err));
-
-    onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'cards'), (snap) => {
-      cardsData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      renderPublicCards();
-      renderMemberCards();
-      renderAdminCards();
-    }, err => console.error(err));
-
-    onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'games'), (snap) => {
-      gamesData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      renderAdminGames();
-    }, err => console.error(err));
-  }
-
-  // ============================================================
-  //  MARKET RENDER
-  // ============================================================
-  function renderMemberMarket() {
-    const c = document.getElementById('marketList');
-    if (!c) return;
-    if (marketData.length === 0) {
-      c.innerHTML = `<p class="text-center text-slate-400 text-xs italic py-10">${t('js.noItems')}</p>`;
-      return;
-    }
-    c.innerHTML = marketData.map(item => `
-      <div class="bg-slate-50 border border-slate-200 p-6 rounded-3xl space-y-3 shadow-sm">
-        <div class="flex justify-between items-start">
+      <!-- ADMIN MARKETS -->
+      <div id="adminMarkets" class="hidden space-y-6">
+        <h2 class="text-amber-600 text-xl font-black italic uppercase text-center" data-i18n="admin.market.title">🏪 Market Editor</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <h4 class="text-slate-800 font-black uppercase text-lg">${esc(item.item)}</h4>
-            <p class="text-amber-600 text-[10px] font-bold uppercase tracking-widest">${esc(item.seller)}</p>
+            <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.market.seller">Seller Name</label>
+            <input type="text" id="mktSeller"
+                   class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm">
           </div>
-          <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-black italic">${item.price} 🐴</span>
-        </div>
-        <p class="text-slate-600 text-sm leading-relaxed">${esc(item.description)}</p>
-        <div class="pt-4 border-t border-slate-200">
-          <a href="${item.profile}" target="_blank" class="text-amber-600 text-[10px] font-bold hover:underline italic">VIEW PROFILE</a>
-        </div>
-      </div>
-    `).join('');
-  }
-
-  function renderAdminMarket() {
-    const c = document.getElementById('adminMarketList');
-    if (!c) return;
-    if (marketData.length === 0) {
-      c.innerHTML = `<p class="text-center text-slate-400 text-xs italic py-10">${t('js.noItems')}</p>`;
-      return;
-    }
-    c.innerHTML = marketData.map(item => `
-      <div class="bg-slate-50 border border-slate-200 p-6 rounded-3xl space-y-3 shadow-sm">
-        <div class="flex justify-between items-start">
           <div>
-            <h4 class="text-slate-800 font-black uppercase text-lg">${esc(item.item)}</h4>
-            <p class="text-amber-600 text-[10px] font-bold uppercase tracking-widest">${esc(item.seller)}</p>
+            <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.market.item">Item Name</label>
+            <input type="text" id="mktItem"
+                   data-i18n-ph="admin.market.itemPh"
+                   placeholder="Ex: Premium Lessons"
+                   class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm">
           </div>
-          <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-black italic">${item.price} 🐴</span>
         </div>
-        <p class="text-slate-600 text-sm leading-relaxed">${esc(item.description)}</p>
-        <div class="pt-4 border-t border-slate-200 flex justify-between items-center">
-          <a href="${item.profile}" target="_blank" class="text-amber-600 text-[10px] font-bold hover:underline italic">VIEW PROFILE</a>
-          <button onclick="window.deleteMarketItem('${item.id}')" class="text-red-500 hover:text-red-600 text-[10px] font-bold uppercase">${t('js.delete')}</button>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.market.price">Price (Horsey Dollars)</label>
+            <input type="number" id="mktPrice"
+                   placeholder="0"
+                   class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm">
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.market.profile">Lichess Profile URL</label>
+            <input type="text" id="mktLichess"
+                   placeholder="https://lichess.org/@/..."
+                   class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm">
+          </div>
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.market.desc">Item Description</label>
+          <textarea id="mktDesc" rows="3"
+                    data-i18n-ph="admin.market.descPh"
+                    placeholder="Describe the item..."
+                    class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm"></textarea>
+        </div>
+        <button onclick="executeAdminAction('markets')"
+                class="btn-action w-full bg-amber-700 text-white font-black py-5 rounded-2xl uppercase shadow-lg"
+                data-i18n="admin.market.button">Publish to Market</button>
+
+        <div class="border-t border-slate-200 pt-6 mt-6">
+          <h3 class="text-slate-500 font-black uppercase text-xs mb-4" data-i18n="admin.market.list">Current Listings</h3>
+          <div id="adminMarketList" class="grid grid-cols-1 gap-4 max-h-[400px] overflow-y-auto custom-scroll pr-2"></div>
         </div>
       </div>
-    `).join('');
-  }
 
-  // ============================================================
-  //  CARDS RENDER
-  // ============================================================
-  function renderPublicCards() {
-    const c = document.getElementById('publicCardsList');
-    if (!c) return;
-    const sorted = [...cardsData].sort((a, b) => (a.order || 0) - (b.order || 0));
-    if (sorted.length === 0) {
-      c.innerHTML = `<p class="text-center text-slate-400 text-xs italic py-6 col-span-2">${t('js.noCards')}</p>`;
-      return;
-    }
-    c.innerHTML = sorted.map(card => `
-      <div class="site-card">
-        <h3>${esc(card.title)}</h3>
-        <div class="card-content">${card.content}</div>
-      </div>
-    `).join('');
-  }
+      <!-- ADMIN CARDS -->
+      <div id="adminCards" class="hidden space-y-6">
+        <h2 class="text-amber-600 text-xl font-black italic uppercase text-center" data-i18n="admin.cards.title">📌 Site Cards Editor</h2>
+        <p class="text-slate-500 text-xs text-center" data-i18n="admin.cards.hint">Create, edit, or delete info cards. HTML allowed!</p>
 
-  function renderMemberCards() {
-    const c = document.getElementById('memberCardsList');
-    if (!c) return;
-    const sorted = [...cardsData].sort((a, b) => (a.order || 0) - (b.order || 0));
-    if (sorted.length === 0) {
-      c.innerHTML = `<p class="text-center text-slate-400 text-xs italic py-10">${t('js.noCardsMember')}</p>`;
-      return;
-    }
-    c.innerHTML = sorted.map(card => `
-      <div class="site-card">
-        <h3>${esc(card.title)}</h3>
-        <div class="card-content">${card.content}</div>
-      </div>
-    `).join('');
-  }
+        <input type="hidden" id="cardEditId" value="">
 
-  function renderAdminCards() {
-    const c = document.getElementById('adminCardsList');
-    if (!c) return;
-    const sorted = [...cardsData].sort((a, b) => (a.order || 0) - (b.order || 0));
-    if (sorted.length === 0) {
-      c.innerHTML = `<p class="text-center text-slate-400 text-xs italic py-10">${t('js.noCardsAdmin')}</p>`;
-      return;
-    }
-    c.innerHTML = sorted.map(card => `
-      <div class="bg-slate-50 border border-slate-200 p-5 rounded-2xl">
-        <div class="flex justify-between items-start mb-2">
-          <h4 class="text-slate-800 font-black uppercase">${esc(card.title)}</h4>
-          <span class="text-[10px] text-slate-400 font-bold">${t('js.order')}${card.order || 0}</span>
+        <div>
+          <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.cards.cardTitle">Card Title</label>
+          <input type="text" id="cardTitle"
+                 data-i18n-ph="admin.cards.cardTitlePh"
+                 placeholder="Ex: Welcome!"
+                 class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm">
         </div>
-        <div class="text-slate-600 text-xs mb-3 max-h-20 overflow-hidden">${card.content}</div>
-        <div class="flex gap-3 pt-3 border-t border-slate-200">
-          <button onclick="window.editCard('${card.id}')" class="text-amber-600 hover:text-amber-700 text-[10px] font-bold uppercase">${t('js.edit')}</button>
-          <button onclick="window.deleteCard('${card.id}')" class="text-red-500 hover:text-red-600 text-[10px] font-bold uppercase">${t('js.delete')}</button>
+        <div>
+          <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.cards.cardContent">Card Content (HTML allowed)</label>
+          <textarea id="cardContent" rows="6"
+                    placeholder="<p>Your <strong>HTML</strong> content here...</p>"
+                    class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm font-mono"></textarea>
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.cards.order">Display Order (lower = first)</label>
+          <input type="number" id="cardOrder"
+                 placeholder="0" value="0"
+                 class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm">
+        </div>
+        <div class="flex gap-3">
+          <button onclick="saveCard()"
+                  id="cardSaveBtn"
+                  class="btn-action flex-1 yellow-gradient text-white font-black py-5 rounded-2xl uppercase shadow-lg"
+                  data-i18n="admin.cards.save">Create Card</button>
+          <button onclick="cancelCardEdit()"
+                  id="cardCancelBtn"
+                  class="hidden btn-action flex-1 bg-slate-300 text-slate-700 font-black py-5 rounded-2xl uppercase"
+                  data-i18n="admin.cancel">Cancel</button>
+        </div>
+
+        <div class="border-t border-slate-200 pt-6 mt-6">
+          <h3 class="text-slate-500 font-black uppercase text-xs mb-4" data-i18n="admin.cards.existing">Existing Cards</h3>
+          <div id="adminCardsList" class="grid grid-cols-1 gap-4 max-h-[500px] overflow-y-auto custom-scroll pr-2"></div>
         </div>
       </div>
-    `).join('');
-  }
 
-  // ============================================================
-  //  GAMES RENDER (admin)
-  // ============================================================
-  function renderAdminGames() {
-    const c = document.getElementById('adminGamesList');
-    if (!c) return;
-    if (gamesData.length === 0) {
-      c.innerHTML = `<p class="text-center text-slate-400 text-xs italic py-10">${t('js.noGames')}</p>`;
-      return;
-    }
-    c.innerHTML = gamesData.map(g => `
-      <div class="bg-slate-50 border border-slate-200 p-5 rounded-2xl">
-        <div class="flex justify-between items-start mb-2">
-          <h4 class="text-slate-800 font-black uppercase">${g.icon || '🐴'} ${esc(g.title)}</h4>
+      <!-- ADMIN GAMES -->
+      <div id="adminGames" class="hidden space-y-6">
+        <h2 class="text-amber-600 text-xl font-black italic uppercase text-center" data-i18n="admin.games.title">🎮 Games Editor</h2>
+        <p class="text-slate-500 text-xs text-center" data-i18n="admin.games.hint">Edit the instructions/HTML that appears above each game in the Arcade section.</p>
+
+        <input type="hidden" id="gameEditId" value="">
+
+        <div>
+          <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.games.gameTitle">Game Title</label>
+          <input type="text" id="gameTitle"
+                 data-i18n-ph="admin.games.gameTitlePh"
+                 placeholder="Ex: Catch Horsey!"
+                 class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm">
         </div>
-        <div class="text-slate-600 text-xs mb-3">${g.desc}</div>
-        <div class="flex gap-3 pt-3 border-t border-slate-200">
-          <button onclick="window.editGame('${g.id}')" class="text-amber-600 hover:text-amber-700 text-[10px] font-bold uppercase">${t('js.edit')}</button>
-          <button onclick="window.deleteGame('${g.id}')" class="text-red-500 hover:text-red-600 text-[10px] font-bold uppercase">${t('js.delete')}</button>
+        <div>
+          <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.games.icon">Game Icon (emoji)</label>
+          <input type="text" id="gameIcon"
+                 placeholder="🐴"
+                 class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm">
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.games.desc">Game Instructions (HTML allowed)</label>
+          <textarea id="gameDesc" rows="3"
+                    placeholder="<p>Click Horsey before he jumps away!</p>"
+                    class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm font-mono"></textarea>
+        </div>
+        <div class="flex gap-3">
+          <button onclick="saveGame()"
+                  id="gameSaveBtn"
+                  class="btn-action flex-1 yellow-gradient text-white font-black py-5 rounded-2xl uppercase shadow-lg"
+                  data-i18n="admin.games.save">Create Game Info</button>
+          <button onclick="cancelGameEdit()"
+                  id="gameCancelBtn"
+                  class="hidden btn-action flex-1 bg-slate-300 text-slate-700 font-black py-5 rounded-2xl uppercase"
+                  data-i18n="admin.cancel">Cancel</button>
+        </div>
+
+        <div class="border-t border-slate-200 pt-6 mt-6">
+          <h3 class="text-slate-500 font-black uppercase text-xs mb-4" data-i18n="admin.games.existing">Existing Game Info</h3>
+          <div id="adminGamesList" class="grid grid-cols-1 gap-4 max-h-[500px] overflow-y-auto custom-scroll pr-2"></div>
         </div>
       </div>
-    `).join('');
-  }
 
-  // ============================================================
-  //  CARD ACTIONS
-  // ============================================================
-  window.saveCard = async () => {
-    const fb = document.getElementById('adminFeedback');
-    const editId = document.getElementById('cardEditId').value;
-    const title = document.getElementById('cardTitle').value.trim();
-    const content = document.getElementById('cardContent').value.trim();
-    const order = parseInt(document.getElementById('cardOrder').value) || 0;
-    if (!title || !content) {
-      fb.innerText = t('js.titleContentRequired');
-      setTimeout(() => fb.innerText = "", 3000);
-      return;
-    }
-    fb.innerText = t('js.saving');
-    try {
-      if (editId) {
-        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'cards', editId), {
-          title, content, order, timestamp: Date.now()
-        });
-        fb.innerText = t('js.cardUpdated');
-      } else {
-        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'cards'), {
-          title, content, order, timestamp: Date.now()
-        });
-        fb.innerText = t('js.cardCreated');
+      <!-- ADMIN EXPEL -->
+      <div id="adminExpel" class="hidden space-y-6">
+        <h2 class="text-red-500 text-xl font-black italic uppercase text-center" data-i18n="admin.expel.title">Expel Member</h2>
+        <p class="text-slate-500 text-xs text-center" data-i18n="admin.expel.hint">Remove a user and all their Horsey Dollars.</p>
+        <div>
+          <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.expel.user">Lichess Username</label>
+          <input type="text" id="expelUser"
+                 data-i18n-ph="admin.expel.userPh"
+                 placeholder="Username to expel..."
+                 class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-red-500 text-slate-800">
+        </div>
+        <button onclick="expelMember()"
+                class="btn-action w-full bg-red-100 border border-red-500 text-red-600 font-black py-5 rounded-2xl uppercase shadow-lg"
+                data-i18n="admin.expel.button">Expel Member</button>
+        <p id="expelFeedback" class="text-center text-[10px] font-bold uppercase tracking-widest h-4 text-red-500 mt-2"></p>
+      </div>
+
+      <p id="adminFeedback" class="text-center text-[10px] font-bold uppercase tracking-widest h-4 text-amber-600 mt-4"></p>
+      <button onclick="logoutAdmin()"
+              class="mt-10 text-slate-400 text-[10px] font-bold w-full uppercase tracking-widest"
+              data-i18n="admin.logout">Terminate Session</button>
+    </div>
+
+    <!-- ============================================================
+         FOOTER
+         ============================================================ -->
+    <footer class="mt-16 text-center pb-12">
+      <p class="text-slate-400 text-[10px] tracking-[0.4em] uppercase font-bold">
+        <span data-i18n="footer.created">Created by</span>
+        <a href="https://lichess.org/@/GatoChess89"
+           target="_blank"
+           class="text-amber-600 font-black">@GatoChess89</a>
+      </p>
+    </footer>
+  </div>
+
+  <!-- ============================================================
+       JAVASCRIPT
+       ============================================================ -->
+  <script type="module">
+
+    // ============================================================
+    //  GLOBAL AUDIO CONTEXT
+    // ============================================================
+    let audioCtx = null;
+
+    // ============================================================
+    //  FIREBASE CONFIGURATION
+    // ============================================================
+    const firebaseConfig = {
+      apiKey: "AIzaSyA_ZFD3mnWGxwX9eSvUkViqS_o95f1kFCQ",
+      authDomain: "horsey-victims.firebaseapp.com",
+      projectId: "horsey-victims",
+      storageBucket: "horsey-victims.firebasestorage.app",
+      messagingSenderId: "586530411765",
+      appId: "1:586530411765:web:374a728ed312a53566a1bc"
+    };
+    const appId = 'horsey-dollars-v1';
+
+    // ============================================================
+    //  FIREBASE IMPORTS
+    // ============================================================
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      setDoc,
+      getDoc,
+      collection,
+      onSnapshot,
+      addDoc,
+      deleteDoc,
+      updateDoc
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    signInAnonymously(auth).catch(err => console.warn("Auth:", err.message));
+
+    // ============================================================
+    //  TRANSLATIONS
+    // ============================================================
+    const translations = {
+      en: {
+        "setup.title": "HORSEY DOLLARS SETUP",
+        "setup.subtitle": "Create Admin Password",
+        "setup.placeholder": "New Password...",
+        "setup.button": "INITIALIZE SYSTEM",
+        "header.title": "Horsey's Victims",
+        "header.subtitle": "Official Horsey Dollars System",
+        "role.identify": "Identify Yourself",
+        "role.member": "Member Portal",
+        "role.admin": "HORSEY DOLLARS ADMIN",
+        "public.title": "📌 Team Info",
+        "member.tabs.coins": "🐴 Horsey Dollars",
+        "member.tabs.markets": "Official Market",
+        "member.tabs.cards": "Info Cards",
+        "member.tabs.games": "🎮 Games",
+        "coins.search": "Enter Lichess User...",
+        "coins.find": "Find Horsey Dollars",
+        "coins.leaderboard": "Leaderboard 🏆",
+        "coins.topHolders": "🏆 Top Horsey Holders",
+        "market.notice1": "🛒 DM the seller to purchase and DM",
+        "market.notice2": "to make it official.",
+        "market.title": "🏪 Official Marketplace",
+        "market.empty": "No items available yet.",
+        "cards.title": "📌 Team Information",
+        "cards.empty": "No cards available yet.",
+        "games.title": "🎮 Horsey Arcade",
+        "games.g1.title": "Catch Horsey!",
+        "games.g1.desc": "Click Horsey before he jumps away!",
+        "games.g1.button": "Start / Reset",
+        "games.g2.title": "Santa Horsey's Drop",
+        "games.g2.desc": "Catch gifts 🎁, avoid bombs 💣",
+        "games.g2.button": "Play Game",
+        "links.join": "♞ Join Horsey's Victims on Lichess",
+        "links.report": "🚩 Report Horsey Dollar Theft",
+        "claim.title": "⚠️ Claim Horsey Dollars Rule",
+        "claim.text": "To add Horsey Dollars you must claim them to:",
+        "earn.title": "📈 How to Earn Horsey Dollars",
+        "earn.battles.title": "⚔️ Team Battles",
+        "earn.battles.rule": "Every 3 points scored:",
+        "earn.lmao.title": "🔥 LMAO Team Fights",
+        "earn.lmao.rule": "Every 1 point scored:",
+        "earn.lmao.special": "SPECIAL EVENT RATIO",
+        "earn.recruit.title": "👥 Recruitment",
+        "earn.recruit.rule": "Every 2 members added to the team:",
+        "earn.titles.title": "💎 Bonus Title Points",
+        "earn.titles.note": "All claims must be sent to @rajul_s.",
+        "member.return": "← Return to Dashboard",
+        "login.title": "Authentication Required",
+        "login.error": "Access Denied: Invalid Key",
+        "login.placeholder": "Enter Admin Password...",
+        "login.button": "Login HORSEY DOLLARS ADMIN",
+        "login.cancel": "Cancel",
+        "admin.tabs.coins": "Manage Coins",
+        "admin.tabs.markets": "Market",
+        "admin.tabs.cards": "Site Cards",
+        "admin.tabs.games": "Games",
+        "admin.tabs.expel": "Expel",
+        "admin.cancel": "Cancel",
+        "admin.coins.title": "🐴 Horsey Dollars Editor",
+        "admin.coins.user": "Lichess User",
+        "admin.coins.userPh": "Username...",
+        "admin.coins.total": "Total Horsey Dollars",
+        "admin.coins.reason": "Reason",
+        "admin.coins.reasonPh": "Reason for Horsey Dollars...",
+        "admin.coins.button": "Update User Horsey Dollars",
+        "admin.market.title": "🏪 Market Editor",
+        "admin.market.seller": "Seller Name",
+        "admin.market.item": "Item Name",
+        "admin.market.itemPh": "Ex: Premium Lessons",
+        "admin.market.price": "Price (Horsey Dollars)",
+        "admin.market.profile": "Lichess Profile URL",
+        "admin.market.desc": "Item Description",
+        "admin.market.descPh": "Describe the item...",
+        "admin.market.button": "Publish to Market",
+        "admin.market.list": "Current Listings",
+        "admin.cards.title": "📌 Site Cards Editor",
+        "admin.cards.hint": "Create, edit, or delete info cards. HTML allowed!",
+        "admin.cards.cardTitle": "Card Title",
+        "admin.cards.cardTitlePh": "Ex: Welcome!",
+        "admin.cards.cardContent": "Card Content (HTML allowed)",
+        "admin.cards.order": "Display Order (lower = first)",
+        "admin.cards.save": "Create Card",
+        "admin.cards.existing": "Existing Cards",
+        "admin.games.title": "🎮 Games Editor",
+        "admin.games.hint": "Edit the instructions/HTML that appears above each game in the Arcade section.",
+        "admin.games.gameTitle": "Game Title",
+        "admin.games.gameTitlePh": "Ex: Catch Horsey!",
+        "admin.games.icon": "Game Icon (emoji)",
+        "admin.games.desc": "Game Instructions (HTML allowed)",
+        "admin.games.save": "Create Game Info",
+        "admin.games.existing": "Existing Game Info",
+        "admin.expel.title": "Expel Member",
+        "admin.expel.hint": "Remove a user and all their Horsey Dollars.",
+        "admin.expel.user": "Lichess Username",
+        "admin.expel.userPh": "Username to expel...",
+        "admin.expel.button": "Expel Member",
+        "admin.logout": "Terminate Session",
+        "footer.created": "Created by",
+        "js.score": "Score: ",
+        "js.gifts": "Gifts: ",
+        "js.lives": " | Lives: ",
+        "js.member": "Horsey's Victims Member.",
+        "js.notRegistered": "Account not registered in Horsey Dollars system.",
+        "js.accessing": "ACCESSING...",
+        "js.findCoins": "Find Horsey Dollars",
+        "js.finalGifts": "Final Gifts: ",
+        "js.gameOver": "GAME OVER",
+        "js.clickPlay": "Click \"Play Game\"",
+        "js.edit": "✏️ Edit",
+        "js.delete": "🗑 Delete",
+        "js.deleteCard": "Delete this card?",
+        "js.deleteGame": "Delete this game info?",
+        "js.deleteMarket": "Remove this market item?",
+        "js.editCard": "Update Card",
+        "js.createCard": "Create Card",
+        "js.editGame": "Update Game",
+        "js.createGame": "Create Game Info",
+        "js.userNotExist": "does not exist.",
+        "js.deleteUserConfirm": "Delete user and all their Horsey Dollars?",
+        "js.expelled": "expelled successfully.",
+        "js.enterUsername": "Enter a username.",
+        "js.checking": "Checking user...",
+        "js.expelling": "Expelling...",
+        "js.saving": "Saving...",
+        "js.cardUpdated": "Card updated!",
+        "js.cardCreated": "Card created!",
+        "js.gameUpdated": "Game updated!",
+        "js.gameCreated": "Game created!",
+        "js.titleContentRequired": "Title and content are required.",
+        "js.titleDescRequired": "Title and instructions are required.",
+        "js.uploading": "UPLOADING...",
+        "js.success": "SUCCESSFULLY UPDATED!",
+        "js.missingUser": "Missing User",
+        "js.missingMarket": "Missing Market Info",
+        "js.error": "Error: ",
+        "js.noItems": "No items available yet.",
+        "js.noCards": "No info cards yet.",
+        "js.noCardsMember": "No cards available yet.",
+        "js.noCardsAdmin": "No cards yet.",
+        "js.noGames": "No custom game info yet.",
+        "js.order": "Order: "
+      },
+
+      es: {
+        "setup.title": "CONFIGURACIÓN HORSEY DOLLARS",
+        "setup.subtitle": "Crear Contraseña de Admin",
+        "setup.placeholder": "Nueva Contraseña...",
+        "setup.button": "INICIALIZAR SISTEMA",
+        "header.title": "Horsey's Victims",
+        "header.subtitle": "Sistema Oficial de Horsey Dollars",
+        "role.identify": "Identifícate",
+        "role.member": "Portal de Miembros",
+        "role.admin": "ADMIN HORSEY DOLLARS",
+        "public.title": "📌 Información del Equipo",
+        "member.tabs.coins": "🐴 Horsey Dollars",
+        "member.tabs.markets": "Mercado Oficial",
+        "member.tabs.cards": "Tarjetas de Info",
+        "member.tabs.games": "🎮 Juegos",
+        "coins.search": "Ingresa usuario de Lichess...",
+        "coins.find": "Buscar Horsey Dollars",
+        "coins.leaderboard": "Clasificación 🏆",
+        "coins.topHolders": "🏆 Top de Horsey Dollars",
+        "market.notice1": "🛒 Envía DM al vendedor para comprar y DM a",
+        "market.notice2": "para hacerlo oficial.",
+        "market.title": "🏪 Mercado Oficial",
+        "market.empty": "No hay artículos disponibles aún.",
+        "cards.title": "📌 Información del Equipo",
+        "cards.empty": "No hay tarjetas disponibles aún.",
+        "games.title": "🎮 Arcade de Horsey",
+        "games.g1.title": "¡Atrapa a Horsey!",
+        "games.g1.desc": "¡Haz clic en Horsey antes de que salte!",
+        "games.g1.button": "Iniciar / Reiniciar",
+        "games.g2.title": "La Caída de Santa Horsey",
+        "games.g2.desc": "Atrapa regalos 🎁, evita bombas 💣",
+        "games.g2.button": "Jugar",
+        "links.join": "♞ Únete a Horsey's Victims en Lichess",
+        "links.report": "🚩 Reportar Robo de Horsey Dollars",
+        "claim.title": "⚠️ Regla de Reclamo de Horsey Dollars",
+        "claim.text": "Para agregar Horsey Dollars debes reclamarlos a:",
+        "earn.title": "📈 Cómo Ganar Horsey Dollars",
+        "earn.battles.title": "⚔️ Batallas de Equipo",
+        "earn.battles.rule": "Cada 3 puntos anotados:",
+        "earn.lmao.title": "🔥 Peleas LMAO",
+        "earn.lmao.rule": "Cada 1 punto anotado:",
+        "earn.lmao.special": "RATIO ESPECIAL DE EVENTO",
+        "earn.recruit.title": "👥 Reclutamiento",
+        "earn.recruit.rule": "Cada 2 miembros añadidos al equipo:",
+        "earn.titles.title": "💎 Puntos Extra por Título",
+        "earn.titles.note": "Todos los reclamos deben enviarse a @rajul_s.",
+        "member.return": "← Volver al Panel",
+        "login.title": "Autenticación Requerida",
+        "login.error": "Acceso Denegado: Clave Inválida",
+        "login.placeholder": "Ingresa la Contraseña de Admin...",
+        "login.button": "Iniciar ADMIN HORSEY DOLLARS",
+        "login.cancel": "Cancelar",
+        "admin.tabs.coins": "Gestionar Monedas",
+        "admin.tabs.markets": "Mercado",
+        "admin.tabs.cards": "Tarjetas del Sitio",
+        "admin.tabs.games": "Juegos",
+        "admin.tabs.expel": "Expulsar",
+        "admin.cancel": "Cancelar",
+        "admin.coins.title": "🐴 Editor de Horsey Dollars",
+        "admin.coins.user": "Usuario de Lichess",
+        "admin.coins.userPh": "Nombre de usuario...",
+        "admin.coins.total": "Total de Horsey Dollars",
+        "admin.coins.reason": "Razón",
+        "admin.coins.reasonPh": "Razón de los Horsey Dollars...",
+        "admin.coins.button": "Actualizar Horsey Dollars",
+        "admin.market.title": "🏪 Editor del Mercado",
+        "admin.market.seller": "Nombre del Vendedor",
+        "admin.market.item": "Nombre del Artículo",
+        "admin.market.itemPh": "Ej: Clases Premium",
+        "admin.market.price": "Precio (Horsey Dollars)",
+        "admin.market.profile": "URL de Perfil de Lichess",
+        "admin.market.desc": "Descripción del Artículo",
+        "admin.market.descPh": "Describe el artículo...",
+        "admin.market.button": "Publicar en el Mercado",
+        "admin.market.list": "Listados Actuales",
+        "admin.cards.title": "📌 Editor de Tarjetas",
+        "admin.cards.hint": "¡Crea, edita o elimina tarjetas de info. HTML permitido!",
+        "admin.cards.cardTitle": "Título de la Tarjeta",
+        "admin.cards.cardTitlePh": "Ej: ¡Bienvenido!",
+        "admin.cards.cardContent": "Contenido de la Tarjeta (HTML permitido)",
+        "admin.cards.order": "Orden de Visualización (menor = primero)",
+        "admin.cards.save": "Crear Tarjeta",
+        "admin.cards.existing": "Tarjetas Existentes",
+        "admin.games.title": "🎮 Editor de Juegos",
+        "admin.games.hint": "Edita las instrucciones/HTML que aparecen arriba de cada juego en el Arcade.",
+        "admin.games.gameTitle": "Título del Juego",
+        "admin.games.gameTitlePh": "Ej: ¡Atrapa a Horsey!",
+        "admin.games.icon": "Icono del Juego (emoji)",
+        "admin.games.desc": "Instrucciones del Juego (HTML permitido)",
+        "admin.games.save": "Crear Info del Juego",
+        "admin.games.existing": "Info de Juegos Existente",
+        "admin.expel.title": "Expulsar Miembro",
+        "admin.expel.hint": "Elimina un usuario y todos sus Horsey Dollars.",
+        "admin.expel.user": "Usuario de Lichess",
+        "admin.expel.userPh": "Usuario a expulsar...",
+        "admin.expel.button": "Expulsar Miembro",
+        "admin.logout": "Terminar Sesión",
+        "footer.created": "Creado por",
+        "js.score": "Puntuación: ",
+        "js.gifts": "Regalos: ",
+        "js.lives": " | Vidas: ",
+        "js.member": "Miembro de Horsey's Victims.",
+        "js.notRegistered": "Cuenta no registrada en el sistema de Horsey Dollars.",
+        "js.accessing": "ACCEDIENDO...",
+        "js.findCoins": "Buscar Horsey Dollars",
+        "js.finalGifts": "Regalos Finales: ",
+        "js.gameOver": "JUEGO TERMINADO",
+        "js.clickPlay": "Clic en \"Jugar\"",
+        "js.edit": "✏️ Editar",
+        "js.delete": "🗑 Borrar",
+        "js.deleteCard": "¿Eliminar esta tarjeta?",
+        "js.deleteGame": "¿Eliminar esta info de juego?",
+        "js.deleteMarket": "¿Quitar este artículo del mercado?",
+        "js.editCard": "Actualizar Tarjeta",
+        "js.createCard": "Crear Tarjeta",
+        "js.editGame": "Actualizar Juego",
+        "js.createGame": "Crear Info del Juego",
+        "js.userNotExist": "no existe.",
+        "js.deleteUserConfirm": "¿Eliminar usuario y todos sus Horsey Dollars?",
+        "js.expelled": "expulsado correctamente.",
+        "js.enterUsername": "Ingresa un usuario.",
+        "js.checking": "Verificando usuario...",
+        "js.expelling": "Expulsando...",
+        "js.saving": "Guardando...",
+        "js.cardUpdated": "¡Tarjeta actualizada!",
+        "js.cardCreated": "¡Tarjeta creada!",
+        "js.gameUpdated": "¡Juego actualizado!",
+        "js.gameCreated": "¡Juego creado!",
+        "js.titleContentRequired": "Se requiere título y contenido.",
+        "js.titleDescRequired": "Se requiere título e instrucciones.",
+        "js.uploading": "SUBIENDO...",
+        "js.success": "¡ACTUALIZADO CON ÉXITO!",
+        "js.missingUser": "Falta Usuario",
+        "js.missingMarket": "Falta Info del Mercado",
+        "js.error": "Error: ",
+        "js.noItems": "No hay artículos disponibles aún.",
+        "js.noCards": "No hay tarjetas de info aún.",
+        "js.noCardsMember": "No hay tarjetas disponibles aún.",
+        "js.noCardsAdmin": "No hay tarjetas aún.",
+        "js.noGames": "No hay info de juegos personalizada aún.",
+        "js.order": "Orden: "
+      },
+
+      ru: {
+        "setup.title": "НАСТРОЙКА HORSEY DOLLARS",
+        "setup.subtitle": "Создать Пароль Админа",
+        "setup.placeholder": "Новый Пароль...",
+        "setup.button": "ИНИЦИАЛИЗИРОВАТЬ СИСТЕМУ",
+        "header.title": "Horsey's Victims",
+        "header.subtitle": "Официальная Система Horsey Dollars",
+        "role.identify": "Идентифицируйте Себя",
+        "role.member": "Портал Участника",
+        "role.admin": "АДМИН HORSEY DOLLARS",
+        "public.title": "📌 Информация о Команде",
+        "member.tabs.coins": "🐴 Horsey Dollars",
+        "member.tabs.markets": "Официальный Рынок",
+        "member.tabs.cards": "Инфо-Карточки",
+        "member.tabs.games": "🎮 Игры",
+        "coins.search": "Введите пользователя Lichess...",
+        "coins.find": "Найти Horsey Dollars",
+        "coins.leaderboard": "Рейтинг 🏆",
+        "coins.topHolders": "🏆 Топ Держателей Horsey",
+        "market.notice1": "🛒 Напишите продавцу для покупки и напишите",
+        "market.notice2": "чтобы сделать это официальным.",
+        "market.title": "🏪 Официальный Рынок",
+        "market.empty": "Пока нет доступных товаров.",
+        "cards.title": "📌 Информация о Команде",
+        "cards.empty": "Пока нет доступных карточек.",
+        "games.title": "🎮 Аркада Horsey",
+        "games.g1.title": "Поймай Horsey!",
+        "games.g1.desc": "Кликните по Horsey до того как он ускачет!",
+        "games.g1.button": "Старт / Сброс",
+        "games.g2.title": "Падение Санты Horsey",
+        "games.g2.desc": "Ловите подарки 🎁, избегайте бомб 💣",
+        "games.g2.button": "Играть",
+        "links.join": "♞ Присоединиться к Horsey's Victims в Lichess",
+        "links.report": "🚩 Сообщить о Краже Horsey Dollars",
+        "claim.title": "⚠️ Правило Получения Horsey Dollars",
+        "claim.text": "Чтобы добавить Horsey Dollars, вы должны заявить их:",
+        "earn.title": "📈 Как Заработать Horsey Dollars",
+        "earn.battles.title": "⚔️ Командные Битвы",
+        "earn.battles.rule": "За каждые 3 очка:",
+        "earn.lmao.title": "🔥 Битвы LMAO",
+        "earn.lmao.rule": "За каждое 1 очко:",
+        "earn.lmao.special": "СПЕЦИАЛЬНОЕ СООТНОШЕНИЕ СОБЫТИЯ",
+        "earn.recruit.title": "👥 Набор",
+        "earn.recruit.rule": "За каждых 2 добавленных участников:",
+        "earn.titles.title": "💎 Бонусные Очки за Титул",
+        "earn.titles.note": "Все заявки должны быть отправлены @rajul_s.",
+        "member.return": "← Вернуться на Панель",
+        "login.title": "Требуется Аутентификация",
+        "login.error": "Доступ Запрещён: Неверный Ключ",
+        "login.placeholder": "Введите Пароль Админа...",
+        "login.button": "Войти в АДМИН HORSEY DOLLARS",
+        "login.cancel": "Отмена",
+        "admin.tabs.coins": "Управление Монетами",
+        "admin.tabs.markets": "Рынок",
+        "admin.tabs.cards": "Карточки Сайта",
+        "admin.tabs.games": "Игры",
+        "admin.tabs.expel": "Исключить",
+        "admin.cancel": "Отмена",
+        "admin.coins.title": "🐴 Редактор Horsey Dollars",
+        "admin.coins.user": "Пользователь Lichess",
+        "admin.coins.userPh": "Имя пользователя...",
+        "admin.coins.total": "Всего Horsey Dollars",
+        "admin.coins.reason": "Причина",
+        "admin.coins.reasonPh": "Причина Horsey Dollars...",
+        "admin.coins.button": "Обновить Horsey Dollars",
+        "admin.market.title": "🏪 Редактор Рынка",
+        "admin.market.seller": "Имя Продавца",
+        "admin.market.item": "Название Товара",
+        "admin.market.itemPh": "Напр: Премиум Уроки",
+        "admin.market.price": "Цена (Horsey Dollars)",
+        "admin.market.profile": "URL Профиля Lichess",
+        "admin.market.desc": "Описание Товара",
+        "admin.market.descPh": "Опишите товар...",
+        "admin.market.button": "Опубликовать на Рынке",
+        "admin.market.list": "Текущие Объявления",
+        "admin.cards.title": "📌 Редактор Карточек",
+        "admin.cards.hint": "Создавайте, редактируйте или удаляйте карточки. HTML разрешён!",
+        "admin.cards.cardTitle": "Заголовок Карточки",
+        "admin.cards.cardTitlePh": "Напр: Добро пожаловать!",
+        "admin.cards.cardContent": "Содержимое (HTML разрешён)",
+        "admin.cards.order": "Порядок (меньше = первый)",
+        "admin.cards.save": "Создать Карточку",
+        "admin.cards.existing": "Существующие Карточки",
+        "admin.games.title": "🎮 Редактор Игр",
+        "admin.games.hint": "Редактируйте инструкции/HTML над каждой игрой в Аркаде.",
+        "admin.games.gameTitle": "Название Игры",
+        "admin.games.gameTitlePh": "Напр: Поймай Horsey!",
+        "admin.games.icon": "Иконка Игры (эмодзи)",
+        "admin.games.desc": "Инструкции Игры (HTML разрешён)",
+        "admin.games.save": "Создать Инфо Игры",
+        "admin.games.existing": "Существующая Инфо Игр",
+        "admin.expel.title": "Исключить Участника",
+        "admin.expel.hint": "Удалить пользователя и все его Horsey Dollars.",
+        "admin.expel.user": "Имя Пользователя Lichess",
+        "admin.expel.userPh": "Пользователь для исключения...",
+        "admin.expel.button": "Исключить Участника",
+        "admin.logout": "Завершить Сессию",
+        "footer.created": "Создано",
+        "js.score": "Счёт: ",
+        "js.gifts": "Подарки: ",
+        "js.lives": " | Жизни: ",
+        "js.member": "Участник Horsey's Victims.",
+        "js.notRegistered": "Аккаунт не зарегистрирован в системе Horsey Dollars.",
+        "js.accessing": "ДОСТУП...",
+        "js.findCoins": "Найти Horsey Dollars",
+        "js.finalGifts": "Финальные Подарки: ",
+        "js.gameOver": "ИГРА ОКОНЧЕНА",
+        "js.clickPlay": "Нажмите \"Играть\"",
+        "js.edit": "✏️ Редактировать",
+        "js.delete": "🗑 Удалить",
+        "js.deleteCard": "Удалить эту карточку?",
+        "js.deleteGame": "Удалить инфо этой игры?",
+        "js.deleteMarket": "Убрать этот товар с рынка?",
+        "js.editCard": "Обновить Карточку",
+        "js.createCard": "Создать Карточку",
+        "js.editGame": "Обновить Игру",
+        "js.createGame": "Создать Инфо Игры",
+        "js.userNotExist": "не существует.",
+        "js.deleteUserConfirm": "Удалить пользователя и все его Horsey Dollars?",
+        "js.expelled": "успешно исключён.",
+        "js.enterUsername": "Введите имя пользователя.",
+        "js.checking": "Проверка пользователя...",
+        "js.expelling": "Исключение...",
+        "js.saving": "Сохранение...",
+        "js.cardUpdated": "Карточка обновлена!",
+        "js.cardCreated": "Карточка создана!",
+        "js.gameUpdated": "Игра обновлена!",
+        "js.gameCreated": "Игра создана!",
+        "js.titleContentRequired": "Требуется заголовок и содержимое.",
+        "js.titleDescRequired": "Требуется название и инструкции.",
+        "js.uploading": "ЗАГРУЗКА...",
+        "js.success": "УСПЕШНО ОБНОВЛЕНО!",
+        "js.missingUser": "Отсутствует Пользователь",
+        "js.missingMarket": "Отсутствует Инфо Рынка",
+        "js.error": "Ошибка: ",
+        "js.noItems": "Пока нет доступных товаров.",
+        "js.noCards": "Пока нет инфо-карточек.",
+        "js.noCardsMember": "Пока нет доступных карточек.",
+        "js.noCardsAdmin": "Пока нет карточек.",
+        "js.noGames": "Пока нет пользовательской инфо игр.",
+        "js.order": "Порядок: "
       }
-      cancelCardEdit();
-    } catch (e) { fb.innerText = t('js.error') + e.message; }
-    setTimeout(() => fb.innerText = "", 3000);
-  };
+    };
 
-  window.editCard = (id) => {
-    const card = cardsData.find(c => c.id === id);
-    if (!card) return;
-    document.getElementById('cardEditId').value = id;
-    document.getElementById('cardTitle').value = card.title || '';
-    document.getElementById('cardContent').value = card.content || '';
-    document.getElementById('cardOrder').value = card.order || 0;
-    document.getElementById('cardSaveBtn').innerText = t('js.editCard');
-    document.getElementById('cardCancelBtn').classList.remove('hidden');
-    document.getElementById('adminCards').scrollIntoView({ behavior: 'smooth' });
-  };
+    // ============================================================
+    //  I18N STATE
+    // ============================================================
+    let currentLang = 'en';
+    let allUsersData = [];
+    let marketData = [];
+    let cardsData = [];
+    let gamesData = [];
 
-  window.deleteCard = async (id) => {
-    if (!confirm(t('js.deleteCard'))) return;
-    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'cards', id));
-  };
-
-  window.cancelCardEdit = () => {
-    document.getElementById('cardEditId').value = '';
-    document.getElementById('cardTitle').value = '';
-    document.getElementById('cardContent').value = '';
-    document.getElementById('cardOrder').value = 0;
-    document.getElementById('cardSaveBtn').innerText = t('js.createCard');
-    document.getElementById('cardCancelBtn').classList.add('hidden');
-  };
-
-  // ============================================================
-  //  GAME INFO ACTIONS
-  // ============================================================
-  window.saveGame = async () => {
-    const fb = document.getElementById('adminFeedback');
-    const editId = document.getElementById('gameEditId').value;
-    const title = document.getElementById('gameTitle').value.trim();
-    const icon = document.getElementById('gameIcon').value.trim() || '🐴';
-    const desc = document.getElementById('gameDesc').value.trim();
-    if (!title || !desc) {
-      fb.innerText = t('js.titleDescRequired');
-      setTimeout(() => fb.innerText = "", 3000);
-      return;
-    }
-    fb.innerText = t('js.saving');
-    try {
-      if (editId) {
-        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'games', editId), {
-          title, icon, desc, timestamp: Date.now()
-        });
-        fb.innerText = t('js.gameUpdated');
-      } else {
-        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'games'), {
-          title, icon, desc, timestamp: Date.now()
-        });
-        fb.innerText = t('js.gameCreated');
+    // ============================================================
+    //  LANGUAGE DETECTION
+    // ============================================================
+    function detectLanguage() {
+      const saved = localStorage.getItem('horsey_lang');
+      if (saved && ['en', 'es', 'ru'].includes(saved)) {
+        return saved;
       }
-      cancelGameEdit();
-    } catch (e) { fb.innerText = t('js.error') + e.message; }
-    setTimeout(() => fb.innerText = "", 3000);
-  };
+      const browserLang = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+      if (browserLang.startsWith('es')) {
+        return 'es';
+      }
+      if (browserLang.startsWith('ru')) {
+        return 'ru';
+      }
+      return 'en';
+    }
 
-  window.editGame = (id) => {
-    const g = gamesData.find(x => x.id === id);
-    if (!g) return;
-    document.getElementById('gameEditId').value = id;
-    document.getElementById('gameTitle').value = g.title || '';
-    document.getElementById('gameIcon').value = g.icon || '';
-    document.getElementById('gameDesc').value = g.desc || '';
-    document.getElementById('gameSaveBtn').innerText = t('js.editGame');
-    document.getElementById('gameCancelBtn').classList.remove('hidden');
-    document.getElementById('adminGames').scrollIntoView({ behavior: 'smooth' });
-  };
+    // ============================================================
+    //  TRANSLATE FUNCTION
+    // ============================================================
+    function t(key) {
+      if (translations[currentLang] && translations[currentLang][key]) {
+        return translations[currentLang][key];
+      }
+      if (translations.en && translations.en[key]) {
+        return translations.en[key];
+      }
+      return key;
+    }
 
-  window.deleteGame = async (id) => {
-    if (!confirm(t('js.deleteGame'))) return;
-    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'games', id));
-  };
+    // ============================================================
+    //  APPLY TRANSLATIONS
+    // ============================================================
+    function applyTranslations() {
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        el.textContent = t(key);
+      });
 
-  window.cancelGameEdit = () => {
-    document.getElementById('gameEditId').value = '';
-    document.getElementById('gameTitle').value = '';
-    document.getElementById('gameIcon').value = '';
-    document.getElementById('gameDesc').value = '';
-    document.getElementById('gameSaveBtn').innerText = t('js.createGame');
-    document.getElementById('gameCancelBtn').classList.add('hidden');
-  };
+      document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+        const key = el.getAttribute('data-i18n-ph');
+        el.setAttribute('placeholder', t(key));
+      });
 
-  // ============================================================
-  //  MARKET DELETE
-  // ============================================================
-  window.deleteMarketItem = async (id) => {
-    if (!confirm(t('js.deleteMarket'))) return;
-    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'market', id));
-  };
+      document.documentElement.lang = currentLang;
 
-  // ============================================================
-  //  EXPEL
-  // ============================================================
-  window.expelMember = async () => {
-    const fb = document.getElementById('expelFeedback');
-    const user = document.getElementById('expelUser').value.trim().toLowerCase();
-    if (!user) { fb.innerText = t('js.enterUsername'); setTimeout(() => fb.innerText = "", 3000); return; }
-    fb.innerText = t('js.checking');
-    try {
-      const snap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'scores', user));
-      if (!snap.exists()) {
-        fb.innerText = `"${user}" ${t('js.userNotExist')}`;
-        setTimeout(() => fb.innerText = "", 4000);
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        if (btn.dataset.lang === currentLang) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      if (typeof renderPublicCards === 'function') {
+        renderPublicCards();
+        renderMemberCards();
+        renderAdminCards();
+        renderMemberMarket();
+        renderAdminMarket();
+        renderAdminGames();
+      }
+    }
+
+    // ============================================================
+    //  SET LANGUAGE (public)
+    // ============================================================
+    window.setLanguage = function (lang) {
+      if (!['en', 'es', 'ru'].includes(lang)) {
         return;
       }
-      if (!confirm(t('js.deleteUserConfirm'))) { fb.innerText = ""; return; }
-      fb.innerText = t('js.expelling');
-      await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'scores', user));
-      fb.innerText = `"${user}" ${t('js.expelled')}`;
-      document.getElementById('expelUser').value = '';
-    } catch (e) { fb.innerText = t('js.error') + e.message; }
-    setTimeout(() => fb.innerText = "", 5000);
-  };
-
-  // ============================================================
-  //  SETUP PASSWORD
-  // ============================================================
-  window.savePassword = async () => {
-    const p = document.getElementById('initialPass').value;
-    if (!p) return;
-    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'config', 'admin'), { password: p });
-    location.reload();
-  };
-
-  // ============================================================
-  //  SUGGESTIONS
-  // ============================================================
-  window.showSuggestions = (inputId, listId) => {
-    const val = document.getElementById(inputId).value.toLowerCase().trim();
-    const list = document.getElementById(listId);
-    list.innerHTML = '';
-    if (!val) { list.classList.add('hidden'); return; }
-    const matches = allUsersData.filter(u => u.name.toLowerCase().includes(val));
-    if (matches.length > 0) {
-      list.classList.remove('hidden');
-      matches.forEach(m => {
-        const li = document.createElement('li');
-        li.className = "p-3 border-b border-slate-200 text-sm hover:bg-slate-100 cursor-pointer text-slate-800";
-        li.innerText = m.name;
-        li.onclick = () => { document.getElementById(inputId).value = m.name; list.classList.add('hidden'); };
-        list.appendChild(li);
-      });
-    } else list.classList.add('hidden');
-  };
-
-  // ============================================================
-  //  NAV
-  // ============================================================
-  window.showScreen = (id) => {
-    ['roleScreen', 'memberScreen', 'loginScreen', 'adminEditor'].forEach(s => {
-      const el = document.getElementById(s);
-      if (el) el.classList.add('hidden');
-    });
-    document.getElementById(id).classList.remove('hidden');
-    const publicCards = document.getElementById('publicCardsSection');
-    if (publicCards) {
-      if (id === 'roleScreen') publicCards.classList.remove('hidden');
-      else publicCards.classList.add('hidden');
-    }
-    setTimeout(() => resizeSgCanvas(), 150);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  // ============================================================
-  //  TAB TOGGLES - MEMBER
-  // ============================================================
-  window.toggleMemberTab = (tab) => {
-    const ids = {
-      coins: ['coinsContent', 'tabCoins'],
-      markets: ['marketsContent', 'tabMarkets'],
-      cards: ['cardsContent', 'tabCards'],
-      games: ['gamesContent', 'tabGames']
+      currentLang = lang;
+      localStorage.setItem('horsey_lang', lang);
+      applyTranslations();
     };
-    Object.keys(ids).forEach(k => {
-      document.getElementById(ids[k][0]).classList.add('hidden');
-      const btn = document.getElementById(ids[k][1]);
-      btn.classList.remove('border-amber-500', 'text-slate-800');
-      btn.classList.add('border-transparent', 'text-slate-400');
-    });
-    document.getElementById(ids[tab][0]).classList.remove('hidden');
-    const activeBtn = document.getElementById(ids[tab][1]);
-    activeBtn.classList.remove('border-transparent', 'text-slate-400');
-    activeBtn.classList.add('border-amber-500', 'text-slate-800');
-    if (tab === 'games') setTimeout(() => resizeSgCanvas(), 100);
-  };
 
-  // ============================================================
-  //  TAB TOGGLES - ADMIN
-  // ============================================================
-  window.toggleAdminTab = (tab) => {
-    const map = {
-      coins: ['adminCoins', 'adminTabCoins'],
-      markets: ['adminMarkets', 'adminTabMarkets'],
-      cards: ['adminCards', 'adminTabCards'],
-      games: ['adminGames', 'adminTabGames'],
-      expel: ['adminExpel', 'adminTabExpel']
-    };
-    Object.keys(map).forEach(k => {
-      document.getElementById(map[k][0]).classList.add('hidden');
-      const btn = document.getElementById(map[k][1]);
-      btn.className = "flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl text-slate-500";
-    });
-    document.getElementById(map[tab][0]).classList.remove('hidden');
-    const btn = document.getElementById(map[tab][1]);
-    if (tab === 'expel') btn.className = "flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl bg-red-600 text-white";
-    else btn.className = "flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl bg-amber-600 text-white";
-  };
+    // ============================================================
+    //  INIT (with try/catch)
+    // ============================================================
+    async function init() {
+      try {
+        const snap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'config', 'admin'));
 
-  // ============================================================
-  //  LEADERBOARD
-  // ============================================================
-  window.showLeaderboard = () => {
-    const list = document.getElementById('leaderboardList');
-    const display = document.getElementById('leaderboardDisplay');
-    if (!display.classList.contains('hidden')) { display.classList.add('hidden'); return; }
-    list.innerHTML = '';
-    const sorted = [...allUsersData].sort((a, b) => (b.balance || 0) - (a.balance || 0));
-    sorted.forEach((u, index) => {
-      const item = document.createElement('div');
-      item.className = "flex items-center justify-between p-4 bg-white border border-slate-200 rounded-2xl";
-      let rank = `#${index + 1}`;
-      if (index === 0) rank = "🥇"; else if (index === 1) rank = "🥈"; else if (index === 2) rank = "🥉";
-      item.innerHTML = `
-        <div class="flex items-center gap-4">
-          <span class="text-xs font-bold text-slate-400 w-6">${rank}</span>
-          <span class="text-sm font-black uppercase text-slate-800">${esc(u.name)}</span>
-        </div>
-        <span class="text-amber-600 font-black text-sm">${u.balance || 0} 🐴</span>
-      `;
-      list.appendChild(item);
-    });
-    display.classList.remove('hidden');
-    document.getElementById('scoreDisplay').classList.add('hidden');
-  };
-
-  // ============================================================
-  //  CHECK POINTS
-  // ============================================================
-  window.checkPoints = async () => {
-    const u = document.getElementById('memberSearch').value.trim().toLowerCase();
-    if (!u) return;
-    const btn = document.getElementById('checkBtn');
-    btn.innerText = t('js.accessing');
-    const snap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'scores', u));
-    document.getElementById('resName').innerText = u.toUpperCase();
-    if (snap.exists()) {
-      const d = snap.data();
-      document.getElementById('resPoints').innerText = d.balance || 0;
-      document.getElementById('resReason').innerText = d.reason || t('js.member');
-    } else {
-      document.getElementById('resPoints').innerText = "0";
-      document.getElementById('resReason').innerText = t('js.notRegistered');
-    }
-    document.getElementById('scoreDisplay').classList.remove('hidden');
-    document.getElementById('leaderboardDisplay').classList.add('hidden');
-    btn.innerText = t('js.findCoins');
-  };
-
-  // ============================================================
-  //  ADMIN LOGIN
-  // ============================================================
-  window.verifyAdmin = async () => {
-    const i = document.getElementById('adminPassInput').value;
-    const snap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'config', 'admin'));
-    if (snap.exists() && i === snap.data().password) {
-      showScreen('adminEditor');
-      document.getElementById('errorLogin').classList.add('hidden');
-    } else {
-      document.getElementById('errorLogin').classList.remove('hidden');
-    }
-  };
-
-  // ============================================================
-  //  ADMIN ACTIONS
-  // ============================================================
-  window.executeAdminAction = async (type) => {
-    const fb = document.getElementById('adminFeedback');
-    fb.innerText = t('js.uploading');
-    try {
-      if (type === 'coins') {
-        const u = document.getElementById('targetUser').value.trim().toLowerCase();
-        const v = parseInt(document.getElementById('targetVal').value) || 0;
-        const r = document.getElementById('targetReason').value.trim();
-        if (!u) throw t('js.missingUser');
-        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'scores', u), { balance: v, reason: r }, { merge: true });
-      } else {
-        const data = {
-          seller: document.getElementById('mktSeller').value.trim(),
-          item: document.getElementById('mktItem').value.trim(),
-          price: parseInt(document.getElementById('mktPrice').value) || 0,
-          profile: document.getElementById('mktLichess').value.trim(),
-          description: document.getElementById('mktDesc').value.trim(),
-          timestamp: Date.now()
-        };
-        if (!data.seller || !data.item) throw t('js.missingMarket');
-        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'market'), data);
-        ['mktSeller', 'mktItem', 'mktPrice', 'mktLichess', 'mktDesc'].forEach(id => document.getElementById(id).value = '');
-      }
-      fb.innerText = t('js.success');
-    } catch (e) { fb.innerText = t('js.error') + e; }
-    setTimeout(() => fb.innerText = "", 3000);
-  };
-
-  window.logoutAdmin = () => {
-    document.getElementById('adminPassInput').value = "";
-    showScreen('roleScreen');
-  };
-
-  // ============================================================
-  //  GAMES LOGIC
-  // ============================================================
-  let score1 = 0;
-  let game1Timer = null;
-  let game1Initialized = false;
-
-  function initCatchHorsey() {
-    const target = document.getElementById('targetHorsey');
-    if (!target) return;
-    if (game1Initialized) return;
-    game1Initialized = true;
-    target.onclick = hitHorsey;
-    resetGame1();
-  }
-
-  function moveHorseyTarget() {
-    const target = document.getElementById('targetHorsey');
-    const container = document.getElementById('gameArea1');
-    if (!target || !container) return;
-    const maxX = container.clientWidth - 70;
-    const maxY = container.clientHeight - 70;
-    target.style.left = Math.max(0, Math.floor(Math.random() * maxX)) + 'px';
-    target.style.top = Math.max(0, Math.floor(Math.random() * maxY)) + 'px';
-  }
-
-  window.hitHorsey = function () {
-    score1 += 1;
-    const display = document.getElementById('scoreDisplay1');
-    if (display) display.innerText = t('js.score') + score1;
-    playSoundEffect('gift');
-    moveHorseyTarget();
-  };
-
-  window.resetGame1 = function () {
-    score1 = 0;
-    const display = document.getElementById('scoreDisplay1');
-    if (display) display.innerText = t('js.score') + "0";
-    moveHorseyTarget();
-    if (game1Timer) clearInterval(game1Timer);
-    game1Timer = setInterval(moveHorseyTarget, 1000);
-  };
-
-  // Game 2 - Santa Horsey Drop
-  let sgCtx = null;
-  let sgAnimationId;
-  let sgScore = 0;
-  let sgLives = 3;
-  let sgIsPlaying = false;
-  let fallingItems = [];
-  let sgInitialized = false;
-  let playerX = 0;
-  const playerWidth = 60;
-  const playerHeight = 20;
-
-  function initSantaGame() {
-    const canvas = document.getElementById('santaGameCanvas');
-    if (!canvas || sgInitialized) return;
-    sgInitialized = true;
-    sgCtx = canvas.getContext('2d');
-    resizeSgCanvas();
-    canvas.addEventListener('mousemove', (e) => {
-      const rect = canvas.getBoundingClientRect();
-      playerX = e.clientX - rect.left;
-    });
-    canvas.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-      const rect = canvas.getBoundingClientRect();
-      playerX = e.touches[0].clientX - rect.left;
-    });
-    window.addEventListener('resize', resizeSgCanvas);
-    sgCtx.fillStyle = '#d97706';
-    sgCtx.font = 'bold 18px Arial';
-    sgCtx.textAlign = 'center';
-    sgCtx.fillText(t('js.clickPlay'), canvas.width/2, canvas.height/2);
-  }
-
-  function resizeSgCanvas() {
-    const canvas = document.getElementById('santaGameCanvas');
-    if (!canvas) return;
-    const rect = canvas.parentElement.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = rect.height;
-    playerX = canvas.width / 2;
-  }
-
-  function spawnItem() {
-    const canvas = document.getElementById('santaGameCanvas');
-    if (!canvas) return;
-    const isBomb = Math.random() < 0.25;
-    fallingItems.push({
-      x: Math.random() * (canvas.width - 20) + 10,
-      y: -20,
-      speed: Math.random() * 2 + 2,
-      type: isBomb ? 'bomb' : 'gift',
-      size: 24
-    });
-  }
-
-  function updateSantaGame() {
-    const canvas = document.getElementById('santaGameCanvas');
-    if (!canvas || !sgCtx || !sgIsPlaying) return;
-
-    sgCtx.fillStyle = '#fef3c7';
-    sgCtx.fillRect(0, 0, canvas.width, canvas.height);
-
-    sgCtx.fillStyle = '#d97706';
-    sgCtx.shadowColor = 'rgba(0,0,0,0.15)';
-    sgCtx.shadowBlur = 6;
-    sgCtx.fillRect(playerX - playerWidth/2, canvas.height - playerHeight - 10, playerWidth, playerHeight);
-    sgCtx.shadowBlur = 0;
-
-    for (let i = fallingItems.length - 1; i >= 0; i--) {
-      let item = fallingItems[i];
-      item.y += item.speed;
-      sgCtx.font = item.size + 'px Arial';
-      sgCtx.textAlign = 'center';
-      sgCtx.fillText(item.type === 'gift' ? '🎁' : '💣', item.x, item.y);
-
-      if (
-        item.y + item.size/2 > canvas.height - playerHeight - 10 &&
-        item.y - item.size/2 < canvas.height - 10 &&
-        item.x > playerX - playerWidth/2 &&
-        item.x < playerX + playerWidth/2
-      ) {
-        if (item.type === 'gift') {
-          sgScore += 1;
-          playSoundEffect('gift');
+        if (!snap.exists()) {
+          document.getElementById('setupBox').classList.remove('hidden');
         } else {
-          sgLives -= 1;
-          playSoundEffect('bomb');
-          sgCtx.fillStyle = 'rgba(231, 76, 60, 0.25)';
-          sgCtx.fillRect(0,0,canvas.width,canvas.height);
+          document.getElementById('mainApp').classList.remove('hidden');
+          setupListeners();
+          setTimeout(() => {
+            initCatchHorsey();
+            initSantaGame();
+          }, 300);
         }
-        fallingItems.splice(i, 1);
-        updateSgDisplay();
-        continue;
+      } catch (err) {
+        console.error('Init error:', err);
+        document.getElementById('setupBox').classList.remove('hidden');
+        const errEl = document.getElementById('setupError');
+        if (errEl) {
+          errEl.textContent = '⚠️ ' + (err.code || err.message || 'Firebase connection error. Check Firestore Rules and Authorized Domains.');
+          errEl.classList.remove('hidden');
+        }
       }
-      if (item.y > canvas.height) fallingItems.splice(i, 1);
     }
 
-    if (Math.random() < 0.04) spawnItem();
+    // ============================================================
+    //  FIRESTORE LISTENERS
+    // ============================================================
+    function setupListeners() {
+      onSnapshot(
+        collection(db, 'artifacts', appId, 'public', 'data', 'scores'),
+        snap => {
+          allUsersData = snap.docs.map(d => ({ id: d.id, name: d.id, ...d.data() }));
+        },
+        err => console.error(err)
+      );
 
-    if (sgLives <= 0) {
-      sgIsPlaying = false;
-      sgCtx.fillStyle = 'rgba(255,255,255,0.9)';
-      sgCtx.fillRect(0,0,canvas.width,canvas.height);
+      onSnapshot(
+        collection(db, 'artifacts', appId, 'public', 'data', 'market'),
+        snap => {
+          marketData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          renderMemberMarket();
+          renderAdminMarket();
+        },
+        err => console.error(err)
+      );
+
+      onSnapshot(
+        collection(db, 'artifacts', appId, 'public', 'data', 'cards'),
+        snap => {
+          cardsData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          renderPublicCards();
+          renderMemberCards();
+          renderAdminCards();
+        },
+        err => console.error(err)
+      );
+
+      onSnapshot(
+        collection(db, 'artifacts', appId, 'public', 'data', 'games'),
+        snap => {
+          gamesData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          renderAdminGames();
+        },
+        err => console.error(err)
+      );
+    }
+
+    // ============================================================
+    //  RENDER: MEMBER MARKET
+    // ============================================================
+    function renderMemberMarket() {
+      const c = document.getElementById('marketList');
+      if (!c) return;
+      if (marketData.length === 0) {
+        c.innerHTML = `<p class="text-center text-slate-400 text-xs italic py-10">${t('js.noItems')}</p>`;
+        return;
+      }
+      c.innerHTML = marketData.map(item => `
+        <div class="bg-slate-50 border border-slate-200 p-6 rounded-3xl space-y-3 shadow-sm">
+          <div class="flex justify-between items-start">
+            <div>
+              <h4 class="text-slate-800 font-black uppercase text-lg">${esc(item.item)}</h4>
+              <p class="text-amber-600 text-[10px] font-bold uppercase tracking-widest">${esc(item.seller)}</p>
+            </div>
+            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-black italic">${item.price} 🐴</span>
+          </div>
+          <p class="text-slate-600 text-sm leading-relaxed">${esc(item.description)}</p>
+          <div class="pt-4 border-t border-slate-200">
+            <a href="${item.profile}" target="_blank" class="text-amber-600 text-[10px] font-bold hover:underline italic">VIEW PROFILE</a>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ============================================================
+    //  RENDER: ADMIN MARKET
+    // ============================================================
+    function renderAdminMarket() {
+      const c = document.getElementById('adminMarketList');
+      if (!c) return;
+      if (marketData.length === 0) {
+        c.innerHTML = `<p class="text-center text-slate-400 text-xs italic py-10">${t('js.noItems')}</p>`;
+        return;
+      }
+      c.innerHTML = marketData.map(item => `
+        <div class="bg-slate-50 border border-slate-200 p-6 rounded-3xl space-y-3 shadow-sm">
+          <div class="flex justify-between items-start">
+            <div>
+              <h4 class="text-slate-800 font-black uppercase text-lg">${esc(item.item)}</h4>
+              <p class="text-amber-600 text-[10px] font-bold uppercase tracking-widest">${esc(item.seller)}</p>
+            </div>
+            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-black italic">${item.price} 🐴</span>
+          </div>
+          <p class="text-slate-600 text-sm leading-relaxed">${esc(item.description)}</p>
+          <div class="pt-4 border-t border-slate-200 flex justify-between items-center">
+            <a href="${item.profile}" target="_blank" class="text-amber-600 text-[10px] font-bold hover:underline italic">VIEW PROFILE</a>
+            <button onclick="window.deleteMarketItem('${item.id}')" class="text-red-500 hover:text-red-600 text-[10px] font-bold uppercase">${t('js.delete')}</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ============================================================
+    //  RENDER: PUBLIC CARDS
+    // ============================================================
+    function renderPublicCards() {
+      const c = document.getElementById('publicCardsList');
+      if (!c) return;
+      const sorted = [...cardsData].sort((a, b) => (a.order || 0) - (b.order || 0));
+      if (sorted.length === 0) {
+        c.innerHTML = `<p class="text-center text-slate-400 text-xs italic py-6 col-span-2">${t('js.noCards')}</p>`;
+        return;
+      }
+      c.innerHTML = sorted.map(card => `
+        <div class="site-card">
+          <h3>${esc(card.title)}</h3>
+          <div class="card-content">${card.content}</div>
+        </div>
+      `).join('');
+    }
+
+    // ============================================================
+    //  RENDER: MEMBER CARDS
+    // ============================================================
+    function renderMemberCards() {
+      const c = document.getElementById('memberCardsList');
+      if (!c) return;
+      const sorted = [...cardsData].sort((a, b) => (a.order || 0) - (b.order || 0));
+      if (sorted.length === 0) {
+        c.innerHTML = `<p class="text-center text-slate-400 text-xs italic py-10">${t('js.noCardsMember')}</p>`;
+        return;
+      }
+      c.innerHTML = sorted.map(card => `
+        <div class="site-card">
+          <h3>${esc(card.title)}</h3>
+          <div class="card-content">${card.content}</div>
+        </div>
+      `).join('');
+    }
+
+    // ============================================================
+    //  RENDER: ADMIN CARDS
+    // ============================================================
+    function renderAdminCards() {
+      const c = document.getElementById('adminCardsList');
+      if (!c) return;
+      const sorted = [...cardsData].sort((a, b) => (a.order || 0) - (b.order || 0));
+      if (sorted.length === 0) {
+        c.innerHTML = `<p class="text-center text-slate-400 text-xs italic py-10">${t('js.noCardsAdmin')}</p>`;
+        return;
+      }
+      c.innerHTML = sorted.map(card => `
+        <div class="bg-slate-50 border border-slate-200 p-5 rounded-2xl">
+          <div class="flex justify-between items-start mb-2">
+            <h4 class="text-slate-800 font-black uppercase">${esc(card.title)}</h4>
+            <span class="text-[10px] text-slate-400 font-bold">${t('js.order')}${card.order || 0}</span>
+          </div>
+          <div class="text-slate-600 text-xs mb-3 max-h-20 overflow-hidden">${card.content}</div>
+          <div class="flex gap-3 pt-3 border-t border-slate-200">
+            <button onclick="window.editCard('${card.id}')" class="text-amber-600 hover:text-amber-700 text-[10px] font-bold uppercase">${t('js.edit')}</button>
+            <button onclick="window.deleteCard('${card.id}')" class="text-red-500 hover:text-red-600 text-[10px] font-bold uppercase">${t('js.delete')}</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ============================================================
+    //  RENDER: ADMIN GAMES
+    // ============================================================
+    function renderAdminGames() {
+      const c = document.getElementById('adminGamesList');
+      if (!c) return;
+      if (gamesData.length === 0) {
+        c.innerHTML = `<p class="text-center text-slate-400 text-xs italic py-10">${t('js.noGames')}</p>`;
+        return;
+      }
+      c.innerHTML = gamesData.map(g => `
+        <div class="bg-slate-50 border border-slate-200 p-5 rounded-2xl">
+          <div class="flex justify-between items-start mb-2">
+            <h4 class="text-slate-800 font-black uppercase">${g.icon || '🐴'} ${esc(g.title)}</h4>
+          </div>
+          <div class="text-slate-600 text-xs mb-3">${g.desc}</div>
+          <div class="flex gap-3 pt-3 border-t border-slate-200">
+            <button onclick="window.editGame('${g.id}')" class="text-amber-600 hover:text-amber-700 text-[10px] font-bold uppercase">${t('js.edit')}</button>
+            <button onclick="window.deleteGame('${g.id}')" class="text-red-500 hover:text-red-600 text-[10px] font-bold uppercase">${t('js.delete')}</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ============================================================
+    //  CARD ACTIONS
+    // ============================================================
+    window.saveCard = async () => {
+      const fb = document.getElementById('adminFeedback');
+      const editId = document.getElementById('cardEditId').value;
+      const title = document.getElementById('cardTitle').value.trim();
+      const content = document.getElementById('cardContent').value.trim();
+      const order = parseInt(document.getElementById('cardOrder').value) || 0;
+
+      if (!title || !content) {
+        fb.innerText = t('js.titleContentRequired');
+        setTimeout(() => fb.innerText = "", 3000);
+        return;
+      }
+
+      fb.innerText = t('js.saving');
+      try {
+        if (editId) {
+          await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'cards', editId), {
+            title, content, order, timestamp: Date.now()
+          });
+          fb.innerText = t('js.cardUpdated');
+        } else {
+          await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'cards'), {
+            title, content, order, timestamp: Date.now()
+          });
+          fb.innerText = t('js.cardCreated');
+        }
+        cancelCardEdit();
+      } catch (e) {
+        fb.innerText = t('js.error') + e.message;
+      }
+      setTimeout(() => fb.innerText = "", 3000);
+    };
+
+    window.editCard = (id) => {
+      const card = cardsData.find(c => c.id === id);
+      if (!card) return;
+      document.getElementById('cardEditId').value = id;
+      document.getElementById('cardTitle').value = card.title || '';
+      document.getElementById('cardContent').value = card.content || '';
+      document.getElementById('cardOrder').value = card.order || 0;
+      document.getElementById('cardSaveBtn').innerText = t('js.editCard');
+      document.getElementById('cardCancelBtn').classList.remove('hidden');
+      document.getElementById('adminCards').scrollIntoView({ behavior: 'smooth' });
+    };
+
+    window.deleteCard = async (id) => {
+      if (!confirm(t('js.deleteCard'))) return;
+      await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'cards', id));
+    };
+
+    window.cancelCardEdit = () => {
+      document.getElementById('cardEditId').value = '';
+      document.getElementById('cardTitle').value = '';
+      document.getElementById('cardContent').value = '';
+      document.getElementById('cardOrder').value = 0;
+      document.getElementById('cardSaveBtn').innerText = t('js.createCard');
+      document.getElementById('cardCancelBtn').classList.add('hidden');
+    };
+
+    // ============================================================
+    //  GAME ACTIONS
+    // ============================================================
+    window.saveGame = async () => {
+      const fb = document.getElementById('adminFeedback');
+      const editId = document.getElementById('gameEditId').value;
+      const title = document.getElementById('gameTitle').value.trim();
+      const icon = document.getElementById('gameIcon').value.trim() || '🐴';
+      const desc = document.getElementById('gameDesc').value.trim();
+
+      if (!title || !desc) {
+        fb.innerText = t('js.titleDescRequired');
+        setTimeout(() => fb.innerText = "", 3000);
+        return;
+      }
+
+      fb.innerText = t('js.saving');
+      try {
+        if (editId) {
+          await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'games', editId), {
+            title, icon, desc, timestamp: Date.now()
+          });
+          fb.innerText = t('js.gameUpdated');
+        } else {
+          await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'games'), {
+            title, icon, desc, timestamp: Date.now()
+          });
+          fb.innerText = t('js.gameCreated');
+        }
+        cancelGameEdit();
+      } catch (e) {
+        fb.innerText = t('js.error') + e.message;
+      }
+      setTimeout(() => fb.innerText = "", 3000);
+    };
+
+    window.editGame = (id) => {
+      const g = gamesData.find(x => x.id === id);
+      if (!g) return;
+      document.getElementById('gameEditId').value = id;
+      document.getElementById('gameTitle').value = g.title || '';
+      document.getElementById('gameIcon').value = g.icon || '';
+      document.getElementById('gameDesc').value = g.desc || '';
+      document.getElementById('gameSaveBtn').innerText = t('js.editGame');
+      document.getElementById('gameCancelBtn').classList.remove('hidden');
+      document.getElementById('adminGames').scrollIntoView({ behavior: 'smooth' });
+    };
+
+    window.deleteGame = async (id) => {
+      if (!confirm(t('js.deleteGame'))) return;
+      await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'games', id));
+    };
+
+    window.cancelGameEdit = () => {
+      document.getElementById('gameEditId').value = '';
+      document.getElementById('gameTitle').value = '';
+      document.getElementById('gameIcon').value = '';
+      document.getElementById('gameDesc').value = '';
+      document.getElementById('gameSaveBtn').innerText = t('js.createGame');
+      document.getElementById('gameCancelBtn').classList.add('hidden');
+    };
+
+    // ============================================================
+    //  MARKET DELETE
+    // ============================================================
+    window.deleteMarketItem = async (id) => {
+      if (!confirm(t('js.deleteMarket'))) return;
+      await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'market', id));
+    };
+
+    // ============================================================
+    //  EXPEL MEMBER
+    // ============================================================
+    window.expelMember = async () => {
+      const fb = document.getElementById('expelFeedback');
+      const user = document.getElementById('expelUser').value.trim().toLowerCase();
+
+      if (!user) {
+        fb.innerText = t('js.enterUsername');
+        setTimeout(() => fb.innerText = "", 3000);
+        return;
+      }
+
+      fb.innerText = t('js.checking');
+      try {
+        const snap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'scores', user));
+        if (!snap.exists()) {
+          fb.innerText = `"${user}" ${t('js.userNotExist')}`;
+          setTimeout(() => fb.innerText = "", 4000);
+          return;
+        }
+        if (!confirm(t('js.deleteUserConfirm'))) {
+          fb.innerText = "";
+          return;
+        }
+        fb.innerText = t('js.expelling');
+        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'scores', user));
+        fb.innerText = `"${user}" ${t('js.expelled')}`;
+        document.getElementById('expelUser').value = '';
+      } catch (e) {
+        fb.innerText = t('js.error') + e.message;
+      }
+      setTimeout(() => fb.innerText = "", 5000);
+    };
+
+    // ============================================================
+    //  SETUP PASSWORD
+    // ============================================================
+    window.savePassword = async () => {
+      const p = document.getElementById('initialPass').value;
+      if (!p) return;
+      try {
+        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'config', 'admin'), { password: p });
+        location.reload();
+      } catch (e) {
+        const el = document.getElementById('setupError');
+        el.textContent = '⚠️ ' + (e.code || e.message);
+        el.classList.remove('hidden');
+      }
+    };
+
+    // ============================================================
+    //  SUGGESTIONS
+    // ============================================================
+    window.showSuggestions = (inputId, listId) => {
+      const val = document.getElementById(inputId).value.toLowerCase().trim();
+      const list = document.getElementById(listId);
+      list.innerHTML = '';
+      if (!val) {
+        list.classList.add('hidden');
+        return;
+      }
+      const matches = allUsersData.filter(u => u.name.toLowerCase().includes(val));
+      if (matches.length > 0) {
+        list.classList.remove('hidden');
+        matches.forEach(m => {
+          const li = document.createElement('li');
+          li.className = "p-3 border-b border-slate-200 text-sm hover:bg-slate-100 cursor-pointer text-slate-800";
+          li.innerText = m.name;
+          li.onclick = () => {
+            document.getElementById(inputId).value = m.name;
+            list.classList.add('hidden');
+          };
+          list.appendChild(li);
+        });
+      } else {
+        list.classList.add('hidden');
+      }
+    };
+
+    // ============================================================
+    //  NAV
+    // ============================================================
+    window.showScreen = (id) => {
+      ['roleScreen', 'memberScreen', 'loginScreen', 'adminEditor'].forEach(s => {
+        const el = document.getElementById(s);
+        if (el) el.classList.add('hidden');
+      });
+      document.getElementById(id).classList.remove('hidden');
+
+      const publicCards = document.getElementById('publicCardsSection');
+      if (publicCards) {
+        if (id === 'roleScreen') {
+          publicCards.classList.remove('hidden');
+        } else {
+          publicCards.classList.add('hidden');
+        }
+      }
+
+      setTimeout(() => resizeSgCanvas(), 150);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    // ============================================================
+    //  MEMBER TAB TOGGLE
+    // ============================================================
+    window.toggleMemberTab = (tab) => {
+      const ids = {
+        coins: ['coinsContent', 'tabCoins'],
+        markets: ['marketsContent', 'tabMarkets'],
+        cards: ['cardsContent', 'tabCards'],
+        games: ['gamesContent', 'tabGames']
+      };
+
+      Object.keys(ids).forEach(k => {
+        document.getElementById(ids[k][0]).classList.add('hidden');
+        const btn = document.getElementById(ids[k][1]);
+        btn.classList.remove('border-amber-500', 'text-slate-800');
+        btn.classList.add('border-transparent', 'text-slate-400');
+      });
+
+      document.getElementById(ids[tab][0]).classList.remove('hidden');
+      const activeBtn = document.getElementById(ids[tab][1]);
+      activeBtn.classList.remove('border-transparent', 'text-slate-400');
+      activeBtn.classList.add('border-amber-500', 'text-slate-800');
+
+      if (tab === 'games') {
+        setTimeout(() => resizeSgCanvas(), 100);
+      }
+    };
+
+    // ============================================================
+    //  ADMIN TAB TOGGLE
+    // ============================================================
+    window.toggleAdminTab = (tab) => {
+      const map = {
+        coins: ['adminCoins', 'adminTabCoins'],
+        markets: ['adminMarkets', 'adminTabMarkets'],
+        cards: ['adminCards', 'adminTabCards'],
+        games: ['adminGames', 'adminTabGames'],
+        expel: ['adminExpel', 'adminTabExpel']
+      };
+
+      Object.keys(map).forEach(k => {
+        document.getElementById(map[k][0]).classList.add('hidden');
+        const btn = document.getElementById(map[k][1]);
+        btn.className = "flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl text-slate-500";
+      });
+
+      document.getElementById(map[tab][0]).classList.remove('hidden');
+      const btn = document.getElementById(map[tab][1]);
+
+      if (tab === 'expel') {
+        btn.className = "flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl bg-red-600 text-white";
+      } else {
+        btn.className = "flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl bg-amber-600 text-white";
+      }
+    };
+
+    // ============================================================
+    //  LEADERBOARD
+    // ============================================================
+    window.showLeaderboard = () => {
+      const list = document.getElementById('leaderboardList');
+      const display = document.getElementById('leaderboardDisplay');
+
+      if (!display.classList.contains('hidden')) {
+        display.classList.add('hidden');
+        return;
+      }
+
+      list.innerHTML = '';
+      const sorted = [...allUsersData].sort((a, b) => (b.balance || 0) - (a.balance || 0));
+
+      sorted.forEach((u, index) => {
+        const item = document.createElement('div');
+        item.className = "flex items-center justify-between p-4 bg-white border border-slate-200 rounded-2xl";
+        let rank = `#${index + 1}`;
+        if (index === 0) rank = "🥇";
+        else if (index === 1) rank = "🥈";
+        else if (index === 2) rank = "🥉";
+        item.innerHTML = `
+          <div class="flex items-center gap-4">
+            <span class="text-xs font-bold text-slate-400 w-6">${rank}</span>
+            <span class="text-sm font-black uppercase text-slate-800">${esc(u.name)}</span>
+          </div>
+          <span class="text-amber-600 font-black text-sm">${u.balance || 0} 🐴</span>
+        `;
+        list.appendChild(item);
+      });
+
+      display.classList.remove('hidden');
+      document.getElementById('scoreDisplay').classList.add('hidden');
+    };
+
+    // ============================================================
+    //  CHECK POINTS
+    // ============================================================
+    window.checkPoints = async () => {
+      const u = document.getElementById('memberSearch').value.trim().toLowerCase();
+      if (!u) return;
+      const btn = document.getElementById('checkBtn');
+      btn.innerText = t('js.accessing');
+
+      try {
+        const snap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'scores', u));
+        document.getElementById('resName').innerText = u.toUpperCase();
+
+        if (snap.exists()) {
+          const d = snap.data();
+          document.getElementById('resPoints').innerText = d.balance || 0;
+          document.getElementById('resReason').innerText = d.reason || t('js.member');
+        } else {
+          document.getElementById('resPoints').innerText = "0";
+          document.getElementById('resReason').innerText = t('js.notRegistered');
+        }
+      } catch (e) {
+        document.getElementById('resName').innerText = u.toUpperCase();
+        document.getElementById('resPoints').innerText = "?";
+        document.getElementById('resReason').innerText = t('js.error') + e.message;
+      }
+
+      document.getElementById('scoreDisplay').classList.remove('hidden');
+      document.getElementById('leaderboardDisplay').classList.add('hidden');
+      btn.innerText = t('js.findCoins');
+    };
+
+    // ============================================================
+    //  VERIFY ADMIN
+    // ============================================================
+    window.verifyAdmin = async () => {
+      const i = document.getElementById('adminPassInput').value;
+      try {
+        const snap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'config', 'admin'));
+        if (snap.exists() && i === snap.data().password) {
+          showScreen('adminEditor');
+          document.getElementById('errorLogin').classList.add('hidden');
+        } else {
+          document.getElementById('errorLogin').classList.remove('hidden');
+        }
+      } catch (e) {
+        document.getElementById('errorLogin').classList.remove('hidden');
+      }
+    };
+
+    // ============================================================
+    //  ADMIN ACTIONS
+    // ============================================================
+    window.executeAdminAction = async (type) => {
+      const fb = document.getElementById('adminFeedback');
+      fb.innerText = t('js.uploading');
+
+      try {
+        if (type === 'coins') {
+          const u = document.getElementById('targetUser').value.trim().toLowerCase();
+          const v = parseInt(document.getElementById('targetVal').value) || 0;
+          const r = document.getElementById('targetReason').value.trim();
+          if (!u) throw t('js.missingUser');
+          await setDoc(
+            doc(db, 'artifacts', appId, 'public', 'data', 'scores', u),
+            { balance: v, reason: r },
+            { merge: true }
+          );
+        } else {
+          const data = {
+            seller: document.getElementById('mktSeller').value.trim(),
+            item: document.getElementById('mktItem').value.trim(),
+            price: parseInt(document.getElementById('mktPrice').value) || 0,
+            profile: document.getElementById('mktLichess').value.trim(),
+            description: document.getElementById('mktDesc').value.trim(),
+            timestamp: Date.now()
+          };
+          if (!data.seller || !data.item) throw t('js.missingMarket');
+          await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'market'), data);
+          ['mktSeller', 'mktItem', 'mktPrice', 'mktLichess', 'mktDesc'].forEach(id => {
+            document.getElementById(id).value = '';
+          });
+        }
+        fb.innerText = t('js.success');
+      } catch (e) {
+        fb.innerText = t('js.error') + e;
+      }
+      setTimeout(() => fb.innerText = "", 3000);
+    };
+
+    // ============================================================
+    //  LOGOUT ADMIN
+    // ============================================================
+    window.logoutAdmin = () => {
+      document.getElementById('adminPassInput').value = "";
+      showScreen('roleScreen');
+    };
+
+    // ============================================================
+    //  GAME 1: CATCH HORSEY
+    // ============================================================
+    let score1 = 0;
+    let game1Timer = null;
+    let game1Initialized = false;
+
+    function initCatchHorsey() {
+      const target = document.getElementById('targetHorsey');
+      if (!target) return;
+      if (game1Initialized) return;
+      game1Initialized = true;
+      target.onclick = hitHorsey;
+      resetGame1();
+    }
+
+    function moveHorseyTarget() {
+      const target = document.getElementById('targetHorsey');
+      const container = document.getElementById('gameArea1');
+      if (!target || !container) return;
+      const maxX = Math.max(0, container.clientWidth - 70);
+      const maxY = Math.max(0, container.clientHeight - 70);
+      target.style.left = Math.floor(Math.random() * maxX) + 'px';
+      target.style.top = Math.floor(Math.random() * maxY) + 'px';
+    }
+
+    window.hitHorsey = function () {
+      score1 += 1;
+      const display = document.getElementById('scoreDisplay1');
+      if (display) display.innerText = t('js.score') + score1;
+      playSoundEffect('gift');
+      moveHorseyTarget();
+    };
+
+    window.resetGame1 = function () {
+      score1 = 0;
+      const display = document.getElementById('scoreDisplay1');
+      if (display) display.innerText = t('js.score') + "0";
+      moveHorseyTarget();
+      if (game1Timer) clearInterval(game1Timer);
+      game1Timer = setInterval(moveHorseyTarget, 1000);
+    };
+
+    // ============================================================
+    //  GAME 2: SANTA HORSEY DROP
+    // ============================================================
+    let sgCtx = null;
+    let sgAnimationId;
+    let sgScore = 0;
+    let sgLives = 3;
+    let sgIsPlaying = false;
+    let fallingItems = [];
+    let sgInitialized = false;
+    let playerX = 0;
+    const playerWidth = 60;
+    const playerHeight = 20;
+
+    function initSantaGame() {
+      const canvas = document.getElementById('santaGameCanvas');
+      if (!canvas || sgInitialized) return;
+      sgInitialized = true;
+      sgCtx = canvas.getContext('2d');
+      resizeSgCanvas();
+
+      canvas.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        playerX = e.clientX - rect.left;
+      });
+      canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        playerX = e.touches[0].clientX - rect.left;
+      });
+
+      window.addEventListener('resize', resizeSgCanvas);
+
+      if (sgCtx) {
+        sgCtx.fillStyle = '#d97706';
+        sgCtx.font = 'bold 18px Arial';
+        sgCtx.textAlign = 'center';
+        sgCtx.fillText(t('js.clickPlay'), canvas.width / 2, canvas.height / 2);
+      }
+    }
+
+    function resizeSgCanvas() {
+      const canvas = document.getElementById('santaGameCanvas');
+      if (!canvas || !canvas.parentElement) return;
+      const rect = canvas.parentElement.getBoundingClientRect();
+      if (rect.width > 0) {
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+        playerX = canvas.width / 2;
+      }
+    }
+
+    function spawnItem() {
+      const canvas = document.getElementById('santaGameCanvas');
+      if (!canvas) return;
+      const isBomb = Math.random() < 0.25;
+      fallingItems.push({
+        x: Math.random() * (canvas.width - 20) + 10,
+        y: -20,
+        speed: Math.random() * 2 + 2,
+        type: isBomb ? 'bomb' : 'gift',
+        size: 24
+      });
+    }
+
+    function updateSantaGame() {
+      const canvas = document.getElementById('santaGameCanvas');
+      if (!canvas || !sgCtx || !sgIsPlaying || canvas.width === 0) return;
+
+      sgCtx.fillStyle = '#fef3c7';
+      sgCtx.fillRect(0, 0, canvas.width, canvas.height);
+
       sgCtx.fillStyle = '#d97706';
-      sgCtx.font = 'bold 28px Arial';
-      sgCtx.textAlign = 'center';
-      sgCtx.fillText(t('js.gameOver'), canvas.width/2, canvas.height/2);
-      sgCtx.font = '20px Arial';
-      sgCtx.fillText(t('js.finalGifts') + sgScore, canvas.width/2, canvas.height/2 + 35);
-      return;
+      sgCtx.shadowColor = 'rgba(0,0,0,0.15)';
+      sgCtx.shadowBlur = 6;
+      sgCtx.fillRect(
+        playerX - playerWidth / 2,
+        canvas.height - playerHeight - 10,
+        playerWidth,
+        playerHeight
+      );
+      sgCtx.shadowBlur = 0;
+
+      for (let i = fallingItems.length - 1; i >= 0; i--) {
+        let item = fallingItems[i];
+        item.y += item.speed;
+
+        sgCtx.font = item.size + 'px Arial';
+        sgCtx.textAlign = 'center';
+        sgCtx.fillText(item.type === 'gift' ? '🎁' : '💣', item.x, item.y);
+
+        if (
+          item.y + item.size / 2 > canvas.height - playerHeight - 10 &&
+          item.y - item.size / 2 < canvas.height - 10 &&
+          item.x > playerX - playerWidth / 2 &&
+          item.x < playerX + playerWidth / 2
+        ) {
+          if (item.type === 'gift') {
+            sgScore += 1;
+            playSoundEffect('gift');
+          } else {
+            sgLives -= 1;
+            playSoundEffect('bomb');
+            sgCtx.fillStyle = 'rgba(231, 76, 60, 0.25)';
+            sgCtx.fillRect(0, 0, canvas.width, canvas.height);
+          }
+          fallingItems.splice(i, 1);
+          updateSgDisplay();
+          continue;
+        }
+
+        if (item.y > canvas.height) {
+          fallingItems.splice(i, 1);
+        }
+      }
+
+      if (Math.random() < 0.04) spawnItem();
+
+      if (sgLives <= 0) {
+        sgIsPlaying = false;
+        sgCtx.fillStyle = 'rgba(255,255,255,0.9)';
+        sgCtx.fillRect(0, 0, canvas.width, canvas.height);
+        sgCtx.fillStyle = '#d97706';
+        sgCtx.font = 'bold 28px Arial';
+        sgCtx.textAlign = 'center';
+        sgCtx.fillText(t('js.gameOver'), canvas.width / 2, canvas.height / 2);
+        sgCtx.font = '20px Arial';
+        sgCtx.fillText(t('js.finalGifts') + sgScore, canvas.width / 2, canvas.height / 2 + 35);
+        return;
+      }
+
+      sgAnimationId = requestAnimationFrame(updateSantaGame);
     }
 
-    sgAnimationId = requestAnimationFrame(updateSantaGame);
-  }
-
-  function updateSgDisplay() {
-    const d = document.getElementById('scoreDisplay2');
-    if (d) d.innerText = t('js.gifts') + sgScore + t('js.lives') + sgLives;
-  }
-
-  window.startSantaGame = function () {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    sgScore = 0;
-    sgLives = 3;
-    fallingItems = [];
-    sgIsPlaying = true;
-    updateSgDisplay();
-    if (sgAnimationId) cancelAnimationFrame(sgAnimationId);
-    resizeSgCanvas();
-    updateSantaGame();
-  };
-
-  // ============================================================
-  //  AUDIO (Web Audio API)
-  // ============================================================
-  let audioCtx = null;
-
-  function playSoundEffect(type) {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    if (type === 'gift') {
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.3);
-    } else {
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(100, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 0.4);
-      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.4);
+    function updateSgDisplay() {
+      const d = document.getElementById('scoreDisplay2');
+      if (d) d.innerText = t('js.gifts') + sgScore + t('js.lives') + sgLives;
     }
-  }
 
-  // ============================================================
-  //  UTILITIES
-  // ============================================================
-  function esc(str) {
-    if (!str) return '';
-    return String(str)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
-  }
+    window.startSantaGame = function () {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
 
-  // ============================================================
-  //  START
-  // ============================================================
-  init();
-</script>
+      sgScore = 0;
+      sgLives = 3;
+      fallingItems = [];
+      sgIsPlaying = true;
+      updateSgDisplay();
+      if (sgAnimationId) cancelAnimationFrame(sgAnimationId);
+      resizeSgCanvas();
+      updateSantaGame();
+    };
+
+    // ============================================================
+    //  SOUND EFFECTS
+    // ============================================================
+    function playSoundEffect(type) {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === 'gift') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.3);
+        } else {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 0.4);
+          gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.4);
+        }
+      } catch (e) {}
+    }
+
+    // ============================================================
+    //  ESCAPE HTML
+    // ============================================================
+    function esc(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // ============================================================
+    //  START
+    // ============================================================
+    currentLang = detectLanguage();
+    applyTranslations();
+    init();
+
+  </script>
 </body>
 </html>
