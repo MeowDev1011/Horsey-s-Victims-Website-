@@ -6,16 +6,41 @@
 <link rel="icon" type="image/png" href="horsey.png">
 <link rel="apple-touch-icon" href="horsey.png">
 <title>Horsey's Victims - Horsey Dollars System</title>
+
+<!-- ERROR HANDLER - must be FIRST so it catches everything -->
+<script>
+window.__errors=[];
+window.addEventListener('error',function(e){
+  window.__errors.push(e.message+' at '+(e.filename||'')+':'+(e.lineno||''));
+  var b=document.getElementById('fatalErrorBox');
+  if(!b){b=document.createElement('div');b.id='fatalErrorBox';b.style.cssText='position:fixed;top:0;left:0;right:0;background:#dc2626;color:#fff;padding:10px;font-family:monospace;font-size:11px;z-index:999999;max-height:35vh;overflow:auto;white-space:pre-wrap;';document.body.appendChild(b);}
+  b.textContent+='ERR: '+e.message+' @ '+(e.filename||'').split('/').pop()+':'+e.lineno+'\n';
+});
+window.addEventListener('unhandledrejection',function(e){
+  var m=(e.reason&&e.reason.message)||e.reason||'unknown';
+  var b=document.getElementById('fatalErrorBox');
+  if(!b){b=document.createElement('div');b.id='fatalErrorBox';b.style.cssText='position:fixed;top:0;left:0;right:0;background:#dc2626;color:#fff;padding:10px;font-family:monospace;font-size:11px;z-index:999999;max-height:35vh;overflow:auto;white-space:pre-wrap;';document.body.appendChild(b);}
+  b.textContent+='REJ: '+m+'\n';
+});
+</script>
+
 <script src="https://cdn.tailwindcss.com"></script>
 
-<!-- Quill.js CSS -->
-<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
-<!-- CodeMirror CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/monokai.min.css">
+<!-- Quill CSS + JS (jsdelivr, more reliable) -->
+<link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
 
-<!-- Google Fonts para Quill (15 fuentes) -->
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;700&family=Lato:wght@400;700&family=Montserrat:wght@400;700&family=Crimson+Pro:wght@400;700&family=DM+Sans:wght@400;700&family=Source+Code+Pro:wght@400;700&family=Oswald:wght@400;700&family=Raleway:wght@400;700&family=Poppins:wght@400;700&family=Nunito:wght@400;700&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&family=Merriweather:wght@400;700&family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
+<!-- CodeMirror CSS + JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/theme/monokai.min.css">
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/xml/xml.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/javascript/javascript.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/css/css.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+
+<!-- 15 Fonts for Quill -->
+<link href="https://fonts.googleapis.com/css2?family=Roboto&family=Open+Sans&family=Lato&family=Montserrat&family=Crimson+Pro&family=DM+Sans&family=Source+Code+Pro&family=Oswald&family=Raleway&family=Poppins&family=Nunito&family=Ubuntu&family=Playfair+Display&family=Merriweather&family=Fira+Code&display=swap" rel="stylesheet">
 
 <style>
 body{background-color:#f8fafc;color:#1e293b;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;margin:0;padding:0;overflow-x:hidden}
@@ -49,12 +74,11 @@ body{background-color:#f8fafc;color:#1e293b;font-family:'Segoe UI',system-ui,-ap
 .logo-img{max-width:500px;width:100%;height:auto;display:block;margin:0 auto 1rem;border-radius:20px;animation:gentleFloat 4s ease-in-out infinite}
 @media(max-width:640px){.logo-img{max-width:90%}}
 @keyframes gentleFloat{0%,100%{transform:translateY(0px)}50%{transform:translateY(-12px)}}
-#debugPanel{display:none;position:fixed;top:0;left:0;right:0;padding:14px 16px;background:#1e293b;color:#fff;font-family:monospace;font-size:12px;line-height:1.5;z-index:99999;max-height:45vh;overflow-y:auto;box-shadow:0 4px 20px rgba(0,0,0,0.4)}
-#debugPanel .ok{color:#4ade80}
-#debugPanel .warn{color:#fbbf24}
-#debugPanel .err{color:#f87171;font-weight:bold}
-#debugPanel .close-btn{position:absolute;top:8px;right:12px;background:rgba(255,255,255,0.2);border:none;color:#fff;font-size:18px;cursor:pointer;padding:2px 10px;border-radius:6px}
-/* Quill custom styles */
+.editor-fallback{width:100%;min-height:120px;border:1px solid #cbd5e1;border-radius:0.75rem;padding:0.75rem;font-family:monospace;font-size:0.85rem;background:#fff;outline:none}
+.editor-fallback:focus{border-color:#d97706}
+.ql-toolbar.ql-snow{border-radius:0.75rem 0.75rem 0 0!important;border-color:#cbd5e1!important;background:#f8fafc}
+.ql-container.ql-snow{border-radius:0 0 0.75rem 0.75rem!important;border-color:#cbd5e1!important;font-family:'Segoe UI',system-ui,sans-serif;font-size:0.9rem}
+.ql-editor{min-height:120px}
 .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="roboto"]::before,.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="roboto"]::before{content:'Roboto';font-family:'Roboto',sans-serif}
 .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="open-sans"]::before,.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="open-sans"]::before{content:'Open Sans';font-family:'Open Sans',sans-serif}
 .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="lato"]::before,.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="lato"]::before{content:'Lato';font-family:'Lato',sans-serif}
@@ -74,7 +98,7 @@ body{background-color:#f8fafc;color:#1e293b;font-family:'Segoe UI',system-ui,-ap
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 sm:p-8">
 
-<!-- SVG ICON LIBRARY (Material Design Icons) -->
+<!-- SVG ICONS -->
 <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
 <symbol id="i-horse" viewBox="0 0 24 24"><path d="M19 22H5v-2h14v2M13.1 2.1c-.4-.1-.8-.1-1.2-.1-1.4 0-2.7.4-3.8 1.2-1.6 1.1-3 2.4-4.3 3.9C2.6 8.5 1.8 10.3 1.5 12.2c-.1.6-.2 1.2-.2 1.8h3c.6 0 1.2-.1 1.8-.3.6-.2 1.1-.5 1.6-.9.3-.3.7-.6 1-1v3.4H6.5c-.6 0-1.1.2-1.5.6-.4.4-.6.9-.6 1.5V21h14v-3.7c0-.6-.2-1.1-.6-1.5-.4-.4-.9-.6-1.5-.6h-2.2v-3.4c.5.6 1.1 1.1 1.7 1.4.7.4 1.4.6 2.1.7.4.1.8.1 1.2.1h4c.4 0 .7-.1.9-.4.2-.3.3-.6.3-.9 0-2.3-.7-4.5-2-6.3-1.3-1.8-3.1-3.2-5.1-4-.5-.2-1.1-.3-1.7-.3m-.1 4.9c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5S11.5 9.3 11.5 8.5s.7-1.5 1.5-1.5z"/></symbol>
 <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M18 2h-2V1h-8v1H6v2H2v3c0 3.3 2.7 6 6 6h.3c.7 1.7 2.2 3 4.2 3.4V19H8v2h8v-2h-4.5v-2.6c2-.4 3.5-1.7 4.2-3.4H16c3.3 0 6-2.7 6-6V4h-4V2M4 4h2v4c0 1.1-.9 2-2 2V4m18 4v2c-1.1 0-2-.9-2-2V4h2v4m-7-4h2v5c0 2.2-1.8 4-4 4s-4-1.8-4-4V4h6z"/></symbol>
@@ -89,17 +113,7 @@ body{background-color:#f8fafc;color:#1e293b;font-family:'Segoe UI',system-ui,-ap
 <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3m-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3m0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5m8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></symbol>
 <symbol id="i-diamond" viewBox="0 0 24 24"><path d="M19 3H5L2 9l10 12L22 9l-3-6M9.62 8L12 5.67 14.37 8H9.63M11 10v5.5L6.38 10H11m2 0h4.62L13 15.5V10m4.38-2L15.24 5h2.38l1.76 3h-2m-11 0H4.62l1.76-3h2.38L6.62 8z"/></symbol>
 <symbol id="i-flag" viewBox="0 0 24 24"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/></symbol>
-<symbol id="i-edit" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></symbol>
-<symbol id="i-trash" viewBox="0 0 24 24"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12z"/></symbol>
-<symbol id="i-close" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></symbol>
-<symbol id="i-gift" viewBox="0 0 24 24"><path d="M22 12v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8h20m-10-9a3 3 0 0 1 3 3h3a2 2 0 0 1 2 2v2H4V8a2 2 0 0 1 2-2h3a3 3 0 0 1 3-3m1 3a1 1 0 0 0-1-1 1 1 0 0 0-1 1h2m-4 0a1 1 0 0 0-1-1 1 1 0 0 0-1 1h2z"/></symbol>
-<symbol id="i-language" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2m6.93 6h-2.95a15.65 15.65 0 0 0-1.38-3.56A7.98 7.98 0 0 1 18.92 8M12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96M4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2s.06 1.34.14 2H4.26m.82 2h2.95c.32 1.25.78 2.45 1.38 3.56A7.99 7.99 0 0 1 5.08 16m2.95-8H5.08a7.99 7.99 0 0 1 4.33-3.56A15.65 15.65 0 0 0 8.03 8M12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96M14.34 14H9.66c-.09-.66-.16-1.32-.16-2s.07-1.35.16-2h4.68c.09.65.16 1.32.16 2s-.07 1.34-.16 2m.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95a8.03 8.03 0 0 1-4.33 3.56M16.36 14c.08-.66.14-1.32.14-2s-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z"/></symbol>
 </svg>
-
-<div id="debugPanel" style="display:none">
-<button class="close-btn" onclick="document.getElementById('debugPanel').style.display='none'">X</button>
-<div id="debugContent"></div>
-</div>
 
 <div id="langSwitcher" class="hidden fixed top-4 right-4 z-40 lang-switcher">
 <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
@@ -110,10 +124,10 @@ body{background-color:#f8fafc;color:#1e293b;font-family:'Segoe UI',system-ui,-ap
 <div id="setupBox" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-100 px-4">
 <div class="w-full max-w-[380px] bg-white border-2 border-amber-500 rounded-3xl p-10 shadow-2xl text-center">
 <img src="logo.png" alt="Logo" style="max-width:180px;margin:0 auto 1rem;display:block;border-radius:16px" onerror="this.style.display='none'">
-<h2 class="text-amber-600 font-black text-2xl mb-4 italic" data-i18n="setup.title">HORSEY DOLLARS SETUP</h2>
-<p class="text-slate-500 text-[10px] mb-4 uppercase font-bold tracking-widest" data-i18n="setup.subtitle">Create Admin Password</p>
-<input type="text" id="initialPass" data-i18n-ph="setup.placeholder" placeholder="New Password..." class="w-full bg-slate-50 border border-slate-300 p-4 mb-6 text-center text-slate-800 rounded-xl outline-none focus:border-amber-500">
-<button onclick="savePassword()" class="btn-action yellow-gradient text-white font-black uppercase w-full py-4 rounded-xl" data-i18n="setup.button">INITIALIZE SYSTEM</button>
+<h2 class="text-amber-600 font-black text-2xl mb-4 italic">HORSEY DOLLARS SETUP</h2>
+<p class="text-slate-500 text-[10px] mb-4 uppercase font-bold tracking-widest">Create Admin Password</p>
+<input type="text" id="initialPass" placeholder="New Password..." class="w-full bg-slate-50 border border-slate-300 p-4 mb-6 text-center text-slate-800 rounded-xl outline-none focus:border-amber-500">
+<button onclick="savePassword()" class="btn-action yellow-gradient text-white font-black uppercase w-full py-4 rounded-xl">INITIALIZE SYSTEM</button>
 <p id="setupError" class="text-red-500 text-xs mt-4 hidden"></p>
 </div>
 </div>
@@ -121,41 +135,41 @@ body{background-color:#f8fafc;color:#1e293b;font-family:'Segoe UI',system-ui,-ap
 <div id="mainApp" class="hidden w-full max-w-3xl mx-auto fade-in">
 
 <div class="text-center mb-10">
-<img src="logo.png" alt="Horsey's Victims Logo" class="logo-img" onerror="this.style.display='none'">
-<h1 class="text-4xl md:text-6xl font-black italic tracking-tighter uppercase text-slate-800" data-i18n="header.title">Horsey's Victims</h1>
-<p class="text-amber-600 text-xs font-bold tracking-[0.3em] mt-2 uppercase" data-i18n="header.subtitle">Official Horsey Dollars System</p>
+<img src="logo.png" alt="Logo" class="logo-img" onerror="this.style.display='none'">
+<h1 class="text-4xl md:text-6xl font-black italic tracking-tighter uppercase text-slate-800">Horsey's Victims</h1>
+<p class="text-amber-600 text-xs font-bold tracking-[0.3em] mt-2 uppercase">Official Horsey Dollars System</p>
 </div>
 
 <div id="roleScreen" class="main-card rounded-[2.5rem] p-8 md:p-12 text-center">
-<h2 class="text-slate-400 text-sm font-bold uppercase mb-10 tracking-widest" data-i18n="role.identify">Identify Yourself</h2>
+<h2 class="text-slate-400 text-sm font-bold uppercase mb-10 tracking-widest">Identify Yourself</h2>
 <div class="grid grid-cols-1 gap-5">
-<button onclick="showScreen('memberScreen')" class="btn-action w-full bg-slate-100 border border-slate-300 text-slate-800 font-black py-6 rounded-2xl uppercase tracking-widest text-xl hover:bg-slate-200" data-i18n="role.member">Member Portal</button>
-<button onclick="showScreen('loginScreen')" class="btn-action yellow-gradient text-white font-black w-full py-6 rounded-2xl uppercase tracking-widest text-xl shadow-lg" data-i18n="role.admin">HORSEY DOLLARS ADMIN</button>
+<button onclick="showScreen('memberScreen')" class="btn-action w-full bg-slate-100 border border-slate-300 text-slate-800 font-black py-6 rounded-2xl uppercase tracking-widest text-xl hover:bg-slate-200">Member Portal</button>
+<button onclick="showScreen('loginScreen')" class="btn-action yellow-gradient text-white font-black w-full py-6 rounded-2xl uppercase tracking-widest text-xl shadow-lg">HORSEY DOLLARS ADMIN</button>
 </div>
 </div>
 
 <div id="publicCardsSection" class="mt-8">
-<h2 class="text-slate-400 text-xs font-bold uppercase mb-4 tracking-widest text-center"><svg class="ico" viewBox="0 0 24 24"><use href="#i-pin"/></svg> <span data-i18n="public.title">Team Info</span></h2>
+<h2 class="text-slate-400 text-xs font-bold uppercase mb-4 tracking-widest text-center"><svg class="ico" viewBox="0 0 24 24"><use href="#i-pin"/></svg> <span>Team Info</span></h2>
 <div id="publicCardsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
 </div>
 
 <div id="memberScreen" class="hidden main-card rounded-[2.5rem] p-6 md:p-10 mt-8">
 <div class="flex flex-wrap justify-center gap-4 mb-8">
-<button onclick="toggleMemberTab('coins')" id="tabCoins" class="text-xs font-black uppercase tracking-widest border-b-2 border-amber-500 pb-2 text-slate-800"><svg class="ico" viewBox="0 0 24 24"><use href="#i-horse"/></svg> <span data-i18n="member.tabs.coins">Horsey Dollars</span></button>
-<button onclick="toggleMemberTab('markets')" id="tabMarkets" class="text-xs font-black uppercase tracking-widest border-b-2 border-transparent pb-2 text-slate-400" data-i18n="member.tabs.markets">Market</button>
-<button onclick="toggleMemberTab('cards')" id="tabCards" class="text-xs font-black uppercase tracking-widest border-b-2 border-transparent pb-2 text-slate-400" data-i18n="member.tabs.cards">Info Cards</button>
-<button onclick="toggleMemberTab('games')" id="tabGames" class="text-xs font-black uppercase tracking-widest border-b-2 border-transparent pb-2 text-slate-400"><svg class="ico" viewBox="0 0 24 24"><use href="#i-gamepad"/></svg> <span data-i18n="member.tabs.games">Games</span></button>
+<button onclick="toggleMemberTab('coins')" id="tabCoins" class="text-xs font-black uppercase tracking-widest border-b-2 border-amber-500 pb-2 text-slate-800">Horsey Dollars</button>
+<button onclick="toggleMemberTab('markets')" id="tabMarkets" class="text-xs font-black uppercase tracking-widest border-b-2 border-transparent pb-2 text-slate-400">Market</button>
+<button onclick="toggleMemberTab('cards')" id="tabCards" class="text-xs font-black uppercase tracking-widest border-b-2 border-transparent pb-2 text-slate-400">Cards</button>
+<button onclick="toggleMemberTab('games')" id="tabGames" class="text-xs font-black uppercase tracking-widest border-b-2 border-transparent pb-2 text-slate-400">Games</button>
 </div>
 
 <div id="coinsContent" class="fade-in">
 <div class="text-center mb-8">
 <div class="relative max-w-sm mx-auto">
-<input type="text" id="memberSearch" data-i18n-ph="coins.search" placeholder="Enter Lichess User..." autocomplete="off" oninput="showSuggestions('memberSearch','memberSuggestions')" class="w-full bg-slate-50 border border-slate-300 p-5 rounded-2xl text-center text-xl outline-none focus:border-amber-500 text-slate-800 placeholder-slate-400">
+<input type="text" id="memberSearch" placeholder="Enter Lichess User..." autocomplete="off" oninput="showSuggestions('memberSearch','memberSuggestions')" class="w-full bg-slate-50 border border-slate-300 p-5 rounded-2xl text-center text-xl outline-none focus:border-amber-500 text-slate-800">
 <ul id="memberSuggestions" class="absolute z-10 w-full bg-white border border-slate-300 rounded-xl mt-2 hidden max-h-48 overflow-y-auto custom-scroll shadow-2xl"></ul>
 </div>
 <div class="flex flex-wrap justify-center gap-3 mt-6">
-<button onclick="checkPoints()" id="checkBtn" class="bg-slate-200 text-slate-800 px-8 py-4 rounded-xl font-black uppercase text-xs hover:bg-slate-300 transition-colors" data-i18n="coins.find">Find Horsey Dollars</button>
-<button onclick="showLeaderboard()" class="yellow-gradient text-white px-8 py-4 rounded-xl font-black uppercase text-xs flex items-center gap-2"><svg class="ico" viewBox="0 0 24 24"><use href="#i-trophy"/></svg> <span data-i18n="coins.leaderboard">Leaderboard</span></button>
+<button onclick="checkPoints()" id="checkBtn" class="bg-slate-200 text-slate-800 px-8 py-4 rounded-xl font-black uppercase text-xs hover:bg-slate-300">Find Horsey Dollars</button>
+<button onclick="showLeaderboard()" class="yellow-gradient text-white px-8 py-4 rounded-xl font-black uppercase text-xs flex items-center gap-2"><svg class="ico" viewBox="0 0 24 24"><use href="#i-trophy"/></svg> Leaderboard</button>
 </div>
 </div>
 <div id="scoreDisplay" class="hidden fade-in mb-10">
@@ -167,7 +181,7 @@ body{background-color:#f8fafc;color:#1e293b;font-family:'Segoe UI',system-ui,-ap
 </div>
 <div id="leaderboardDisplay" class="hidden fade-in mb-10">
 <div class="bg-slate-50 p-6 rounded-3xl border border-slate-200">
-<h3 class="text-amber-600 font-black uppercase italic mb-6 text-center"><svg class="ico" viewBox="0 0 24 24"><use href="#i-trophy"/></svg> <span data-i18n="coins.topHolders">Top Holders</span></h3>
+<h3 class="text-amber-600 font-black uppercase italic mb-6 text-center"><svg class="ico" viewBox="0 0 24 24"><use href="#i-trophy"/></svg> Top Holders</h3>
 <div id="leaderboardList" class="space-y-3 max-h-72 overflow-y-auto custom-scroll pr-2"></div>
 </div>
 </div>
@@ -175,215 +189,195 @@ body{background-color:#f8fafc;color:#1e293b;font-family:'Segoe UI',system-ui,-ap
 
 <div id="marketsContent" class="hidden fade-in space-y-6">
 <div class="p-4 bg-amber-50 border border-amber-300 rounded-2xl text-center mb-4">
-<p class="text-amber-700 text-xs font-bold uppercase tracking-wider"><svg class="ico" viewBox="0 0 24 24"><use href="#i-cart"/></svg> <span data-i18n="market.notice1">DM the seller to purchase and DM</span> <span class="text-slate-800">@rajul_s</span> <span data-i18n="market.notice2">to make it official.</span></p>
+<p class="text-amber-700 text-xs font-bold uppercase tracking-wider"><svg class="ico" viewBox="0 0 24 24"><use href="#i-cart"/></svg> DM the seller to purchase and DM @rajul_s to make it official.</p>
 </div>
-<h3 class="text-center text-slate-800 font-black italic uppercase tracking-widest text-xl mb-4"><svg class="ico" viewBox="0 0 24 24"><use href="#i-store"/></svg> <span data-i18n="market.title">Official Marketplace</span></h3>
-<div id="marketList" class="grid grid-cols-1 gap-4 max-h-[500px] overflow-y-auto custom-scroll pr-2"><p class="text-center text-slate-400 text-xs italic py-10" data-i18n="market.empty">No items available yet.</p></div>
+<h3 class="text-center text-slate-800 font-black italic uppercase tracking-widest text-xl mb-4"><svg class="ico" viewBox="0 0 24 24"><use href="#i-store"/></svg> Official Marketplace</h3>
+<div id="marketList" class="grid grid-cols-1 gap-4 max-h-[500px] overflow-y-auto custom-scroll pr-2"><p class="text-center text-slate-400 text-xs italic py-10">No items available yet.</p></div>
 </div>
 
 <div id="cardsContent" class="hidden fade-in">
-<h3 class="text-center text-slate-800 font-black italic uppercase tracking-widest text-xl mb-4"><svg class="ico" viewBox="0 0 24 24"><use href="#i-pin"/></svg> <span data-i18n="cards.title">Team Information</span></h3>
-<div id="memberCardsList" class="grid grid-cols-1 gap-4"><p class="text-center text-slate-400 text-xs italic py-10" data-i18n="cards.empty">No cards available yet.</p></div>
+<h3 class="text-center text-slate-800 font-black italic uppercase tracking-widest text-xl mb-4"><svg class="ico" viewBox="0 0 24 24"><use href="#i-pin"/></svg> Team Information</h3>
+<div id="memberCardsList" class="grid grid-cols-1 gap-4"><p class="text-center text-slate-400 text-xs italic py-10">No cards available yet.</p></div>
 </div>
 
 <div id="gamesContent" class="hidden fade-in">
-<h3 class="text-center text-slate-800 font-black italic uppercase tracking-widest text-xl mb-6"><svg class="ico" viewBox="0 0 24 24"><use href="#i-gamepad"/></svg> <span data-i18n="games.title">Horsey Arcade</span></h3>
+<h3 class="text-center text-slate-800 font-black italic uppercase tracking-widest text-xl mb-6"><svg class="ico" viewBox="0 0 24 24"><use href="#i-gamepad"/></svg> Horsey Arcade</h3>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
 <div class="bg-slate-50 border-2 border-dashed border-amber-400 rounded-2xl p-6 flex flex-col items-center text-center">
 <div style="color:#8B4513"><svg style="width:4rem;height:4rem;fill:currentColor" viewBox="0 0 24 24"><use href="#i-horse"/></svg></div>
-<h4 class="text-amber-700 font-black uppercase mt-3" data-i18n="games.g1.title">Catch Horsey!</h4>
-<p class="text-slate-500 text-xs mt-2 mb-3" data-i18n="games.g1.desc">Click Horsey before he jumps away!</p>
-<div class="game-play-area" id="gameArea1">
-<div id="targetHorsey" class="interactive-target" style="top:100px;left:120px;color:#8B4513">
-<svg style="width:100%;height:100%;fill:currentColor" viewBox="0 0 24 24"><use href="#i-horse"/></svg>
-</div>
-</div>
+<h4 class="text-amber-700 font-black uppercase mt-3">Catch Horsey!</h4>
+<p class="text-slate-500 text-xs mt-2 mb-3">Click Horsey before he jumps away!</p>
+<div class="game-play-area" id="gameArea1"><div id="targetHorsey" class="interactive-target" style="top:100px;left:120px;color:#8B4513"><svg style="width:100%;height:100%;fill:currentColor" viewBox="0 0 24 24"><use href="#i-horse"/></svg></div></div>
 <div class="bg-amber-100 text-amber-700 font-bold px-5 py-2 rounded-full mb-4" id="scoreDisplay1">Score: 0</div>
-<button onclick="resetGame1()" class="btn-action yellow-gradient text-white font-black px-6 py-3 rounded-2xl uppercase text-sm" data-i18n="games.g1.button">Start / Reset</button>
+<button onclick="resetGame1()" class="btn-action yellow-gradient text-white font-black px-6 py-3 rounded-2xl uppercase text-sm">Start / Reset</button>
 </div>
-
 <div class="bg-slate-50 border-2 border-dashed border-amber-400 rounded-2xl p-6 flex flex-col items-center text-center">
-<div style="color:#d97706"><svg style="width:4rem;height:4rem;fill:currentColor" viewBox="0 0 24 24"><use href="#i-gift"/></svg></div>
-<h4 class="text-amber-700 font-black uppercase mt-3" data-i18n="games.g2.title">Santa Horsey's Drop</h4>
-<p class="text-slate-500 text-xs mt-2 mb-3" data-i18n="games.g2.desc">Catch gifts, avoid bombs</p>
+<div style="color:#d97706"><svg style="width:4rem;height:4rem;fill:currentColor" viewBox="0 0 24 24"><use href="#i-cart"/></svg></div>
+<h4 class="text-amber-700 font-black uppercase mt-3">Santa Horsey's Drop</h4>
+<p class="text-slate-500 text-xs mt-2 mb-3">Catch gifts, avoid bombs</p>
 <div class="game-play-area"><canvas id="santaGameCanvas"></canvas></div>
 <div class="bg-amber-100 text-amber-700 font-bold px-5 py-2 rounded-full mb-4" id="scoreDisplay2">Gifts: 0 | Lives: 3</div>
-<button onclick="startSantaGame()" class="btn-action yellow-gradient text-white font-black px-6 py-3 rounded-2xl uppercase text-sm" data-i18n="games.g2.button">Play Game</button>
+<button onclick="startSantaGame()" class="btn-action yellow-gradient text-white font-black px-6 py-3 rounded-2xl uppercase text-sm">Play Game</button>
 </div>
-
 </div>
 </div>
 
 <div class="space-y-4 border-t border-slate-200 pt-8 mt-10">
 <div class="grid grid-cols-1 gap-3">
-<a href="https://lichess.org/team/horseys-victims" target="_blank" class="inline-block w-full bg-amber-100 border border-amber-500 text-amber-700 font-black py-4 rounded-2xl uppercase tracking-widest text-sm text-center btn-action"><svg class="ico" viewBox="0 0 24 24"><use href="#i-horse"/></svg> <span data-i18n="links.join">Join Horsey's Victims on Lichess</span></a>
-<a href="https://lichess.org/forum" target="_blank" class="inline-block w-full bg-red-100 border border-red-400 text-red-600 font-black py-4 rounded-2xl uppercase tracking-widest text-sm text-center btn-action"><svg class="ico" viewBox="0 0 24 24"><use href="#i-flag"/></svg> <span data-i18n="links.report">Report Horsey Dollar Theft</span></a>
+<a href="https://lichess.org/team/horseys-victims" target="_blank" class="inline-block w-full bg-amber-100 border border-amber-500 text-amber-700 font-black py-4 rounded-2xl uppercase tracking-widest text-sm text-center btn-action">Join Horsey's Victims on Lichess</a>
+<a href="https://lichess.org/forum" target="_blank" class="inline-block w-full bg-red-100 border border-red-400 text-red-600 font-black py-4 rounded-2xl uppercase tracking-widest text-sm text-center btn-action">Report Horsey Dollar Theft</a>
 </div>
 <div class="p-6 bg-amber-50 border-l-4 border-amber-500 rounded-r-2xl mt-4">
-<h3 class="text-amber-700 font-black uppercase text-sm mb-3"><svg class="ico" viewBox="0 0 24 24"><use href="#i-warning"/></svg> <span data-i18n="claim.title">Claim Horsey Dollars Rule</span></h3>
-<p class="text-slate-700 text-sm leading-relaxed mb-4" data-i18n="claim.text">To add Horsey Dollars you must claim them to:</p>
+<h3 class="text-amber-700 font-black uppercase text-sm mb-3"><svg class="ico" viewBox="0 0 24 24"><use href="#i-warning"/></svg> Claim Horsey Dollars Rule</h3>
+<p class="text-slate-700 text-sm leading-relaxed mb-4">To add Horsey Dollars you must claim them to:</p>
 <a href="https://lichess.org/msg/rajul_s" target="_blank" class="text-amber-700 font-bold hover:underline">@rajul_s</a>
 </div>
 <div class="pt-6">
-<h3 class="text-slate-800 font-black uppercase italic tracking-widest text-center mb-6"><svg class="ico" viewBox="0 0 24 24"><use href="#i-chart"/></svg> <span data-i18n="earn.title">How to Earn Horsey Dollars</span></h3>
+<h3 class="text-slate-800 font-black uppercase italic tracking-widest text-center mb-6"><svg class="ico" viewBox="0 0 24 24"><use href="#i-chart"/></svg> How to Earn Horsey Dollars</h3>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-<div class="bg-slate-50 p-5 rounded-2xl border border-slate-200"><span class="text-2xl mb-2 block"><svg class="ico-lg" viewBox="0 0 24 24"><use href="#i-swords"/></svg> <span data-i18n="earn.battles.title">Team Battles</span></span><ul class="space-y-2 text-slate-600"><li class="flex justify-between"><span data-i18n="earn.battles.rule">Every 3 points scored:</span> <b class="text-slate-800">+1 Horsey</b></li></ul></div>
-<div class="bg-amber-50 p-5 rounded-2xl border-2 border-amber-400"><span class="text-2xl mb-2 block"><svg class="ico-lg" viewBox="0 0 24 24"><use href="#i-fire"/></svg> <span data-i18n="earn.lmao.title">LMAO Team Fights</span></span><ul class="space-y-2 text-slate-600"><li class="flex justify-between"><span data-i18n="earn.lmao.rule">Every 1 point scored:</span> <b class="text-amber-700">+1 Horsey</b></li></ul><p class="text-amber-600 text-[10px] mt-2 italic font-bold" data-i18n="earn.lmao.special">SPECIAL EVENT RATIO</p></div>
-<div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 col-span-1 md:col-span-2"><span class="text-2xl mb-2 block"><svg class="ico-lg" viewBox="0 0 24 24"><use href="#i-users"/></svg> <span data-i18n="earn.recruit.title">Recruitment</span></span><ul class="space-y-2 text-slate-600"><li class="flex justify-between"><span data-i18n="earn.recruit.rule">Every 2 members added:</span> <b class="text-slate-800">+1 Horsey</b></li></ul></div>
+<div class="bg-slate-50 p-5 rounded-2xl border border-slate-200"><span class="text-2xl mb-2 block"><svg class="ico-lg" viewBox="0 0 24 24"><use href="#i-swords"/></svg> Team Battles</span><ul class="space-y-2 text-slate-600"><li class="flex justify-between"><span>Every 3 points scored:</span> <b class="text-slate-800">+1 Horsey</b></li></ul></div>
+<div class="bg-amber-50 p-5 rounded-2xl border-2 border-amber-400"><span class="text-2xl mb-2 block"><svg class="ico-lg" viewBox="0 0 24 24"><use href="#i-fire"/></svg> LMAO Team Fights</span><ul class="space-y-2 text-slate-600"><li class="flex justify-between"><span>Every 1 point scored:</span> <b class="text-amber-700">+1 Horsey</b></li></ul></div>
+<div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 col-span-1 md:col-span-2"><span class="text-2xl mb-2 block"><svg class="ico-lg" viewBox="0 0 24 24"><use href="#i-users"/></svg> Recruitment</span><ul class="space-y-2 text-slate-600"><li class="flex justify-between"><span>Every 2 members added:</span> <b class="text-slate-800">+1 Horsey</b></li></ul></div>
 <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 col-span-1 md:col-span-2">
-<span class="text-2xl mb-2 block"><svg class="ico-lg" viewBox="0 0 24 24"><use href="#i-diamond"/></svg> <span data-i18n="earn.titles.title">Bonus Title Points</span></span>
+<span class="text-2xl mb-2 block"><svg class="ico-lg" viewBox="0 0 24 24"><use href="#i-diamond"/></svg> Bonus Title Points</span>
 <div class="grid grid-cols-2 gap-2 mt-3 text-slate-600">
-<div class="flex justify-between"><span>ACM:</span> <b class="text-slate-800">+20</b></div>
-<div class="flex justify-between"><span>AFM:</span> <b class="text-slate-800">+30</b></div>
-<div class="flex justify-between"><span>AIM:</span> <b class="text-slate-800">+40</b></div>
-<div class="flex justify-between"><span>AGM:</span> <b class="text-slate-800">+50</b></div>
-<div class="flex justify-between"><span>NM / WNM:</span> <b class="text-slate-800">+60</b></div>
-<div class="flex justify-between"><span>CM / WCM:</span> <b class="text-slate-800">+80</b></div>
-<div class="flex justify-between"><span>FM / WFM:</span> <b class="text-slate-800">+100</b></div>
-<div class="flex justify-between"><span>IM / WIM:</span> <b class="text-slate-800">+115</b></div>
-<div class="flex justify-between"><span>GM / WGM:</span> <b class="text-slate-800">+130</b></div>
+<div class="flex justify-between"><span>ACM:</span> <b>+20</b></div>
+<div class="flex justify-between"><span>AFM:</span> <b>+30</b></div>
+<div class="flex justify-between"><span>AIM:</span> <b>+40</b></div>
+<div class="flex justify-between"><span>AGM:</span> <b>+50</b></div>
+<div class="flex justify-between"><span>NM/WNM:</span> <b>+60</b></div>
+<div class="flex justify-between"><span>CM/WCM:</span> <b>+80</b></div>
+<div class="flex justify-between"><span>FM/WFM:</span> <b>+100</b></div>
+<div class="flex justify-between"><span>IM/WIM:</span> <b>+115</b></div>
+<div class="flex justify-between"><span>GM/WGM:</span> <b>+130</b></div>
 </div>
-<p class="text-slate-500 mt-3 italic text-center text-xs" data-i18n="earn.titles.note">All claims must be sent to @rajul_s.</p>
+<p class="text-slate-500 mt-3 italic text-center text-xs">All claims must be sent to @rajul_s.</p>
 </div>
 </div>
 </div>
 </div>
 
-<button onclick="showScreen('roleScreen')" class="mt-12 text-slate-400 hover:text-slate-800 text-[10px] uppercase font-bold tracking-[0.3em] w-full text-center" data-i18n="member.return">Return to Dashboard</button>
+<button onclick="showScreen('roleScreen')" class="mt-12 text-slate-400 hover:text-slate-800 text-[10px] uppercase font-bold tracking-[0.3em] w-full text-center">Return to Dashboard</button>
 </div>
 
 <div id="loginScreen" class="hidden main-card rounded-[2.5rem] p-10 text-center mt-8">
-<h2 class="text-amber-600 text-xs font-black uppercase mb-8 tracking-widest" data-i18n="login.title">Authentication Required</h2>
-<p id="errorLogin" class="text-red-500 text-[10px] font-bold mb-4 hidden" data-i18n="login.error">Access Denied: Invalid Key</p>
-<input type="password" id="adminPassInput" data-i18n-ph="login.placeholder" placeholder="Enter Admin Password..." class="w-full bg-slate-50 border border-slate-300 p-5 rounded-2xl text-center outline-none focus:border-amber-500 mb-6 text-slate-800 text-xl">
-<button onclick="verifyAdmin()" class="btn-action yellow-gradient text-white font-black w-full py-5 rounded-2xl uppercase tracking-widest" data-i18n="login.button">Login HORSEY DOLLARS ADMIN</button>
-<button onclick="showScreen('roleScreen')" class="mt-8 text-slate-400 text-[10px] font-bold uppercase" data-i18n="login.cancel">Cancel</button>
+<h2 class="text-amber-600 text-xs font-black uppercase mb-8 tracking-widest">Authentication Required</h2>
+<p id="errorLogin" class="text-red-500 text-[10px] font-bold mb-4 hidden">Access Denied: Invalid Key</p>
+<input type="password" id="adminPassInput" placeholder="Enter Admin Password..." class="w-full bg-slate-50 border border-slate-300 p-5 rounded-2xl text-center outline-none focus:border-amber-500 mb-6 text-slate-800 text-xl">
+<button onclick="verifyAdmin()" class="btn-action yellow-gradient text-white font-black w-full py-5 rounded-2xl uppercase tracking-widest">Login HORSEY DOLLARS ADMIN</button>
+<button onclick="showScreen('roleScreen')" class="mt-8 text-slate-400 text-[10px] font-bold uppercase">Cancel</button>
 </div>
 
 <div id="adminEditor" class="hidden main-card rounded-[2.5rem] p-8 md:p-12 mt-8">
 <div class="flex flex-wrap justify-around gap-2 mb-10 bg-slate-100 p-2 rounded-2xl border border-slate-200">
-<button onclick="toggleAdminTab('coins')" id="adminTabCoins" class="flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl bg-amber-600 text-white" data-i18n="admin.tabs.coins">Manage Coins</button>
-<button onclick="toggleAdminTab('markets')" id="adminTabMarkets" class="flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl text-slate-500" data-i18n="admin.tabs.markets">Market</button>
-<button onclick="toggleAdminTab('cards')" id="adminTabCards" class="flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl text-slate-500" data-i18n="admin.tabs.cards">Site Cards</button>
-<button onclick="toggleAdminTab('games')" id="adminTabGames" class="flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl text-slate-500" data-i18n="admin.tabs.games">Games</button>
-<button onclick="toggleAdminTab('expel')" id="adminTabExpel" class="flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl text-slate-500" data-i18n="admin.tabs.expel">Expel</button>
+<button onclick="toggleAdminTab('coins')" id="adminTabCoins" class="flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl bg-amber-600 text-white">Coins</button>
+<button onclick="toggleAdminTab('markets')" id="adminTabMarkets" class="flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl text-slate-500">Market</button>
+<button onclick="toggleAdminTab('cards')" id="adminTabCards" class="flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl text-slate-500">Cards</button>
+<button onclick="toggleAdminTab('games')" id="adminTabGames" class="flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl text-slate-500">Games</button>
+<button onclick="toggleAdminTab('expel')" id="adminTabExpel" class="flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl text-slate-500">Expel</button>
 </div>
 
 <div id="adminCoins" class="space-y-6">
-<h2 class="text-amber-600 text-xl font-black italic uppercase text-center"><svg class="ico" viewBox="0 0 24 24"><use href="#i-horse"/></svg> <span data-i18n="admin.coins.title">Horsey Dollars Editor</span></h2>
+<h2 class="text-amber-600 text-xl font-black italic uppercase text-center">Horsey Dollars Editor</h2>
 <div>
-<label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.coins.user">Lichess User</label>
-<input type="text" id="targetUser" data-i18n-ph="admin.coins.userPh" placeholder="Username..." oninput="showSuggestions('targetUser','targetSuggestions')" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800">
+<label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Lichess User</label>
+<input type="text" id="targetUser" placeholder="Username..." oninput="showSuggestions('targetUser','targetSuggestions')" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800">
 <ul id="targetSuggestions" class="absolute z-20 w-full bg-white border border-slate-300 rounded-xl mt-1 hidden max-h-40 overflow-y-auto custom-scroll shadow-2xl"></ul>
 </div>
-<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.coins.total">Total Horsey Dollars</label><input type="number" id="targetVal" placeholder="0" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800"></div>
-<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.coins.reason">Reason</label><div id="reasonEditorContainer" class="mt-2"><div id="reasonEditorToolbar"></div><div id="reasonEditor"></div></div></div>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
-<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Reason ES (Optional)</label><textarea id="targetReasonEs" rows="1" placeholder="Razón en español..." class="w-full mt-1 bg-slate-50 border border-slate-300 p-3 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-xs"></textarea></div>
-<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Reason EN (Optional)</label><textarea id="targetReasonEn" rows="1" placeholder="Reason in English..." class="w-full mt-1 bg-slate-50 border border-slate-300 p-3 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-xs"></textarea></div>
-<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Reason RU (Optional)</label><textarea id="targetReasonRu" rows="1" placeholder="Причина на русском..." class="w-full mt-1 bg-slate-50 border border-slate-300 p-3 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-xs"></textarea></div>
+<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Total Horsey Dollars</label><input type="number" id="targetVal" placeholder="0" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800"></div>
+<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Reason</label>
+<textarea id="targetReason" rows="3" placeholder="Reason (HTML allowed)..." class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm font-mono"></textarea>
 </div>
-<button onclick="executeAdminAction('coins')" class="btn-action w-full yellow-gradient text-white font-black py-5 rounded-2xl uppercase shadow-lg" data-i18n="admin.coins.button">Update User Horsey Dollars</button>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Reason ES</label><textarea id="targetReasonEs" rows="1" class="w-full mt-1 bg-slate-50 border border-slate-300 p-3 rounded-xl outline-none focus:border-amber-500 text-xs"></textarea></div>
+<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Reason EN</label><textarea id="targetReasonEn" rows="1" class="w-full mt-1 bg-slate-50 border border-slate-300 p-3 rounded-xl outline-none focus:border-amber-500 text-xs"></textarea></div>
+<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Reason RU</label><textarea id="targetReasonRu" rows="1" class="w-full mt-1 bg-slate-50 border border-slate-300 p-3 rounded-xl outline-none focus:border-amber-500 text-xs"></textarea></div>
+</div>
+<button onclick="executeAdminAction('coins')" class="btn-action w-full yellow-gradient text-white font-black py-5 rounded-2xl uppercase shadow-lg">Update User Horsey Dollars</button>
 </div>
 
 <div id="adminMarkets" class="hidden space-y-6">
-<h2 class="text-amber-600 text-xl font-black italic uppercase text-center"><svg class="ico" viewBox="0 0 24 24"><use href="#i-store"/></svg> <span data-i18n="admin.market.title">Market Editor</span></h2>
+<h2 class="text-amber-600 text-xl font-black italic uppercase text-center">Market Editor</h2>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.market.seller">Seller Name</label><input type="text" id="mktSeller" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm"></div>
-<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.market.item">Item Name</label><input type="text" id="mktItem" data-i18n-ph="admin.market.itemPh" placeholder="Ex: Lessons" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm"></div>
+<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Seller Name</label><input type="text" id="mktSeller" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-sm"></div>
+<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Item Name</label><input type="text" id="mktItem" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-sm"></div>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.market.price">Price</label><input type="number" id="mktPrice" placeholder="0" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm"></div>
-<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.market.profile">Lichess URL</label><input type="text" id="mktLichess" placeholder="https://lichess.org/@/..." class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm"></div>
+<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Price</label><input type="number" id="mktPrice" placeholder="0" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-sm"></div>
+<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Lichess URL</label><input type="text" id="mktLichess" placeholder="https://lichess.org/@/..." class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-sm"></div>
 </div>
-<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.market.desc">Description</label><div id="marketDescEditorContainer" class="mt-2"><div id="marketDescEditorToolbar"></div><div id="marketDescEditor"></div></div></div>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
-<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Description ES (Optional)</label><textarea id="mktDescEs" rows="1" placeholder="Descripción en español..." class="w-full mt-1 bg-slate-50 border border-slate-300 p-3 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-xs"></textarea></div>
-<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Description EN (Optional)</label><textarea id="mktDescEn" rows="1" placeholder="Description in English..." class="w-full mt-1 bg-slate-50 border border-slate-300 p-3 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-xs"></textarea></div>
-<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Description RU (Optional)</label><textarea id="mktDescRu" rows="1" placeholder="Описание на русском..." class="w-full mt-1 bg-slate-50 border border-slate-300 p-3 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-xs"></textarea></div>
+<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Description (HTML)</label><textarea id="mktDesc" rows="3" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-sm font-mono"></textarea></div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Description ES</label><textarea id="mktDescEs" rows="1" class="w-full mt-1 bg-slate-50 border border-slate-300 p-3 rounded-xl outline-none focus:border-amber-500 text-xs"></textarea></div>
+<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Description EN</label><textarea id="mktDescEn" rows="1" class="w-full mt-1 bg-slate-50 border border-slate-300 p-3 rounded-xl outline-none focus:border-amber-500 text-xs"></textarea></div>
+<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Description RU</label><textarea id="mktDescRu" rows="1" class="w-full mt-1 bg-slate-50 border border-slate-300 p-3 rounded-xl outline-none focus:border-amber-500 text-xs"></textarea></div>
 </div>
-<button onclick="executeAdminAction('markets')" class="btn-action w-full bg-amber-700 text-white font-black py-5 rounded-2xl uppercase shadow-lg" data-i18n="admin.market.button">Publish to Market</button>
-<div class="border-t border-slate-200 pt-6 mt-6"><h3 class="text-slate-500 font-black uppercase text-xs mb-4" data-i18n="admin.market.list">Current Listings</h3><div id="adminMarketList" class="grid grid-cols-1 gap-4 max-h-[400px] overflow-y-auto custom-scroll pr-2"></div></div>
+<button onclick="executeAdminAction('markets')" class="btn-action w-full bg-amber-700 text-white font-black py-5 rounded-2xl uppercase shadow-lg">Publish to Market</button>
+<div class="border-t border-slate-200 pt-6 mt-6"><h3 class="text-slate-500 font-black uppercase text-xs mb-4">Current Listings</h3><div id="adminMarketList" class="grid grid-cols-1 gap-4 max-h-[400px] overflow-y-auto custom-scroll pr-2"></div></div>
 </div>
 
 <div id="adminCards" class="hidden space-y-6">
-<h2 class="text-amber-600 text-xl font-black italic uppercase text-center"><svg class="ico" viewBox="0 0 24 24"><use href="#i-pin"/></svg> <span data-i18n="admin.cards.title">Site Cards Editor</span></h2>
-<p class="text-slate-500 text-xs text-center" data-i18n="admin.cards.hint">Create, edit, or delete info cards. HTML allowed!</p>
+<h2 class="text-amber-600 text-xl font-black italic uppercase text-center">Site Cards Editor</h2>
+<p class="text-slate-500 text-xs text-center">Create, edit, or delete info cards. HTML allowed!</p>
 <input type="hidden" id="cardEditId" value="">
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.cards.cardLang">Default Language</label><select id="cardLang" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm"><option value="en">English</option><option value="es">Español</option><option value="ru">Русский</option></select></div>
-<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.cards.cardTitle">Card Title</label><input type="text" id="cardTitle" data-i18n-ph="admin.cards.cardTitlePh" placeholder="Ex: Welcome!" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm"></div>
-<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.cards.order">Display Order</label><input type="number" id="cardOrder" placeholder="0" value="0" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm"></div>
+<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Default Language</label><select id="cardLang" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-sm"><option value="en">English</option><option value="es">Español</option><option value="ru">Русский</option></select></div>
+<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Card Title</label><input type="text" id="cardTitle" placeholder="Ex: Welcome!" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-sm"></div>
+<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Display Order</label><input type="number" id="cardOrder" placeholder="0" value="0" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-sm"></div>
 </div>
 <div class="flex border-b border-slate-200 mt-4">
 <button type="button" onclick="switchEditorTab('visual')" id="editorTabVisual" class="px-4 py-2 text-sm font-bold text-amber-600 border-b-2 border-amber-500">Visual Editor</button>
-<button type="button" onclick="switchEditorTab('code')" id="editorTabCode" class="px-4 py-2 text-sm font-bold text-slate-500 border-b-2 border-transparent hover:text-slate-700">HTML Code</button>
+<button type="button" onclick="switchEditorTab('code')" id="editorTabCode" class="px-4 py-2 text-sm font-bold text-slate-500 border-b-2 border-transparent">HTML Code</button>
 </div>
-<div id="editorVisual" class="mt-4"><div id="toolbar" class="rounded-t-xl border border-b-0 border-slate-300 bg-slate-50 p-2 flex flex-wrap gap-1"></div><div id="quillEditor" class="h-64 rounded-b-xl border border-slate-300 bg-white overflow-y-auto"></div></div>
-<div id="editorCode" class="hidden mt-4"><textarea id="codeEditor"></textarea></div>
+<div id="editorVisual" class="mt-4"><div id="toolbar" class="rounded-t-xl border border-b-0 border-slate-300 bg-slate-50 p-2 flex flex-wrap gap-1"></div><div id="quillEditor" class="rounded-b-xl border border-slate-300 bg-white" style="min-height:200px"></div></div>
+<div id="editorCode" class="hidden mt-4"><textarea id="codeEditor" class="editor-fallback" style="min-height:200px"></textarea></div>
 <div class="mt-6 border-t border-slate-200 pt-4">
-<h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2" data-i18n="admin.cards.optionalLangs">Optional Translations</h3>
-<div class="space-y-4">
-<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Content in Español (Optional)</label><textarea id="cardContentEs" rows="3" placeholder="Contenido en español..." class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm font-mono"></textarea></div>
-<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Content in English (Optional)</label><textarea id="cardContentEn" rows="3" placeholder="Content in English..." class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm font-mono"></textarea></div>
-<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Content in Русский (Optional)</label><textarea id="cardContentRu" rows="3" placeholder="Содержание на русском..." class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm font-mono"></textarea></div>
+<h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Optional Translations</h3>
+<div class="space-y-3">
+<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Content ES</label><textarea id="cardContentEs" rows="2" placeholder="Contenido en español..." class="w-full mt-1 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-sm font-mono"></textarea></div>
+<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Content EN</label><textarea id="cardContentEn" rows="2" placeholder="Content in English..." class="w-full mt-1 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-sm font-mono"></textarea></div>
+<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Content RU</label><textarea id="cardContentRu" rows="2" placeholder="Содержание на русском..." class="w-full mt-1 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-sm font-mono"></textarea></div>
 </div>
 </div>
-<div class="flex gap-3 mt-6"><button onclick="saveCard()" id="cardSaveBtn" class="btn-action flex-1 yellow-gradient text-white font-black py-5 rounded-2xl uppercase shadow-lg" data-i18n="admin.cards.save">Create Card</button><button onclick="cancelCardEdit()" id="cardCancelBtn" class="hidden btn-action flex-1 bg-slate-300 text-slate-700 font-black py-5 rounded-2xl uppercase" data-i18n="admin.cancel">Cancel</button></div>
-<div class="border-t border-slate-200 pt-6 mt-6"><h3 class="text-slate-500 font-black uppercase text-xs mb-4" data-i18n="admin.cards.existing">Existing Cards</h3><div id="adminCardsList" class="grid grid-cols-1 gap-4 max-h-[500px] overflow-y-auto custom-scroll pr-2"></div></div>
+<div class="flex gap-3 mt-6"><button onclick="saveCard()" id="cardSaveBtn" class="btn-action flex-1 yellow-gradient text-white font-black py-5 rounded-2xl uppercase shadow-lg">Create Card</button><button onclick="cancelCardEdit()" id="cardCancelBtn" class="hidden btn-action flex-1 bg-slate-300 text-slate-700 font-black py-5 rounded-2xl uppercase">Cancel</button></div>
+<div class="border-t border-slate-200 pt-6 mt-6"><h3 class="text-slate-500 font-black uppercase text-xs mb-4">Existing Cards</h3><div id="adminCardsList" class="grid grid-cols-1 gap-4 max-h-[500px] overflow-y-auto custom-scroll pr-2"></div></div>
 </div>
 
 <div id="adminGames" class="hidden space-y-6">
-<h2 class="text-amber-600 text-xl font-black italic uppercase text-center"><svg class="ico" viewBox="0 0 24 24"><use href="#i-gamepad"/></svg> <span data-i18n="admin.games.title">Games Editor</span></h2>
-<p class="text-slate-500 text-xs text-center" data-i18n="admin.games.hint">Edit game titles, icons, and instructions.</p>
+<h2 class="text-amber-600 text-xl font-black italic uppercase text-center">Games Editor</h2>
+<p class="text-slate-500 text-xs text-center">Edit game titles, icons, and instructions.</p>
 <input type="hidden" id="gameEditId" value="">
-<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.games.gameTitle">Game Title</label><input type="text" id="gameTitle" data-i18n-ph="admin.games.gameTitlePh" placeholder="Ex: Catch Horsey!" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm"></div>
-<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.games.icon">Icon ID</label><input type="text" id="gameIcon" placeholder="i-horse" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-sm"></div>
-<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.games.desc">Game Instructions (HTML allowed)</label><div id="gameDescEditorContainer" class="mt-2"><div id="gameDescEditorToolbar"></div><div id="gameDescEditor"></div></div></div>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
-<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Instructions ES (Optional)</label><textarea id="gameDescEs" rows="1" placeholder="Instrucciones en español..." class="w-full mt-1 bg-slate-50 border border-slate-300 p-3 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-xs"></textarea></div>
-<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Instructions EN (Optional)</label><textarea id="gameDescEn" rows="1" placeholder="Instructions in English..." class="w-full mt-1 bg-slate-50 border border-slate-300 p-3 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-xs"></textarea></div>
-<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Instructions RU (Optional)</label><textarea id="gameDescRu" rows="1" placeholder="Инструкции на русском..." class="w-full mt-1 bg-slate-50 border border-slate-300 p-3 rounded-xl outline-none focus:border-amber-500 text-slate-800 text-xs"></textarea></div>
+<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Game Title</label><input type="text" id="gameTitle" placeholder="Ex: Catch Horsey!" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-sm"></div>
+<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Icon ID</label><input type="text" id="gameIcon" placeholder="i-horse" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-sm"></div>
+<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Instructions (HTML)</label><textarea id="gameDesc" rows="3" class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-amber-500 text-sm font-mono"></textarea></div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Instructions ES</label><textarea id="gameDescEs" rows="1" class="w-full mt-1 bg-slate-50 border border-slate-300 p-3 rounded-xl outline-none focus:border-amber-500 text-xs"></textarea></div>
+<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Instructions EN</label><textarea id="gameDescEn" rows="1" class="w-full mt-1 bg-slate-50 border border-slate-300 p-3 rounded-xl outline-none focus:border-amber-500 text-xs"></textarea></div>
+<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Instructions RU</label><textarea id="gameDescRu" rows="1" class="w-full mt-1 bg-slate-50 border border-slate-300 p-3 rounded-xl outline-none focus:border-amber-500 text-xs"></textarea></div>
 </div>
-<div class="flex gap-3"><button onclick="saveGame()" id="gameSaveBtn" class="btn-action flex-1 yellow-gradient text-white font-black py-5 rounded-2xl uppercase shadow-lg" data-i18n="admin.games.save">Create Game Info</button><button onclick="cancelGameEdit()" id="gameCancelBtn" class="hidden btn-action flex-1 bg-slate-300 text-slate-700 font-black py-5 rounded-2xl uppercase" data-i18n="admin.cancel">Cancel</button></div>
-<div class="border-t border-slate-200 pt-6 mt-6"><h3 class="text-slate-500 font-black uppercase text-xs mb-4" data-i18n="admin.games.existing">Existing Game Info</h3><div id="adminGamesList" class="grid grid-cols-1 gap-4 max-h-[500px] overflow-y-auto custom-scroll pr-2"></div></div>
+<div class="flex gap-3"><button onclick="saveGame()" id="gameSaveBtn" class="btn-action flex-1 yellow-gradient text-white font-black py-5 rounded-2xl uppercase shadow-lg">Create Game Info</button><button onclick="cancelGameEdit()" id="gameCancelBtn" class="hidden btn-action flex-1 bg-slate-300 text-slate-700 font-black py-5 rounded-2xl uppercase">Cancel</button></div>
+<div class="border-t border-slate-200 pt-6 mt-6"><h3 class="text-slate-500 font-black uppercase text-xs mb-4">Existing Game Info</h3><div id="adminGamesList" class="grid grid-cols-1 gap-4 max-h-[500px] overflow-y-auto custom-scroll pr-2"></div></div>
 </div>
 
 <div id="adminExpel" class="hidden space-y-6">
-<h2 class="text-red-500 text-xl font-black italic uppercase text-center" data-i18n="admin.expel.title">Expel Member</h2>
-<p class="text-slate-500 text-xs text-center" data-i18n="admin.expel.hint">Remove a user and all their Horsey Dollars.</p>
-<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2" data-i18n="admin.expel.user">Lichess Username</label><input type="text" id="expelUser" data-i18n-ph="admin.expel.userPh" placeholder="Username..." class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-red-500 text-slate-800"></div>
-<button onclick="expelMember()" class="btn-action w-full bg-red-100 border border-red-500 text-red-600 font-black py-5 rounded-2xl uppercase shadow-lg" data-i18n="admin.expel.button">Expel Member</button>
+<h2 class="text-red-500 text-xl font-black italic uppercase text-center">Expel Member</h2>
+<p class="text-slate-500 text-xs text-center">Remove a user and all their Horsey Dollars.</p>
+<div><label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest ml-2">Lichess Username</label><input type="text" id="expelUser" placeholder="Username..." class="w-full mt-2 bg-slate-50 border border-slate-300 p-4 rounded-xl outline-none focus:border-red-500"></div>
+<button onclick="expelMember()" class="btn-action w-full bg-red-100 border border-red-500 text-red-600 font-black py-5 rounded-2xl uppercase shadow-lg">Expel Member</button>
 <p id="expelFeedback" class="text-center text-[10px] font-bold uppercase tracking-widest h-4 text-red-500 mt-2"></p>
 </div>
 
 <p id="adminFeedback" class="text-center text-[10px] font-bold uppercase tracking-widest h-4 text-amber-600 mt-4"></p>
-<button onclick="logoutAdmin()" class="mt-10 text-slate-400 text-[10px] font-bold w-full uppercase tracking-widest" data-i18n="admin.logout">Terminate Session</button>
+<button onclick="logoutAdmin()" class="mt-10 text-slate-400 text-[10px] font-bold w-full uppercase tracking-widest">Terminate Session</button>
 </div>
 
 <footer class="mt-16 text-center pb-12">
-<p class="text-slate-400 text-[10px] tracking-[0.4em] uppercase font-bold"><span data-i18n="footer.created">Created by</span> <a href="https://lichess.org/@/GatoChess89" target="_blank" class="text-amber-600 font-black">@GatoChess89</a></p>
+<p class="text-slate-400 text-[10px] tracking-[0.4em] uppercase font-bold">Created by <a href="https://lichess.org/@/GatoChess89" target="_blank" class="text-amber-600 font-black">@GatoChess89</a></p>
 </footer>
 </div>
 
-<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
-
 <script type="module">
-const debugContent=document.getElementById('debugContent');
-const debugPanel=document.getElementById('debugPanel');
-let debugLines=[];
-function log(msg,type='ok'){const ic={ok:'OK',warn:'WARN',err:'ERR',info:'INFO'};debugLines.push(`<div class="${type}">[${ic[type]}] ${msg}</div>`);debugContent.innerHTML=debugLines.join('');console.log(`[Horsey] ${msg}`);}
-function showDebug(){debugPanel.style.display='block';}
 let audioCtx=null;
-
 const firebaseConfig={apiKey:"AIzaSyA_ZFD3mnWGxwX9eSvUkViqS_o95f1kFCQ",authDomain:"horsey-victims.firebaseapp.com",projectId:"horsey-victims",storageBucket:"horsey-victims.firebasestorage.app",messagingSenderId:"586530411765",appId:"1:586530411765:web:374a728ed312a53566a1bc"};
 const appId='horsey-dollars-v1';
 
@@ -392,349 +386,355 @@ import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/1
 import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, addDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 let app,auth,db;
-try{app=initializeApp(firebaseConfig);auth=getAuth(app);db=getFirestore(app);}catch(e){console.error('Firebase init failed:',e.message);}
+try{app=initializeApp(firebaseConfig);auth=getAuth(app);db=getFirestore(app);}catch(e){console.error('FB init:',e.message);}
 signInAnonymously(auth).catch(err=>console.warn('Auth:',err.code));
 
 const translations={
-en:{"setup.title":"HORSEY DOLLARS SETUP","setup.subtitle":"Create Admin Password","setup.placeholder":"New Password...","setup.button":"INITIALIZE SYSTEM","header.title":"Horsey's Victims","header.subtitle":"Official Horsey Dollars System","role.identify":"Identify Yourself","role.member":"Member Portal","role.admin":"HORSEY DOLLARS ADMIN","public.title":"Team Info","member.tabs.coins":"Horsey Dollars","member.tabs.markets":"Official Market","member.tabs.cards":"Info Cards","member.tabs.games":"Games","coins.search":"Enter Lichess User...","coins.find":"Find Horsey Dollars","coins.leaderboard":"Leaderboard","coins.topHolders":"Top Horsey Holders","market.notice1":"DM the seller to purchase and DM","market.notice2":"to make it official.","market.title":"Official Marketplace","market.empty":"No items available yet.","cards.title":"Team Information","cards.empty":"No cards available yet.","games.title":"Horsey Arcade","games.g1.title":"Catch Horsey!","games.g1.desc":"Click Horsey before he jumps away!","games.g1.button":"Start / Reset","games.g2.title":"Santa Horsey's Drop","games.g2.desc":"Catch gifts, avoid bombs","games.g2.button":"Play Game","links.join":"Join Horsey's Victims on Lichess","links.report":"Report Horsey Dollar Theft","claim.title":"Claim Horsey Dollars Rule","claim.text":"To add Horsey Dollars you must claim them to:","earn.title":"How to Earn Horsey Dollars","earn.battles.title":"Team Battles","earn.battles.rule":"Every 3 points scored:","earn.lmao.title":"LMAO Team Fights","earn.lmao.rule":"Every 1 point scored:","earn.lmao.special":"SPECIAL EVENT RATIO","earn.recruit.title":"Recruitment","earn.recruit.rule":"Every 2 members added to the team:","earn.titles.title":"Bonus Title Points","earn.titles.note":"All claims must be sent to @rajul_s.","member.return":"Return to Dashboard","login.title":"Authentication Required","login.error":"Access Denied: Invalid Key","login.placeholder":"Enter Admin Password...","login.button":"Login HORSEY DOLLARS ADMIN","login.cancel":"Cancel","admin.tabs.coins":"Manage Coins","admin.tabs.markets":"Market","admin.tabs.cards":"Site Cards","admin.tabs.games":"Games","admin.tabs.expel":"Expel","admin.cancel":"Cancel","admin.coins.title":"Horsey Dollars Editor","admin.coins.user":"Lichess User","admin.coins.userPh":"Username...","admin.coins.total":"Total Horsey Dollars","admin.coins.reason":"Reason","admin.coins.reasonPh":"Reason for Horsey Dollars...","admin.coins.button":"Update User Horsey Dollars","admin.market.title":"Market Editor","admin.market.seller":"Seller Name","admin.market.item":"Item Name","admin.market.itemPh":"Ex: Premium Lessons","admin.market.price":"Price (Horsey Dollars)","admin.market.profile":"Lichess Profile URL","admin.market.desc":"Item Description","admin.market.descPh":"Describe the item...","admin.market.button":"Publish to Market","admin.market.list":"Current Listings","admin.cards.title":"Site Cards Editor","admin.cards.hint":"Create, edit, or delete info cards. HTML allowed!","admin.cards.cardTitle":"Card Title","admin.cards.cardTitlePh":"Ex: Welcome!","admin.cards.cardLang":"Default Language","admin.cards.optionalLangs":"Optional Translations","admin.cards.order":"Display Order","admin.cards.save":"Create Card","admin.cards.existing":"Existing Cards","admin.games.title":"Games Editor","admin.games.hint":"Edit game titles, icons, and instructions.","admin.games.gameTitle":"Game Title","admin.games.gameTitlePh":"Ex: Catch Horsey!","admin.games.icon":"Icon ID","admin.games.desc":"Game Instructions","admin.games.save":"Create Game Info","admin.games.existing":"Existing Game Info","admin.expel.title":"Expel Member","admin.expel.hint":"Remove a user and all their Horsey Dollars.","admin.expel.user":"Lichess Username","admin.expel.userPh":"Username to expel...","admin.expel.button":"Expel Member","admin.logout":"Terminate Session","footer.created":"Created by","js.score":"Score: ","js.gifts":"Gifts: ","js.lives":" | Lives: ","js.member":"Horsey's Victims Member.","js.notRegistered":"Account not registered in Horsey Dollars system.","js.accessing":"ACCESSING...","js.findCoins":"Find Horsey Dollars","js.finalGifts":"Final Gifts: ","js.gameOver":"GAME OVER","js.clickPlay":"Click Play Game","js.edit":"Edit","js.delete":"Delete","js.deleteCard":"Delete this card?","js.deleteGame":"Delete this game info?","js.deleteMarket":"Remove this market item?","js.editCard":"Update Card","js.createCard":"Create Card","js.editGame":"Update Game","js.createGame":"Create Game Info","js.userNotExist":"does not exist.","js.deleteUserConfirm":"Delete user and all their Horsey Dollars?","js.expelled":"expelled successfully.","js.enterUsername":"Enter a username.","js.checking":"Checking user...","js.expelling":"Expelling...","js.saving":"Saving...","js.cardUpdated":"Card updated!","js.cardCreated":"Card created!","js.gameUpdated":"Game updated!","js.gameCreated":"Game created!","js.titleContentRequired":"Title and content are required.","js.titleDescRequired":"Title and instructions are required.","js.uploading":"UPLOADING...","js.success":"SUCCESSFULLY UPDATED!","js.missingUser":"Missing User","js.missingMarket":"Missing Market Info","js.error":"Error: ","js.noItems":"No items available yet.","js.noCards":"No info cards yet.","js.noCardsMember":"No cards available yet.","js.noCardsAdmin":"No cards yet.","js.noGames":"No custom game info yet.","js.order":"Order: ","js.viewProfile":"VIEW PROFILE","js.rankGold":"GOLD","js.rankSilver":"SILVER","js.rankBronze":"BRONZE"},
-es:{"setup.title":"CONFIGURACION HORSEY DOLLARS","setup.subtitle":"Crear Contrasena de Admin","setup.placeholder":"Nueva Contrasena...","setup.button":"INICIALIZAR SISTEMA","header.title":"Horsey's Victims","header.subtitle":"Sistema Oficial de Horsey Dollars","role.identify":"Identificate","role.member":"Portal de Miembros","role.admin":"ADMIN HORSEY DOLLARS","public.title":"Informacion del Equipo","member.tabs.coins":"Horsey Dollars","member.tabs.markets":"Mercado Oficial","member.tabs.cards":"Tarjetas de Info","member.tabs.games":"Juegos","coins.search":"Ingresa usuario de Lichess...","coins.find":"Buscar Horsey Dollars","coins.leaderboard":"Clasificacion","coins.topHolders":"Top de Horsey Dollars","market.notice1":"Envia DM al vendedor para comprar y DM a","market.notice2":"para hacerlo oficial.","market.title":"Mercado Oficial","market.empty":"No hay articulos disponibles aun.","cards.title":"Informacion del Equipo","cards.empty":"No hay tarjetas disponibles aun.","games.title":"Arcade de Horsey","games.g1.title":"Atrapa a Horsey!","games.g1.desc":"Haz clic en Horsey antes de que salte!","games.g1.button":"Iniciar / Reiniciar","games.g2.title":"La Caida de Santa Horsey","games.g2.desc":"Atrapa regalos, evita bombas","games.g2.button":"Jugar","links.join":"Unete a Horsey's Victims en Lichess","links.report":"Reportar Robo de Horsey Dollars","claim.title":"Regla de Reclamo de Horsey Dollars","claim.text":"Para agregar Horsey Dollars debes reclamarlos a:","earn.title":"Como Ganar Horsey Dollars","earn.battles.title":"Batallas de Equipo","earn.battles.rule":"Cada 3 puntos anotados:","earn.lmao.title":"Peleas LMAO","earn.lmao.rule":"Cada 1 punto anotado:","earn.lmao.special":"RATIO ESPECIAL DE EVENTO","earn.recruit.title":"Reclutamiento","earn.recruit.rule":"Cada 2 miembros anadidos al equipo:","earn.titles.title":"Puntos Extra por Titulo","earn.titles.note":"Todos los reclamos deben enviarse a @rajul_s.","member.return":"Volver al Panel","login.title":"Autenticacion Requerida","login.error":"Acceso Denegado: Clave Invalida","login.placeholder":"Ingresa la Contrasena de Admin...","login.button":"Iniciar ADMIN HORSEY DOLLARS","login.cancel":"Cancelar","admin.tabs.coins":"Gestionar Monedas","admin.tabs.markets":"Mercado","admin.tabs.cards":"Tarjetas del Sitio","admin.tabs.games":"Juegos","admin.tabs.expel":"Expulsar","admin.cancel":"Cancelar","admin.coins.title":"Editor de Horsey Dollars","admin.coins.user":"Usuario de Lichess","admin.coins.userPh":"Nombre de usuario...","admin.coins.total":"Total de Horsey Dollars","admin.coins.reason":"Razon","admin.coins.reasonPh":"Razon de los Horsey Dollars...","admin.coins.button":"Actualizar Horsey Dollars","admin.market.title":"Editor del Mercado","admin.market.seller":"Nombre del Vendedor","admin.market.item":"Nombre del Articulo","admin.market.itemPh":"Ej: Clases Premium","admin.market.price":"Precio (Horsey Dollars)","admin.market.profile":"URL de Perfil de Lichess","admin.market.desc":"Descripcion del Articulo","admin.market.descPh":"Describe el articulo...","admin.market.button":"Publicar en el Mercado","admin.market.list":"Listados Actuales","admin.cards.title":"Editor de Tarjetas","admin.cards.hint":"Crea, edita o elimina tarjetas. HTML permitido!","admin.cards.cardTitle":"Titulo de la Tarjeta","admin.cards.cardTitlePh":"Ej: Bienvenido!","admin.cards.cardLang":"Idioma por Defecto","admin.cards.optionalLangs":"Traducciones Opcionales","admin.cards.order":"Orden de Visualizacion","admin.cards.save":"Crear Tarjeta","admin.cards.existing":"Tarjetas Existentes","admin.games.title":"Editor de Juegos","admin.games.hint":"Edita titulos, iconos e instrucciones.","admin.games.gameTitle":"Titulo del Juego","admin.games.gameTitlePh":"Ej: Atrapa a Horsey!","admin.games.icon":"ID del Icono","admin.games.desc":"Instrucciones del Juego","admin.games.save":"Crear Info del Juego","admin.games.existing":"Info de Juegos Existente","admin.expel.title":"Expulsar Miembro","admin.expel.hint":"Elimina un usuario y todos sus Horsey Dollars.","admin.expel.user":"Usuario de Lichess","admin.expel.userPh":"Usuario a expulsar...","admin.expel.button":"Expulsar Miembro","admin.logout":"Terminar Sesion","footer.created":"Creado por","js.score":"Puntuacion: ","js.gifts":"Regalos: ","js.lives":" | Vidas: ","js.member":"Miembro de Horsey's Victims.","js.notRegistered":"Cuenta no registrada.","js.accessing":"ACCEDIENDO...","js.findCoins":"Buscar Horsey Dollars","js.finalGifts":"Regalos Finales: ","js.gameOver":"JUEGO TERMINADO","js.clickPlay":"Clic en Jugar","js.edit":"Editar","js.delete":"Borrar","js.deleteCard":"Eliminar esta tarjeta?","js.deleteGame":"Eliminar esta info de juego?","js.deleteMarket":"Quitar este articulo del mercado?","js.editCard":"Actualizar Tarjeta","js.createCard":"Crear Tarjeta","js.editGame":"Actualizar Juego","js.createGame":"Crear Info del Juego","js.userNotExist":"no existe.","js.deleteUserConfirm":"Eliminar usuario y todos sus Horsey Dollars?","js.expelled":"expulsado correctamente.","js.enterUsername":"Ingresa un usuario.","js.checking":"Verificando usuario...","js.expelling":"Expulsando...","js.saving":"Guardando...","js.cardUpdated":"Tarjeta actualizada!","js.cardCreated":"Tarjeta creada!","js.gameUpdated":"Juego actualizado!","js.gameCreated":"Juego creado!","js.titleContentRequired":"Se requiere titulo y contenido.","js.titleDescRequired":"Se requiere titulo e instrucciones.","js.uploading":"SUBIENDO...","js.success":"ACTUALIZADO CON EXITO!","js.missingUser":"Falta Usuario","js.missingMarket":"Falta Info del Mercado","js.error":"Error: ","js.noItems":"No hay articulos disponibles aun.","js.noCards":"No hay tarjetas aun.","js.noCardsMember":"No hay tarjetas disponibles aun.","js.noCardsAdmin":"No hay tarjetas aun.","js.noGames":"No hay info de juegos aun.","js.order":"Orden: ","js.viewProfile":"VER PERFIL","js.rankGold":"ORO","js.rankSilver":"PLATA","js.rankBronze":"BRONCE"},
-ru:{"setup.title":"НАСТРОЙКА HORSEY DOLLARS","setup.subtitle":"Создать Пароль Админа","setup.placeholder":"Новый Пароль...","setup.button":"ИНИЦИАЛИЗИРОВАТЬ","header.title":"Horsey's Victims","header.subtitle":"Официальная Система Horsey Dollars","role.identify":"Идентифицируйте Себя","role.member":"Портал Участника","role.admin":"АДМИН HORSEY DOLLARS","public.title":"Информация о Команде","member.tabs.coins":"Horsey Dollars","member.tabs.markets":"Официальный Рынок","member.tabs.cards":"Инфо-Карточки","member.tabs.games":"Игры","coins.search":"Введите пользователя Lichess...","coins.find":"Найти Horsey Dollars","coins.leaderboard":"Рейтинг","coins.topHolders":"Топ Держателей","market.notice1":"Напишите продавцу для покупки и напишите","market.notice2":"чтобы сделать это официальным.","market.title":"Официальный Рынок","market.empty":"Пока нет товаров.","cards.title":"Информация о Команде","cards.empty":"Пока нет карточек.","games.title":"Аркада Horsey","games.g1.title":"Поймай Horsey!","games.g1.desc":"Кликните по Horsey до того как он ускачет!","games.g1.button":"Старт / Сброс","games.g2.title":"Падение Санты Horsey","games.g2.desc":"Ловите подарки, избегайте бомб","games.g2.button":"Играть","links.join":"Присоединиться к Horsey's Victims в Lichess","links.report":"Сообщить о Краже Horsey Dollars","claim.title":"Правило Получения Horsey Dollars","claim.text":"Чтобы добавить Horsey Dollars, заявите их:","earn.title":"Как Заработать Horsey Dollars","earn.battles.title":"Командные Битвы","earn.battles.rule":"За каждые 3 очка:","earn.lmao.title":"Битвы LMAO","earn.lmao.rule":"За каждое 1 очко:","earn.lmao.special":"СПЕЦИАЛЬНОЕ СООТНОШЕНИЕ","earn.recruit.title":"Набор","earn.recruit.rule":"За каждых 2 участников:","earn.titles.title":"Бонусные Очки за Титул","earn.titles.note":"Все заявки отправлять @rajul_s.","member.return":"Вернуться на Панель","login.title":"Требуется Аутентификация","login.error":"Доступ Запрещён: Неверный Ключ","login.placeholder":"Введите Пароль Админа...","login.button":"Войти в АДМИН","login.cancel":"Отмена","admin.tabs.coins":"Монеты","admin.tabs.markets":"Рынок","admin.tabs.cards":"Карточки","admin.tabs.games":"Игры","admin.tabs.expel":"Исключить","admin.cancel":"Отмена","admin.coins.title":"Редактор Horsey Dollars","admin.coins.user":"Пользователь Lichess","admin.coins.userPh":"Имя...","admin.coins.total":"Всего Horsey Dollars","admin.coins.reason":"Причина","admin.coins.reasonPh":"Причина...","admin.coins.button":"Обновить Horsey Dollars","admin.market.title":"Редактор Рынка","admin.market.seller":"Продавец","admin.market.item":"Товар","admin.market.itemPh":"Напр: Уроки","admin.market.price":"Цена","admin.market.profile":"URL Профиля","admin.market.desc":"Описание","admin.market.descPh":"Опишите...","admin.market.button":"Опубликовать","admin.market.list":"Объявления","admin.cards.title":"Редактор Карточек","admin.cards.hint":"Создавайте, редактируйте или удаляйте карточки. HTML разрешён!","admin.cards.cardTitle":"Заголовок","admin.cards.cardTitlePh":"Напр: Добро пожаловать!","admin.cards.cardLang":"Язык по умолчанию","admin.cards.optionalLangs":"Дополнительные переводы","admin.cards.order":"Порядок","admin.cards.save":"Создать","admin.cards.existing":"Существующие","admin.games.title":"Редактор Игр","admin.games.hint":"Редактируйте названия, иконки и инструкции.","admin.games.gameTitle":"Название Игры","admin.games.gameTitlePh":"Напр: Поймай Horsey!","admin.games.icon":"ID Иконки","admin.games.desc":"Инструкции","admin.games.save":"Создать","admin.games.existing":"Существующие","admin.expel.title":"Исключить Участника","admin.expel.hint":"Удалить пользователя и все его Horsey Dollars.","admin.expel.user":"Пользователь Lichess","admin.expel.userPh":"Пользователь...","admin.expel.button":"Исключить","admin.logout":"Завершить Сессию","footer.created":"Создано","js.score":"Счёт: ","js.gifts":"Подарки: ","js.lives":" | Жизни: ","js.member":"Участник Horsey's Victims.","js.notRegistered":"Аккаунт не зарегистрирован.","js.accessing":"ДОСТУП...","js.findCoins":"Найти Horsey Dollars","js.finalGifts":"Финальные Подарки: ","js.gameOver":"ИГРА ОКОНЧЕНА","js.clickPlay":"Нажмите Играть","js.edit":"Редактировать","js.delete":"Удалить","js.deleteCard":"Удалить эту карточку?","js.deleteGame":"Удалить инфо игры?","js.deleteMarket":"Убрать товар?","js.editCard":"Обновить","js.createCard":"Создать","js.editGame":"Обновить","js.createGame":"Создать","js.userNotExist":"не существует.","js.deleteUserConfirm":"Удалить пользователя?","js.expelled":"исключён.","js.enterUsername":"Введите имя.","js.checking":"Проверка...","js.expelling":"Исключение...","js.saving":"Сохранение...","js.cardUpdated":"Обновлено!","js.cardCreated":"Создано!","js.gameUpdated":"Обновлено!","js.gameCreated":"Создано!","js.titleContentRequired":"Требуется заголовок и содержимое.","js.titleDescRequired":"Требуется название и инструкции.","js.uploading":"ЗАГРУЗКА...","js.success":"УСПЕШНО!","js.missingUser":"Нет пользователя","js.missingMarket":"Нет данных","js.error":"Ошибка: ","js.noItems":"Пока нет товаров.","js.noCards":"Пока нет карточек.","js.noCardsMember":"Пока нет карточек.","js.noCardsAdmin":"Пока нет карточек.","js.noGames":"Пока нет игр.","js.order":"Порядок: ","js.viewProfile":"СМОТРЕТЬ ПРОФИЛЬ","js.rankGold":"ЗОЛОТО","js.rankSilver":"СЕРЕБРО","js.rankBronze":"БРОНЗА"}
+en:{"setup.title":"HORSEY DOLLARS SETUP","setup.subtitle":"Create Admin Password","setup.placeholder":"New Password...","setup.button":"INITIALIZE SYSTEM","header.title":"Horsey's Victims","header.subtitle":"Official Horsey Dollars System","role.identify":"Identify Yourself","role.member":"Member Portal","role.admin":"HORSEY DOLLARS ADMIN","public.title":"Team Info","member.tabs.coins":"Horsey Dollars","member.tabs.markets":"Official Market","member.tabs.cards":"Info Cards","member.tabs.games":"Games","coins.search":"Enter Lichess User...","coins.find":"Find Horsey Dollars","coins.leaderboard":"Leaderboard","coins.topHolders":"Top Horsey Holders","market.notice1":"DM the seller to purchase and DM","market.notice2":"to make it official.","market.title":"Official Marketplace","market.empty":"No items available yet.","cards.title":"Team Information","cards.empty":"No cards available yet.","games.title":"Horsey Arcade","games.g1.title":"Catch Horsey!","games.g1.desc":"Click Horsey before he jumps away!","games.g1.button":"Start / Reset","games.g2.title":"Santa Horsey's Drop","games.g2.desc":"Catch gifts, avoid bombs","games.g2.button":"Play Game","links.join":"Join Horsey's Victims on Lichess","links.report":"Report Horsey Dollar Theft","claim.title":"Claim Horsey Dollars Rule","claim.text":"To add Horsey Dollars you must claim them to:","earn.title":"How to Earn Horsey Dollars","earn.battles.title":"Team Battles","earn.battles.rule":"Every 3 points scored:","earn.lmao.title":"LMAO Team Fights","earn.lmao.rule":"Every 1 point scored:","earn.lmao.special":"SPECIAL EVENT RATIO","earn.recruit.title":"Recruitment","earn.recruit.rule":"Every 2 members added to the team:","earn.titles.title":"Bonus Title Points","earn.titles.note":"All claims must be sent to @rajul_s.","member.return":"Return to Dashboard","login.title":"Authentication Required","login.error":"Access Denied: Invalid Key","login.placeholder":"Enter Admin Password...","login.button":"Login HORSEY DOLLARS ADMIN","login.cancel":"Cancel","admin.tabs.coins":"Manage Coins","admin.tabs.markets":"Market","admin.tabs.cards":"Site Cards","admin.tabs.games":"Games","admin.tabs.expel":"Expel","admin.cancel":"Cancel","admin.coins.title":"Horsey Dollars Editor","admin.coins.user":"Lichess User","admin.coins.userPh":"Username...","admin.coins.total":"Total Horsey Dollars","admin.coins.reason":"Reason","admin.coins.reasonPh":"Reason for Horsey Dollars...","admin.coins.button":"Update User Horsey Dollars","admin.market.title":"Market Editor","admin.market.seller":"Seller Name","admin.market.item":"Item Name","admin.market.itemPh":"Ex: Premium Lessons","admin.market.price":"Price (Horsey Dollars)","admin.market.profile":"Lichess Profile URL","admin.market.desc":"Item Description","admin.market.descPh":"Describe the item...","admin.market.button":"Publish to Market","admin.market.list":"Current Listings","admin.cards.title":"Site Cards Editor","admin.cards.hint":"Create, edit, or delete info cards. HTML allowed!","admin.cards.cardTitle":"Card Title","admin.cards.cardTitlePh":"Ex: Welcome!","admin.cards.cardLang":"Default Language","admin.cards.optionalLangs":"Optional Translations","admin.cards.order":"Display Order","admin.cards.save":"Create Card","admin.cards.existing":"Existing Cards","admin.games.title":"Games Editor","admin.games.hint":"Edit game titles, icons, and instructions.","admin.games.gameTitle":"Game Title","admin.games.gameTitlePh":"Ex: Catch Horsey!","admin.games.icon":"Icon ID","admin.games.desc":"Game Instructions","admin.games.save":"Create Game Info","admin.games.existing":"Existing Game Info","admin.expel.title":"Expel Member","admin.expel.hint":"Remove a user and all their Horsey Dollars.","admin.expel.user":"Lichess Username","admin.expel.userPh":"Username to expel...","admin.expel.button":"Expel Member","admin.logout":"Terminate Session","footer.created":"Created by","js.score":"Score: ","js.gifts":"Gifts: ","js.lives":" | Lives: ","js.member":"Horsey's Victims Member.","js.notRegistered":"Account not registered.","js.accessing":"ACCESSING...","js.findCoins":"Find Horsey Dollars","js.finalGifts":"Final Gifts: ","js.gameOver":"GAME OVER","js.clickPlay":"Click Play Game","js.edit":"Edit","js.delete":"Delete","js.deleteCard":"Delete this card?","js.deleteGame":"Delete this game info?","js.deleteMarket":"Remove this market item?","js.editCard":"Update Card","js.createCard":"Create Card","js.editGame":"Update Game","js.createGame":"Create Game Info","js.userNotExist":"does not exist.","js.deleteUserConfirm":"Delete user and all their Horsey Dollars?","js.expelled":"expelled successfully.","js.enterUsername":"Enter a username.","js.checking":"Checking user...","js.expelling":"Expelling...","js.saving":"Saving...","js.cardUpdated":"Card updated!","js.cardCreated":"Card created!","js.gameUpdated":"Game updated!","js.gameCreated":"Game created!","js.titleContentRequired":"Title and content are required.","js.titleDescRequired":"Title and instructions are required.","js.uploading":"UPLOADING...","js.success":"SUCCESSFULLY UPDATED!","js.missingUser":"Missing User","js.missingMarket":"Missing Market Info","js.error":"Error: ","js.noItems":"No items available yet.","js.noCards":"No info cards yet.","js.noCardsMember":"No cards available yet.","js.noCardsAdmin":"No cards yet.","js.noGames":"No custom game info yet.","js.order":"Order: ","js.viewProfile":"VIEW PROFILE","js.rankGold":"GOLD","js.rankSilver":"SILVER","js.rankBronze":"BRONZE"},
+es:{"setup.title":"CONFIGURACION HORSEY DOLLARS","setup.subtitle":"Crear Contrasena de Admin","setup.placeholder":"Nueva Contrasena...","setup.button":"INICIALIZAR SISTEMA","header.title":"Horsey's Victims","header.subtitle":"Sistema Oficial de Horsey Dollars","role.identify":"Identificate","role.member":"Portal de Miembros","role.admin":"ADMIN HORSEY DOLLARS","public.title":"Informacion del Equipo","member.tabs.coins":"Horsey Dollars","member.tabs.markets":"Mercado Oficial","member.tabs.cards":"Tarjetas de Info","member.tabs.games":"Juegos","coins.search":"Ingresa usuario de Lichess...","coins.find":"Buscar Horsey Dollars","coins.leaderboard":"Clasificacion","coins.topHolders":"Top de Horsey Dollars","market.notice1":"Envia DM al vendedor para comprar y DM a","market.notice2":"para hacerlo oficial.","market.title":"Mercado Oficial","market.empty":"No hay articulos disponibles aun.","cards.title":"Informacion del Equipo","cards.empty":"No hay tarjetas disponibles aun.","games.title":"Arcade de Horsey","games.g1.title":"Atrapa a Horsey!","games.g1.desc":"Haz clic en Horsey antes de que salte!","games.g1.button":"Iniciar / Reiniciar","games.g2.title":"La Caida de Santa Horsey","games.g2.desc":"Atrapa regalos, evita bombas","games.g2.button":"Jugar","links.join":"Unete a Horsey's Victims en Lichess","links.report":"Reportar Robo de Horsey Dollars","claim.title":"Regla de Reclamo","claim.text":"Para agregar Horsey Dollars debes reclamarlos a:","earn.title":"Como Ganar Horsey Dollars","earn.battles.title":"Batallas de Equipo","earn.battles.rule":"Cada 3 puntos anotados:","earn.lmao.title":"Peleas LMAO","earn.lmao.rule":"Cada 1 punto anotado:","earn.lmao.special":"RATIO ESPECIAL","earn.recruit.title":"Reclutamiento","earn.recruit.rule":"Cada 2 miembros anadidos:","earn.titles.title":"Puntos Extra por Titulo","earn.titles.note":"Todos los reclamos a @rajul_s.","member.return":"Volver al Panel","login.title":"Autenticacion Requerida","login.error":"Acceso Denegado","login.placeholder":"Contrasena de Admin...","login.button":"Iniciar ADMIN","login.cancel":"Cancelar","admin.tabs.coins":"Monedas","admin.tabs.markets":"Mercado","admin.tabs.cards":"Tarjetas","admin.tabs.games":"Juegos","admin.tabs.expel":"Expulsar","admin.cancel":"Cancelar","admin.coins.title":"Editor de Horsey Dollars","admin.coins.user":"Usuario","admin.coins.userPh":"Usuario...","admin.coins.total":"Total","admin.coins.reason":"Razon","admin.coins.reasonPh":"Razon...","admin.coins.button":"Actualizar","admin.market.title":"Editor del Mercado","admin.market.seller":"Vendedor","admin.market.item":"Articulo","admin.market.itemPh":"Ej: Clases","admin.market.price":"Precio","admin.market.profile":"URL Lichess","admin.market.desc":"Descripcion","admin.market.descPh":"Describe...","admin.market.button":"Publicar","admin.market.list":"Listados","admin.cards.title":"Editor de Tarjetas","admin.cards.hint":"Crea, edita o elimina tarjetas. HTML permitido!","admin.cards.cardTitle":"Titulo","admin.cards.cardTitlePh":"Ej: Bienvenido!","admin.cards.cardLang":"Idioma por Defecto","admin.cards.optionalLangs":"Traducciones Opcionales","admin.cards.order":"Orden","admin.cards.save":"Crear","admin.cards.existing":"Existentes","admin.games.title":"Editor de Juegos","admin.games.hint":"Edita titulos, iconos e instrucciones.","admin.games.gameTitle":"Titulo","admin.games.gameTitlePh":"Ej: Atrapa!","admin.games.icon":"ID Icono","admin.games.desc":"Instrucciones","admin.games.save":"Crear","admin.games.existing":"Existentes","admin.expel.title":"Expulsar","admin.expel.hint":"Elimina un usuario y sus Horsey Dollars.","admin.expel.user":"Usuario","admin.expel.userPh":"Usuario...","admin.expel.button":"Expulsar","admin.logout":"Terminar Sesion","footer.created":"Creado por","js.score":"Puntuacion: ","js.gifts":"Regalos: ","js.lives":" | Vidas: ","js.member":"Miembro.","js.notRegistered":"Cuenta no registrada.","js.accessing":"ACCEDIENDO...","js.findCoins":"Buscar","js.finalGifts":"Regalos Finales: ","js.gameOver":"JUEGO TERMINADO","js.clickPlay":"Clic en Jugar","js.edit":"Editar","js.delete":"Borrar","js.deleteCard":"Eliminar tarjeta?","js.deleteGame":"Eliminar info?","js.deleteMarket":"Quitar articulo?","js.editCard":"Actualizar","js.createCard":"Crear","js.editGame":"Actualizar","js.createGame":"Crear","js.userNotExist":"no existe.","js.deleteUserConfirm":"Eliminar usuario?","js.expelled":"expulsado.","js.enterUsername":"Ingresa usuario.","js.checking":"Verificando...","js.expelling":"Expulsando...","js.saving":"Guardando...","js.cardUpdated":"Actualizada!","js.cardCreated":"Creada!","js.gameUpdated":"Actualizado!","js.gameCreated":"Creado!","js.titleContentRequired":"Titulo y contenido requeridos.","js.titleDescRequired":"Titulo e instrucciones requeridos.","js.uploading":"SUBIENDO...","js.success":"ACTUALIZADO!","js.missingUser":"Falta Usuario","js.missingMarket":"Falta Info","js.error":"Error: ","js.noItems":"No hay articulos.","js.noCards":"No hay tarjetas.","js.noCardsMember":"No hay tarjetas.","js.noCardsAdmin":"No hay tarjetas.","js.noGames":"No hay juegos.","js.order":"Orden: ","js.viewProfile":"VER PERFIL","js.rankGold":"ORO","js.rankSilver":"PLATA","js.rankBronze":"BRONCE"},
+ru:{"setup.title":"НАСТРОЙКА HORSEY DOLLARS","setup.subtitle":"Создать Пароль","setup.placeholder":"Пароль...","setup.button":"ИНИЦИАЛИЗИРОВАТЬ","header.title":"Horsey's Victims","header.subtitle":"Официальная Система","role.identify":"Идентифицируйтесь","role.member":"Портал","role.admin":"АДМИН","public.title":"Информация","member.tabs.coins":"Horsey Dollars","member.tabs.markets":"Рынок","member.tabs.cards":"Карточки","member.tabs.games":"Игры","coins.search":"Пользователь Lichess...","coins.find":"Найти","coins.leaderboard":"Рейтинг","coins.topHolders":"Топ","market.notice1":"Напишите продавцу и","market.notice2":"для оформления.","market.title":"Официальный Рынок","market.empty":"Нет товаров.","cards.title":"Информация","cards.empty":"Нет карточек.","games.title":"Аркада","games.g1.title":"Поймай!","games.g1.desc":"Кликните!","games.g1.button":"Старт","games.g2.title":"Падение Санты","games.g2.desc":"Ловите подарки","games.g2.button":"Играть","links.join":"Присоединиться","links.report":"Сообщить","claim.title":"Правило","claim.text":"Заявите:","earn.title":"Как Заработать","earn.battles.title":"Битвы","earn.battles.rule":"За 3 очка:","earn.lmao.title":"LMAO","earn.lmao.rule":"За 1 очко:","earn.lmao.special":"СПЕЦИАЛЬНО","earn.recruit.title":"Набор","earn.recruit.rule":"За 2 участников:","earn.titles.title":"Бонусы","earn.titles.note":"Все к @rajul_s.","member.return":"Назад","login.title":"Требуется Аутентификация","login.error":"Отказано","login.placeholder":"Пароль...","login.button":"Войти","login.cancel":"Отмена","admin.tabs.coins":"Монеты","admin.tabs.markets":"Рынок","admin.tabs.cards":"Карточки","admin.tabs.games":"Игры","admin.tabs.expel":"Исключить","admin.cancel":"Отмена","admin.coins.title":"Редактор","admin.coins.user":"Пользователь","admin.coins.userPh":"Имя...","admin.coins.total":"Всего","admin.coins.reason":"Причина","admin.coins.reasonPh":"Причина...","admin.coins.button":"Обновить","admin.market.title":"Рынок","admin.market.seller":"Продавец","admin.market.item":"Товар","admin.market.itemPh":"Напр: Уроки","admin.market.price":"Цена","admin.market.profile":"URL","admin.market.desc":"Описание","admin.market.descPh":"Опишите...","admin.market.button":"Опубликовать","admin.market.list":"Объявления","admin.cards.title":"Карточки","admin.cards.hint":"Создавайте, редактируйте. HTML разрешён!","admin.cards.cardTitle":"Заголовок","admin.cards.cardTitlePh":"Напр: Привет!","admin.cards.cardLang":"Язык","admin.cards.optionalLangs":"Переводы","admin.cards.order":"Порядок","admin.cards.save":"Создать","admin.cards.existing":"Существующие","admin.games.title":"Игры","admin.games.hint":"Редактируйте игры.","admin.games.gameTitle":"Название","admin.games.gameTitlePh":"Напр: Поймай!","admin.games.icon":"ID Иконки","admin.games.desc":"Инструкции","admin.games.save":"Создать","admin.games.existing":"Существующие","admin.expel.title":"Исключить","admin.expel.hint":"Удалить пользователя.","admin.expel.user":"Пользователь","admin.expel.userPh":"Пользователь...","admin.expel.button":"Исключить","admin.logout":"Завершить","footer.created":"Создано","js.score":"Счёт: ","js.gifts":"Подарки: ","js.lives":" | Жизни: ","js.member":"Участник.","js.notRegistered":"Не зарегистрирован.","js.accessing":"ДОСТУП...","js.findCoins":"Найти","js.finalGifts":"Финал: ","js.gameOver":"ИГРА ОКОНЧЕНА","js.clickPlay":"Играть","js.edit":"Редактировать","js.delete":"Удалить","js.deleteCard":"Удалить?","js.deleteGame":"Удалить?","js.deleteMarket":"Убрать?","js.editCard":"Обновить","js.createCard":"Создать","js.editGame":"Обновить","js.createGame":"Создать","js.userNotExist":"не существует.","js.deleteUserConfirm":"Удалить?","js.expelled":"исключён.","js.enterUsername":"Введите имя.","js.checking":"Проверка...","js.expelling":"Исключение...","js.saving":"Сохранение...","js.cardUpdated":"Обновлено!","js.cardCreated":"Создано!","js.gameUpdated":"Обновлено!","js.gameCreated":"Создано!","js.titleContentRequired":"Требуется заголовок.","js.titleDescRequired":"Требуется название.","js.uploading":"ЗАГРУЗКА...","js.success":"УСПЕШНО!","js.missingUser":"Нет пользователя","js.missingMarket":"Нет данных","js.error":"Ошибка: ","js.noItems":"Нет товаров.","js.noCards":"Нет карточек.","js.noCardsMember":"Нет карточек.","js.noCardsAdmin":"Нет карточек.","js.noGames":"Нет игр.","js.order":"Порядок: ","js.viewProfile":"ПРОФИЛЬ","js.rankGold":"ЗОЛОТО","js.rankSilver":"СЕРЕБРО","js.rankBronze":"БРОНЗА"}
 };
 
 let currentLang='en';
 let allUsersData=[],marketData=[],cardsData=[],gamesData=[];
-let quillEditors={};
-let codeMirrorEditors={};
 
 function detectLanguage(){const s=localStorage.getItem('horsey_lang');if(s&&['en','es','ru'].includes(s))return s;const b=(navigator.language||'en').toLowerCase();if(b.startsWith('es'))return'es';if(b.startsWith('ru'))return'ru';return'en';}
 function t(key){return(translations[currentLang]&&translations[currentLang][key])||(translations.en[key])||key;}
 
-// ============================================================
-//  INITIALIZE QUILL EDITORS
-// ============================================================
-function initAllQuillEditors(){
-    const fontWhitelist=['roboto','open-sans','lato','montserrat','crimson-pro','dm-sans','source-code-pro','oswald','raleway','poppins','nunito','ubuntu','playfair-display','merriweather','fira-code'];
-    const Font=Quill.import('formats/font');Font.whitelist=fontWhitelist;Quill.register(Font,true);
-    const toolbarOptions=[[{header:[1,2,3,4,5,6,false]}],[{font:fontWhitelist}],[{size:['small',false,'large','huge']}],['bold','italic','underline','strike'],[{color:[]},{background:[]}],[{script:'sub'},{script:'super'}],[{list:'ordered'},{list:'bullet'},{list:'check'}],[{indent:'-1'},{indent:'+1'}],[{direction:'rtl'}],[{align:[]}],['blockquote','code-block'],['link','image','video','formula'],['clean']];
-
-    const editorConfigs=[
-        {id:'quillEditor',toolbarId:'toolbar',key:'card'},
-        {id:'reasonEditor',toolbarId:'reasonEditorToolbar',key:'reason'},
-        {id:'marketDescEditor',toolbarId:'marketDescEditorToolbar',key:'marketDesc'},
-        {id:'gameDescEditor',toolbarId:'gameDescEditorToolbar',key:'gameDesc'}
-    ];
-
-    editorConfigs.forEach(cfg=>{
-        const container=document.getElementById(cfg.id);
-        if(!container)return;
-        try{
-            const toolbarContainer=document.getElementById(cfg.toolbarId);
-            const quill=new Quill('#'+cfg.id,{
-                modules:{toolbar:{container:toolbarContainer,handlers:{image:createImageHandler(cfg.key)}}},
-                theme:'snow',
-                placeholder:'...'
-            });
-            quillEditors[cfg.key]=quill;
-        }catch(e){console.warn('Quill init error for '+cfg.key+':',e.message);}
-    });
-}
-
-function createImageHandler(editorKey){
-    return function(){
-        const input=document.createElement('input');
-        input.setAttribute('type','file');input.setAttribute('accept','image/*');input.click();
-        input.onchange=async()=>{
-            const file=input.files[0];
-            if(file){
-                const formData=new FormData();formData.append('image',file);
-                try{
-                    const response=await fetch('https://imgbb-uploader.cuentalichess89.workers.dev/',{method:'POST',body:formData});
-                    const result=await response.json();
-                    if(result.data&&result.data.url){
-                        const editor=quillEditors[editorKey];
-                        const range=editor.getSelection(true);
-                        editor.insertEmbed(range.index,'image',result.data.url);
-                    }else{alert('Error al subir la imagen');}
-                }catch(err){alert('Error de red al subir la imagen');}
-            }
-        };
-    };
-}
-
-// ============================================================
-//  INITIALIZE CODEMIRROR EDITORS
-// ============================================================
-function initCodeMirror(){
-    try{
-        codeMirrorEditors.card=CodeMirror.fromTextArea(document.getElementById('codeEditor'),{
-            mode:'htmlmixed',theme:'monokai',lineNumbers:true,lineWrapping:true,indentUnit:4,tabSize:4,
-            extraKeys:{'Ctrl-Space':'autocomplete'}
-        });
-    }catch(e){console.warn('CodeMirror init error:',e.message);}
-}
-
-function switchEditorTab(tab){
-    const visualTab=document.getElementById('editorTabVisual'),codeTab=document.getElementById('editorTabCode');
-    const visualEditor=document.getElementById('editorVisual'),codeEditor=document.getElementById('editorCode');
-    if(tab==='visual'){
-        visualTab.classList.add('text-amber-600','border-amber-500');visualTab.classList.remove('text-slate-500','border-transparent');
-        codeTab.classList.remove('text-amber-600','border-amber-500');codeTab.classList.add('text-slate-500','border-transparent');
-        visualEditor.classList.remove('hidden');codeEditor.classList.add('hidden');
-        if(quillEditors.card)codeMirrorEditors.card.setValue(quillEditors.card.root.innerHTML);
-    }else{
-        codeTab.classList.add('text-amber-600','border-amber-500');codeTab.classList.remove('text-slate-500','border-transparent');
-        visualTab.classList.remove('text-amber-600','border-amber-500');visualTab.classList.add('text-slate-500','border-transparent');
-        codeEditor.classList.remove('hidden');visualEditor.classList.add('hidden');
-        if(quillEditors.card)quillEditors.card.root.innerHTML=codeMirrorEditors.card.getValue();
-    }
-}
-
-// ============================================================
-//  HELPER: Get content in active language
-// ============================================================
-function getLocalizedContent(item, field){
-    let content=item[field];
-    if(currentLang!==item.lang&&item[field+'_'+currentLang]){
-        content=item[field+'_'+currentLang];
-    }
-    return content;
-}
+function esc(str){if(!str)return'';return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');}
+function getLocalizedContent(item,field){let c=item[field];if(currentLang!==item.lang&&item[field+'_'+currentLang])c=item[field+'_'+currentLang];return c||'';}
 
 function applyTranslations(){
-document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=t(el.getAttribute('data-i18n')));
-document.querySelectorAll('[data-i18n-ph]').forEach(el=>el.setAttribute('placeholder',t(el.getAttribute('data-i18n-ph'))));
-document.documentElement.lang=currentLang;
-document.querySelectorAll('.lang-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.lang===currentLang));
-renderPublicCards();renderMemberCards();renderAdminCards();renderMemberMarket();renderAdminMarket();renderAdminGames();
+  document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=t(el.getAttribute('data-i18n')));
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>el.setAttribute('placeholder',t(el.getAttribute('data-i18n-ph'))));
+  document.documentElement.lang=currentLang;
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.dataset.lang===currentLang));
+  renderPublicCards();renderMemberCards();renderAdminCards();renderMemberMarket();renderAdminMarket();renderAdminGames();
 }
 
 window.setLanguage=function(lang){if(!['en','es','ru'].includes(lang))return;currentLang=lang;localStorage.setItem('horsey_lang',lang);applyTranslations();};
 
 async function init(){
-let attempts=0;const maxAttempts=5;
-while(attempts<maxAttempts){
-try{
-const snap=await getDoc(doc(db,'artifacts',appId,'public','data','config','admin'));
-if(!snap.exists()){document.getElementById('setupBox').classList.remove('hidden');}
-else{
-document.getElementById('mainApp').classList.remove('hidden');
-document.getElementById('langSwitcher').classList.remove('hidden');
-setupListeners();
-setTimeout(()=>{initAllQuillEditors();initCodeMirror();initCatchHorsey();initSantaGame();},500);
-}
-return;
-}catch(err){attempts++;if(attempts<maxAttempts){await new Promise(r=>setTimeout(r,2000));}
-else{document.getElementById('setupBox').classList.remove('hidden');
-const e=document.getElementById('setupError');if(e){e.textContent='ERROR: '+(err.code||err.message)+'. Verifica Firestore Rules y Authorized Domains.';e.classList.remove('hidden');}}}
-}
+  let attempts=0,maxAttempts=5;
+  while(attempts<maxAttempts){
+    try{
+      const snap=await getDoc(doc(db,'artifacts',appId,'public','data','config','admin'));
+      if(!snap.exists()){
+        document.getElementById('setupBox').classList.remove('hidden');
+      }else{
+        document.getElementById('mainApp').classList.remove('hidden');
+        document.getElementById('langSwitcher').classList.remove('hidden');
+        setupListeners();
+        setTimeout(()=>{initCatchHorsey();initSantaGame();},300);
+      }
+      return;
+    }catch(err){
+      attempts++;
+      if(attempts<maxAttempts){
+        await new Promise(r=>setTimeout(r,2000));
+      }else{
+        document.getElementById('setupBox').classList.remove('hidden');
+        const e=document.getElementById('setupError');
+        if(e){e.textContent='ERROR: '+(err.code||err.message)+'. Check Firestore Rules & Authorized Domains.';e.classList.remove('hidden');}
+      }
+    }
+  }
 }
 
 function setupListeners(){
-onSnapshot(collection(db,'artifacts',appId,'public','data','scores'),s=>{allUsersData=s.docs.map(d=>({id:d.id,name:d.id,...d.data()}));},e=>console.warn('scores:',e.message));
-onSnapshot(collection(db,'artifacts',appId,'public','data','market'),s=>{marketData=s.docs.map(d=>({id:d.id,...d.data()}));renderMemberMarket();renderAdminMarket();},e=>console.warn('market:',e.message));
-onSnapshot(collection(db,'artifacts',appId,'public','data','cards'),s=>{cardsData=s.docs.map(d=>({id:d.id,...d.data()}));renderPublicCards();renderMemberCards();renderAdminCards();},e=>console.warn('cards:',e.message));
-onSnapshot(collection(db,'artifacts',appId,'public','data','games'),s=>{gamesData=s.docs.map(d=>({id:d.id,...d.data()}));renderAdminGames();},e=>console.warn('games:',e.message));
+  onSnapshot(collection(db,'artifacts',appId,'public','data','scores'),s=>{allUsersData=s.docs.map(d=>({id:d.id,name:d.id,...d.data()}));},e=>console.warn('scores:',e.message));
+  onSnapshot(collection(db,'artifacts',appId,'public','data','market'),s=>{marketData=s.docs.map(d=>({id:d.id,...d.data()}));renderMemberMarket();renderAdminMarket();},e=>console.warn('market:',e.message));
+  onSnapshot(collection(db,'artifacts',appId,'public','data','cards'),s=>{cardsData=s.docs.map(d=>({id:d.id,...d.data()}));renderPublicCards();renderMemberCards();renderAdminCards();},e=>console.warn('cards:',e.message));
+  onSnapshot(collection(db,'artifacts',appId,'public','data','games'),s=>{gamesData=s.docs.map(d=>({id:d.id,...d.data()}));renderAdminGames();},e=>console.warn('games:',e.message));
 }
 
 function renderMemberMarket(){
-const c=document.getElementById('marketList');if(!c)return;
-if(marketData.length===0){c.innerHTML=`<p class="text-center text-slate-400 text-xs italic py-10">${t('js.noItems')}</p>`;return;}
-c.innerHTML=marketData.map(i=>{
-const desc=getLocalizedContent(i,'description');
-return `<div class="bg-slate-50 border border-slate-200 p-6 rounded-3xl space-y-3 shadow-sm"><div class="flex justify-between items-start"><div><h4 class="text-slate-800 font-black uppercase text-lg">${esc(i.item)}</h4><p class="text-amber-600 text-[10px] font-bold uppercase tracking-widest">${esc(i.seller)}</p></div><span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-black italic">${i.price}</span></div><p class="text-slate-600 text-sm leading-relaxed">${desc}</p><div class="pt-4 border-t border-slate-200"><a href="${i.profile}" target="_blank" class="text-amber-600 text-[10px] font-bold hover:underline italic">${t('js.viewProfile')}</a></div></div>`;
-}).join('');
+  const c=document.getElementById('marketList');if(!c)return;
+  if(marketData.length===0){c.innerHTML=`<p class="text-center text-slate-400 text-xs italic py-10">${t('js.noItems')}</p>`;return;}
+  c.innerHTML=marketData.map(i=>`<div class="bg-slate-50 border border-slate-200 p-6 rounded-3xl space-y-3 shadow-sm"><div class="flex justify-between items-start"><div><h4 class="text-slate-800 font-black uppercase text-lg">${esc(i.item)}</h4><p class="text-amber-600 text-[10px] font-bold uppercase tracking-widest">${esc(i.seller)}</p></div><span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-black italic">${i.price}</span></div><p class="text-slate-600 text-sm leading-relaxed">${getLocalizedContent(i,'description')}</p><div class="pt-4 border-t border-slate-200"><a href="${i.profile}" target="_blank" class="text-amber-600 text-[10px] font-bold hover:underline italic">${t('js.viewProfile')}</a></div></div>`).join('');
 }
-
 function renderAdminMarket(){
-const c=document.getElementById('adminMarketList');if(!c)return;
-if(marketData.length===0){c.innerHTML=`<p class="text-center text-slate-400 text-xs italic py-10">${t('js.noItems')}</p>`;return;}
-c.innerHTML=marketData.map(i=>`<div class="bg-slate-50 border border-slate-200 p-6 rounded-3xl space-y-3 shadow-sm"><div class="flex justify-between items-start"><div><h4 class="text-slate-800 font-black uppercase text-lg">${esc(i.item)}</h4><p class="text-amber-600 text-[10px] font-bold uppercase tracking-widest">${esc(i.seller)}</p></div><span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-black italic">${i.price}</span></div><p class="text-slate-600 text-sm leading-relaxed">${esc(i.description)}</p><div class="pt-4 border-t border-slate-200 flex justify-between items-center"><a href="${i.profile}" target="_blank" class="text-amber-600 text-[10px] font-bold hover:underline italic">${t('js.viewProfile')}</a><button onclick="window.deleteMarketItem('${i.id}')" class="text-red-500 hover:text-red-600 text-[10px] font-bold uppercase">${t('js.delete')}</button></div></div>`).join('');
+  const c=document.getElementById('adminMarketList');if(!c)return;
+  if(marketData.length===0){c.innerHTML=`<p class="text-center text-slate-400 text-xs italic py-10">${t('js.noItems')}</p>`;return;}
+  c.innerHTML=marketData.map(i=>`<div class="bg-slate-50 border border-slate-200 p-6 rounded-3xl space-y-3 shadow-sm"><div class="flex justify-between items-start"><div><h4 class="text-slate-800 font-black uppercase text-lg">${esc(i.item)}</h4><p class="text-amber-600 text-[10px] font-bold uppercase tracking-widest">${esc(i.seller)}</p></div><span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-black italic">${i.price}</span></div><p class="text-slate-600 text-sm leading-relaxed">${esc(i.description)}</p><div class="pt-4 border-t border-slate-200 flex justify-between items-center"><a href="${i.profile}" target="_blank" class="text-amber-600 text-[10px] font-bold hover:underline italic">${t('js.viewProfile')}</a><button onclick="window.deleteMarketItem('${i.id}')" class="text-red-500 hover:text-red-600 text-[10px] font-bold uppercase">${t('js.delete')}</button></div></div>`).join('');
 }
-
 function renderPublicCards(){
-const c=document.getElementById('publicCardsList');if(!c)return;
-const s=[...cardsData].sort((a,b)=>(a.order||0)-(b.order||0));
-if(s.length===0){c.innerHTML=`<p class="text-center text-slate-400 text-xs italic py-6 col-span-2">${t('js.noCards')}</p>`;return;}
-c.innerHTML=s.map(x=>{const content=getLocalizedContent(x,'content');return `<div class="site-card"><h3>${esc(x.title)}</h3><div class="card-content">${content}</div></div>`;}).join('');
+  const c=document.getElementById('publicCardsList');if(!c)return;
+  const s=[...cardsData].sort((a,b)=>(a.order||0)-(b.order||0));
+  if(s.length===0){c.innerHTML=`<p class="text-center text-slate-400 text-xs italic py-6 col-span-2">${t('js.noCards')}</p>`;return;}
+  c.innerHTML=s.map(x=>`<div class="site-card"><h3>${esc(x.title)}</h3><div class="card-content">${getLocalizedContent(x,'content')}</div></div>`).join('');
 }
-
 function renderMemberCards(){
-const c=document.getElementById('memberCardsList');if(!c)return;
-const s=[...cardsData].sort((a,b)=>(a.order||0)-(b.order||0));
-if(s.length===0){c.innerHTML=`<p class="text-center text-slate-400 text-xs italic py-10">${t('js.noCardsMember')}</p>`;return;}
-c.innerHTML=s.map(x=>{const content=getLocalizedContent(x,'content');return `<div class="site-card"><h3>${esc(x.title)}</h3><div class="card-content">${content}</div></div>`;}).join('');
+  const c=document.getElementById('memberCardsList');if(!c)return;
+  const s=[...cardsData].sort((a,b)=>(a.order||0)-(b.order||0));
+  if(s.length===0){c.innerHTML=`<p class="text-center text-slate-400 text-xs italic py-10">${t('js.noCardsMember')}</p>`;return;}
+  c.innerHTML=s.map(x=>`<div class="site-card"><h3>${esc(x.title)}</h3><div class="card-content">${getLocalizedContent(x,'content')}</div></div>`).join('');
 }
-
 function renderAdminCards(){
-const c=document.getElementById('adminCardsList');if(!c)return;
-const s=[...cardsData].sort((a,b)=>(a.order||0)-(b.order||0));
-if(s.length===0){c.innerHTML=`<p class="text-center text-slate-400 text-xs italic py-10">${t('js.noCardsAdmin')}</p>`;return;}
-c.innerHTML=s.map(x=>`<div class="bg-slate-50 border border-slate-200 p-5 rounded-2xl"><div class="flex justify-between items-start mb-2"><h4 class="text-slate-800 font-black uppercase">${esc(x.title)}</h4><span class="text-[10px] text-slate-400 font-bold">${t('js.order')}${x.order||0}</span></div><div class="text-slate-600 text-xs mb-3 max-h-20 overflow-hidden">${x.content}</div><div class="flex gap-3 pt-3 border-t border-slate-200"><button onclick="window.editCard('${x.id}')" class="text-amber-600 hover:text-amber-700 text-[10px] font-bold uppercase">${t('js.edit')}</button><button onclick="window.deleteCard('${x.id}')" class="text-red-500 hover:text-red-600 text-[10px] font-bold uppercase">${t('js.delete')}</button></div></div>`).join('');
+  const c=document.getElementById('adminCardsList');if(!c)return;
+  const s=[...cardsData].sort((a,b)=>(a.order||0)-(b.order||0));
+  if(s.length===0){c.innerHTML=`<p class="text-center text-slate-400 text-xs italic py-10">${t('js.noCardsAdmin')}</p>`;return;}
+  c.innerHTML=s.map(x=>`<div class="bg-slate-50 border border-slate-200 p-5 rounded-2xl"><div class="flex justify-between items-start mb-2"><h4 class="text-slate-800 font-black uppercase">${esc(x.title)}</h4><span class="text-[10px] text-slate-400 font-bold">${t('js.order')}${x.order||0}</span></div><div class="text-slate-600 text-xs mb-3 max-h-20 overflow-hidden">${x.content}</div><div class="flex gap-3 pt-3 border-t border-slate-200"><button onclick="window.editCard('${x.id}')" class="text-amber-600 hover:text-amber-700 text-[10px] font-bold uppercase">${t('js.edit')}</button><button onclick="window.deleteCard('${x.id}')" class="text-red-500 hover:text-red-600 text-[10px] font-bold uppercase">${t('js.delete')}</button></div></div>`).join('');
 }
-
 function renderAdminGames(){
-const c=document.getElementById('adminGamesList');if(!c)return;
-if(gamesData.length===0){c.innerHTML=`<p class="text-center text-slate-400 text-xs italic py-10">${t('js.noGames')}</p>`;return;}
-c.innerHTML=gamesData.map(g=>`<div class="bg-slate-50 border border-slate-200 p-5 rounded-2xl"><div class="flex justify-between items-start mb-2"><h4 class="text-slate-800 font-black uppercase"><svg class="ico" viewBox="0 0 24 24"><use href="#${g.icon||'i-horse'}"/></svg> ${esc(g.title)}</h4></div><div class="text-slate-600 text-xs mb-3">${g.desc}</div><div class="flex gap-3 pt-3 border-t border-slate-200"><button onclick="window.editGame('${g.id}')" class="text-amber-600 hover:text-amber-700 text-[10px] font-bold uppercase">${t('js.edit')}</button><button onclick="window.deleteGame('${g.id}')" class="text-red-500 hover:text-red-600 text-[10px] font-bold uppercase">${t('js.delete')}</button></div></div>`).join('');
+  const c=document.getElementById('adminGamesList');if(!c)return;
+  if(gamesData.length===0){c.innerHTML=`<p class="text-center text-slate-400 text-xs italic py-10">${t('js.noGames')}</p>`;return;}
+  c.innerHTML=gamesData.map(g=>`<div class="bg-slate-50 border border-slate-200 p-5 rounded-2xl"><div class="flex justify-between items-start mb-2"><h4 class="text-slate-800 font-black uppercase"><svg class="ico" viewBox="0 0 24 24"><use href="#${g.icon||'i-horse'}"/></svg> ${esc(g.title)}</h4></div><div class="text-slate-600 text-xs mb-3">${g.desc}</div><div class="flex gap-3 pt-3 border-t border-slate-200"><button onclick="window.editGame('${g.id}')" class="text-amber-600 hover:text-amber-700 text-[10px] font-bold uppercase">${t('js.edit')}</button><button onclick="window.deleteGame('${g.id}')" class="text-red-500 hover:text-red-600 text-[10px] font-bold uppercase">${t('js.delete')}</button></div></div>`).join('');
 }
 
-// ============================================================
-//  CARD ACTIONS
-// ============================================================
+window.switchEditorTab=function(tab){
+  const vt=document.getElementById('editorTabVisual'),ct=document.getElementById('editorTabCode');
+  const ve=document.getElementById('editorVisual'),ce=document.getElementById('editorCode');
+  if(tab==='visual'){vt.classList.add('text-amber-600','border-amber-500');vt.classList.remove('text-slate-500','border-transparent');ct.classList.remove('text-amber-600','border-amber-500');ct.classList.add('text-slate-500','border-transparent');ve.classList.remove('hidden');ce.classList.add('hidden');}
+  else{ct.classList.add('text-amber-600','border-amber-500');ct.classList.remove('text-slate-500','border-transparent');vt.classList.remove('text-amber-600','border-amber-500');vt.classList.add('text-slate-500','border-transparent');ce.classList.remove('hidden');ve.classList.add('hidden');}
+};
+
 window.saveCard=async()=>{
-const fb=document.getElementById('adminFeedback');
-const editId=document.getElementById('cardEditId').value;
-const title=document.getElementById('cardTitle').value.trim();
-const lang=document.getElementById('cardLang').value;
-const content=codeMirrorEditors.card.getValue().trim();
-const order=parseInt(document.getElementById('cardOrder').value)||0;
-const contentEs=document.getElementById('cardContentEs').value.trim();
-const contentEn=document.getElementById('cardContentEn').value.trim();
-const contentRu=document.getElementById('cardContentRu').value.trim();
-if(!title||!content){fb.innerText=t('js.titleContentRequired');setTimeout(()=>fb.innerText='',3000);return;}
-fb.innerText=t('js.saving');
-try{
-const cardData={title,lang,content,order,timestamp:Date.now()};
-if(contentEs)cardData.content_es=contentEs;
-if(contentEn)cardData.content_en=contentEn;
-if(contentRu)cardData.content_ru=contentRu;
-if(editId){await updateDoc(doc(db,'artifacts',appId,'public','data','cards',editId),cardData);fb.innerText=t('js.cardUpdated');}
-else{await addDoc(collection(db,'artifacts',appId,'public','data','cards'),cardData);fb.innerText=t('js.cardCreated');}
-cancelCardEdit();
-}catch(e){fb.innerText=t('js.error')+e.message;}
-setTimeout(()=>fb.innerText='',3000);
+  const fb=document.getElementById('adminFeedback');
+  const editId=document.getElementById('cardEditId').value;
+  const title=document.getElementById('cardTitle').value.trim();
+  const lang=document.getElementById('cardLang').value;
+  const order=parseInt(document.getElementById('cardOrder').value)||0;
+  const contentEl=document.getElementById('codeEditor');
+  const content=contentEl?contentEl.value.trim():'';
+  if(!title||!content){fb.innerText=t('js.titleContentRequired');setTimeout(()=>fb.innerText='',3000);return;}
+  fb.innerText=t('js.saving');
+  const contentEs=document.getElementById('cardContentEs').value.trim();
+  const contentEn=document.getElementById('cardContentEn').value.trim();
+  const contentRu=document.getElementById('cardContentRu').value.trim();
+  try{
+    const data={title,lang,content,order,timestamp:Date.now()};
+    if(contentEs)data.content_es=contentEs;
+    if(contentEn)data.content_en=contentEn;
+    if(contentRu)data.content_ru=contentRu;
+    if(editId){await updateDoc(doc(db,'artifacts',appId,'public','data','cards',editId),data);fb.innerText=t('js.cardUpdated');}
+    else{await addDoc(collection(db,'artifacts',appId,'public','data','cards'),data);fb.innerText=t('js.cardCreated');}
+    cancelCardEdit();
+  }catch(e){fb.innerText=t('js.error')+e.message;}
+  setTimeout(()=>fb.innerText='',3000);
 };
 
 window.editCard=(id)=>{
-const x=cardsData.find(c=>c.id===id);if(!x)return;
-document.getElementById('cardEditId').value=id;
-document.getElementById('cardTitle').value=x.title||'';
-document.getElementById('cardLang').value=x.lang||'en';
-document.getElementById('cardOrder').value=x.order||0;
-if(quillEditors.card)quillEditors.card.root.innerHTML=x.content||'';
-if(codeMirrorEditors.card)codeMirrorEditors.card.setValue(x.content||'');
-document.getElementById('cardContentEs').value=x.content_es||'';
-document.getElementById('cardContentEn').value=x.content_en||'';
-document.getElementById('cardContentRu').value=x.content_ru||'';
-document.getElementById('cardSaveBtn').innerText=t('js.editCard');
-document.getElementById('cardCancelBtn').classList.remove('hidden');
-document.getElementById('adminCards').scrollIntoView({behavior:'smooth'});
+  const x=cardsData.find(c=>c.id===id);if(!x)return;
+  document.getElementById('cardEditId').value=id;
+  document.getElementById('cardTitle').value=x.title||'';
+  document.getElementById('cardLang').value=x.lang||'en';
+  document.getElementById('cardOrder').value=x.order||0;
+  const ce=document.getElementById('codeEditor');if(ce)ce.value=x.content||'';
+  document.getElementById('cardContentEs').value=x.content_es||'';
+  document.getElementById('cardContentEn').value=x.content_en||'';
+  document.getElementById('cardContentRu').value=x.content_ru||'';
+  document.getElementById('cardSaveBtn').innerText=t('js.editCard');
+  document.getElementById('cardCancelBtn').classList.remove('hidden');
+  document.getElementById('adminCards').scrollIntoView({behavior:'smooth'});
 };
 
 window.deleteCard=async(id)=>{if(!confirm(t('js.deleteCard')))return;await deleteDoc(doc(db,'artifacts',appId,'public','data','cards',id));};
 
 window.cancelCardEdit=()=>{
-document.getElementById('cardEditId').value='';
-document.getElementById('cardTitle').value='';
-document.getElementById('cardLang').value='en';
-document.getElementById('cardOrder').value=0;
-if(quillEditors.card)quillEditors.card.root.innerHTML='';
-if(codeMirrorEditors.card)codeMirrorEditors.card.setValue('');
-document.getElementById('cardContentEs').value='';
-document.getElementById('cardContentEn').value='';
-document.getElementById('cardContentRu').value='';
-document.getElementById('cardSaveBtn').innerText=t('js.createCard');
-document.getElementById('cardCancelBtn').classList.add('hidden');
+  document.getElementById('cardEditId').value='';
+  document.getElementById('cardTitle').value='';
+  document.getElementById('cardLang').value='en';
+  document.getElementById('cardOrder').value=0;
+  const ce=document.getElementById('codeEditor');if(ce)ce.value='';
+  document.getElementById('cardContentEs').value='';
+  document.getElementById('cardContentEn').value='';
+  document.getElementById('cardContentRu').value='';
+  document.getElementById('cardSaveBtn').innerText=t('js.createCard');
+  document.getElementById('cardCancelBtn').classList.add('hidden');
 };
 
 window.saveGame=async()=>{
-const fb=document.getElementById('adminFeedback');
-const editId=document.getElementById('gameEditId').value;
-const title=document.getElementById('gameTitle').value.trim();
-const icon=document.getElementById('gameIcon').value.trim()||'i-horse';
-const desc=quillEditors.gameDesc?quillEditors.gameDesc.root.innerHTML.trim():'';
-const descEs=document.getElementById('gameDescEs').value.trim();
-const descEn=document.getElementById('gameDescEn').value.trim();
-const descRu=document.getElementById('gameDescRu').value.trim();
-if(!title||!desc){fb.innerText=t('js.titleDescRequired');setTimeout(()=>fb.innerText='',3000);return;}
-fb.innerText=t('js.saving');
-try{
-const gameData={title,icon,desc,timestamp:Date.now()};
-if(descEs)gameData.desc_es=descEs;
-if(descEn)gameData.desc_en=descEn;
-if(descRu)gameData.desc_ru=descRu;
-if(editId){await updateDoc(doc(db,'artifacts',appId,'public','data','games',editId),gameData);fb.innerText=t('js.gameUpdated');}
-else{await addDoc(collection(db,'artifacts',appId,'public','data','games'),gameData);fb.innerText=t('js.gameCreated');}
-cancelGameEdit();
-}catch(e){fb.innerText=t('js.error')+e.message;}
-setTimeout(()=>fb.innerText='',3000);
+  const fb=document.getElementById('adminFeedback');
+  const editId=document.getElementById('gameEditId').value;
+  const title=document.getElementById('gameTitle').value.trim();
+  const icon=document.getElementById('gameIcon').value.trim()||'i-horse';
+  const desc=document.getElementById('gameDesc').value.trim();
+  if(!title||!desc){fb.innerText=t('js.titleDescRequired');setTimeout(()=>fb.innerText='',3000);return;}
+  fb.innerText=t('js.saving');
+  const descEs=document.getElementById('gameDescEs').value.trim();
+  const descEn=document.getElementById('gameDescEn').value.trim();
+  const descRu=document.getElementById('gameDescRu').value.trim();
+  try{
+    const data={title,icon,desc,timestamp:Date.now()};
+    if(descEs)data.desc_es=descEs;
+    if(descEn)data.desc_en=descEn;
+    if(descRu)data.desc_ru=descRu;
+    if(editId){await updateDoc(doc(db,'artifacts',appId,'public','data','games',editId),data);fb.innerText=t('js.gameUpdated');}
+    else{await addDoc(collection(db,'artifacts',appId,'public','data','games'),data);fb.innerText=t('js.gameCreated');}
+    cancelGameEdit();
+  }catch(e){fb.innerText=t('js.error')+e.message;}
+  setTimeout(()=>fb.innerText='',3000);
 };
 
 window.editGame=(id)=>{
-const g=gamesData.find(x=>x.id===id);if(!g)return;
-document.getElementById('gameEditId').value=id;
-document.getElementById('gameTitle').value=g.title||'';
-document.getElementById('gameIcon').value=g.icon||'';
-if(quillEditors.gameDesc)quillEditors.gameDesc.root.innerHTML=g.desc||'';
-document.getElementById('gameDescEs').value=g.desc_es||'';
-document.getElementById('gameDescEn').value=g.desc_en||'';
-document.getElementById('gameDescRu').value=g.desc_ru||'';
-document.getElementById('gameSaveBtn').innerText=t('js.editGame');
-document.getElementById('gameCancelBtn').classList.remove('hidden');
-document.getElementById('adminGames').scrollIntoView({behavior:'smooth'});
+  const g=gamesData.find(x=>x.id===id);if(!g)return;
+  document.getElementById('gameEditId').value=id;
+  document.getElementById('gameTitle').value=g.title||'';
+  document.getElementById('gameIcon').value=g.icon||'';
+  document.getElementById('gameDesc').value=g.desc||'';
+  document.getElementById('gameDescEs').value=g.desc_es||'';
+  document.getElementById('gameDescEn').value=g.desc_en||'';
+  document.getElementById('gameDescRu').value=g.desc_ru||'';
+  document.getElementById('gameSaveBtn').innerText=t('js.editGame');
+  document.getElementById('gameCancelBtn').classList.remove('hidden');
+  document.getElementById('adminGames').scrollIntoView({behavior:'smooth'});
 };
 
 window.deleteGame=async(id)=>{if(!confirm(t('js.deleteGame')))return;await deleteDoc(doc(db,'artifacts',appId,'public','data','games',id));};
 
 window.cancelGameEdit=()=>{
-document.getElementById('gameEditId').value='';
-document.getElementById('gameTitle').value='';
-document.getElementById('gameIcon').value='';
-if(quillEditors.gameDesc)quillEditors.gameDesc.root.innerHTML='';
-document.getElementById('gameDescEs').value='';
-document.getElementById('gameDescEn').value='';
-document.getElementById('gameDescRu').value='';
-document.getElementById('gameSaveBtn').innerText=t('js.createGame');
-document.getElementById('gameCancelBtn').classList.add('hidden');
+  document.getElementById('gameEditId').value='';
+  document.getElementById('gameTitle').value='';
+  document.getElementById('gameIcon').value='';
+  document.getElementById('gameDesc').value='';
+  document.getElementById('gameDescEs').value='';
+  document.getElementById('gameDescEn').value='';
+  document.getElementById('gameDescRu').value='';
+  document.getElementById('gameSaveBtn').innerText=t('js.createGame');
+  document.getElementById('gameCancelBtn').classList.add('hidden');
 };
 
 window.deleteMarketItem=async(id)=>{if(!confirm(t('js.deleteMarket')))return;await deleteDoc(doc(db,'artifacts',appId,'public','data','market',id));};
 
 window.expelMember=async()=>{
-const fb=document.getElementById('expelFeedback');
-const user=document.getElementById('expelUser').value.trim().toLowerCase();
-if(!user){fb.innerText=t('js.enterUsername');setTimeout(()=>fb.innerText='',3000);return;}
-fb.innerText=t('js.checking');
-try{
-const s=await getDoc(doc(db,'artifacts',appId,'public','data','scores',user));
-if(!s.exists()){fb.innerText='"'+user+'" '+t('js.userNotExist');setTimeout(()=>fb.innerText='',4000);return;}
-if(!confirm(t('js.deleteUserConfirm'))){fb.innerText='';return;}
-fb.innerText=t('js.expelling');
-await deleteDoc(doc(db,'artifacts',appId,'public','data','scores',user));
-fb.innerText='"'+user+'" '+t('js.expelled');
-document.getElementById('expelUser').value='';
-}catch(e){fb.innerText=t('js.error')+e.message;}
-setTimeout(()=>fb.innerText='',5000);
+  const fb=document.getElementById('expelFeedback');
+  const user=document.getElementById('expelUser').value.trim().toLowerCase();
+  if(!user){fb.innerText=t('js.enterUsername');setTimeout(()=>fb.innerText='',3000);return;}
+  fb.innerText=t('js.checking');
+  try{
+    const s=await getDoc(doc(db,'artifacts',appId,'public','data','scores',user));
+    if(!s.exists()){fb.innerText='"'+user+'" '+t('js.userNotExist');setTimeout(()=>fb.innerText='',4000);return;}
+    if(!confirm(t('js.deleteUserConfirm'))){fb.innerText='';return;}
+    fb.innerText=t('js.expelling');
+    await deleteDoc(doc(db,'artifacts',appId,'public','data','scores',user));
+    fb.innerText='"'+user+'" '+t('js.expelled');
+    document.getElementById('expelUser').value='';
+  }catch(e){fb.innerText=t('js.error')+e.message;}
+  setTimeout(()=>fb.innerText='',5000);
 };
 
-window.savePassword=async()=>{const p=document.getElementById('initialPass').value;if(!p)return;try{await setDoc(doc(db,'artifacts',appId,'public','data','config','admin'),{password:p});location.reload();}catch(e){const el=document.getElementById('setupError');el.textContent='ERROR: '+(e.code||e.message);el.classList.remove('hidden');}};
+window.savePassword=async()=>{
+  const p=document.getElementById('initialPass').value;if(!p)return;
+  try{await setDoc(doc(db,'artifacts',appId,'public','data','config','admin'),{password:p});location.reload();}
+  catch(e){const el=document.getElementById('setupError');el.textContent='ERROR: '+(e.code||e.message);el.classList.remove('hidden');}
+};
 
-window.showSuggestions=(inputId,listId)=>{const val=document.getElementById(inputId).value.toLowerCase().trim();const list=document.getElementById(listId);list.innerHTML='';if(!val){list.classList.add('hidden');return;}const m=allUsersData.filter(u=>u.name.toLowerCase().includes(val));if(m.length>0){list.classList.remove('hidden');m.forEach(x=>{const li=document.createElement('li');li.className='p-3 border-b border-slate-200 text-sm hover:bg-slate-100 cursor-pointer text-slate-800';li.innerText=x.name;li.onclick=()=>{document.getElementById(inputId).value=x.name;list.classList.add('hidden');};list.appendChild(li);});}else list.classList.add('hidden');};
+window.showSuggestions=(inputId,listId)=>{
+  const val=document.getElementById(inputId).value.toLowerCase().trim();
+  const list=document.getElementById(listId);list.innerHTML='';
+  if(!val){list.classList.add('hidden');return;}
+  const m=allUsersData.filter(u=>u.name.toLowerCase().includes(val));
+  if(m.length>0){list.classList.remove('hidden');m.forEach(x=>{const li=document.createElement('li');li.className='p-3 border-b border-slate-200 text-sm hover:bg-slate-100 cursor-pointer text-slate-800';li.innerText=x.name;li.onclick=()=>{document.getElementById(inputId).value=x.name;list.classList.add('hidden');};list.appendChild(li);});}
+  else list.classList.add('hidden');
+};
 
-window.showScreen=(id)=>{['roleScreen','memberScreen','loginScreen','adminEditor'].forEach(s=>{const el=document.getElementById(s);if(el)el.classList.add('hidden');});document.getElementById(id).classList.remove('hidden');const pc=document.getElementById('publicCardsSection');if(pc)pc.classList.toggle('hidden',id!=='roleScreen');setTimeout(()=>resizeSgCanvas(),150);window.scrollTo({top:0,behavior:'smooth'});};
+window.showScreen=(id)=>{
+  ['roleScreen','memberScreen','loginScreen','adminEditor'].forEach(s=>{const el=document.getElementById(s);if(el)el.classList.add('hidden');});
+  document.getElementById(id).classList.remove('hidden');
+  const pc=document.getElementById('publicCardsSection');if(pc)pc.classList.toggle('hidden',id!=='roleScreen');
+  setTimeout(()=>resizeSgCanvas(),150);
+  window.scrollTo({top:0,behavior:'smooth'});
+};
 
-window.toggleMemberTab=(tab)=>{const ids={coins:['coinsContent','tabCoins'],markets:['marketsContent','tabMarkets'],cards:['cardsContent','tabCards'],games:['gamesContent','tabGames']};Object.keys(ids).forEach(k=>{document.getElementById(ids[k][0]).classList.add('hidden');const b=document.getElementById(ids[k][1]);b.classList.remove('border-amber-500','text-slate-800');b.classList.add('border-transparent','text-slate-400');});document.getElementById(ids[tab][0]).classList.remove('hidden');const ab=document.getElementById(ids[tab][1]);ab.classList.remove('border-transparent','text-slate-400');ab.classList.add('border-amber-500','text-slate-800');if(tab==='games')setTimeout(()=>resizeSgCanvas(),100);};
+window.toggleMemberTab=(tab)=>{
+  const ids={coins:['coinsContent','tabCoins'],markets:['marketsContent','tabMarkets'],cards:['cardsContent','tabCards'],games:['gamesContent','tabGames']};
+  Object.keys(ids).forEach(k=>{document.getElementById(ids[k][0]).classList.add('hidden');const b=document.getElementById(ids[k][1]);b.classList.remove('border-amber-500','text-slate-800');b.classList.add('border-transparent','text-slate-400');});
+  document.getElementById(ids[tab][0]).classList.remove('hidden');
+  const ab=document.getElementById(ids[tab][1]);ab.classList.remove('border-transparent','text-slate-400');ab.classList.add('border-amber-500','text-slate-800');
+  if(tab==='games')setTimeout(()=>resizeSgCanvas(),100);
+};
 
-window.toggleAdminTab=(tab)=>{const map={coins:['adminCoins','adminTabCoins'],markets:['adminMarkets','adminTabMarkets'],cards:['adminCards','adminTabCards'],games:['adminGames','adminTabGames'],expel:['adminExpel','adminTabExpel']};Object.keys(map).forEach(k=>{document.getElementById(map[k][0]).classList.add('hidden');document.getElementById(map[k][1]).className='flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl text-slate-500';});document.getElementById(map[tab][0]).classList.remove('hidden');const b=document.getElementById(map[tab][1]);b.className=tab==='expel'?'flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl bg-red-600 text-white':'flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl bg-amber-600 text-white';};
+window.toggleAdminTab=(tab)=>{
+  const map={coins:['adminCoins','adminTabCoins'],markets:['adminMarkets','adminTabMarkets'],cards:['adminCards','adminTabCards'],games:['adminGames','adminTabGames'],expel:['adminExpel','adminTabExpel']};
+  Object.keys(map).forEach(k=>{document.getElementById(map[k][0]).classList.add('hidden');document.getElementById(map[k][1]).className='flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl text-slate-500';});
+  document.getElementById(map[tab][0]).classList.remove('hidden');
+  const b=document.getElementById(map[tab][1]);
+  b.className=tab==='expel'?'flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl bg-red-600 text-white':'flex-1 min-w-[100px] py-3 text-[10px] font-black uppercase rounded-xl bg-amber-600 text-white';
+};
 
-window.showLeaderboard=()=>{const list=document.getElementById('leaderboardList');const d=document.getElementById('leaderboardDisplay');if(!d.classList.contains('hidden')){d.classList.add('hidden');return;}list.innerHTML='';const s=[...allUsersData].sort((a,b)=>(b.balance||0)-(a.balance||0));s.forEach((u,i)=>{const item=document.createElement('div');item.className='flex items-center justify-between p-4 bg-white border border-slate-200 rounded-2xl';let rank='#'+(i+1);if(i===0)rank=t('js.rankGold');else if(i===1)rank=t('js.rankSilver');else if(i===2)rank=t('js.rankBronze');item.innerHTML='<div class="flex items-center gap-4"><span class="text-xs font-bold text-slate-400 w-16">'+rank+'</span><span class="text-sm font-black uppercase text-slate-800">'+esc(u.name)+'</span></div><span class="text-amber-600 font-black text-sm">'+(u.balance||0)+'</span>';list.appendChild(item);});d.classList.remove('hidden');document.getElementById('scoreDisplay').classList.add('hidden');};
+window.showLeaderboard=()=>{
+  const list=document.getElementById('leaderboardList');
+  const d=document.getElementById('leaderboardDisplay');
+  if(!d.classList.contains('hidden')){d.classList.add('hidden');return;}
+  list.innerHTML='';
+  const s=[...allUsersData].sort((a,b)=>(b.balance||0)-(a.balance||0));
+  s.forEach((u,i)=>{
+    const item=document.createElement('div');
+    item.className='flex items-center justify-between p-4 bg-white border border-slate-200 rounded-2xl';
+    let rank='#'+(i+1);
+    if(i===0)rank=t('js.rankGold');else if(i===1)rank=t('js.rankSilver');else if(i===2)rank=t('js.rankBronze');
+    item.innerHTML='<div class="flex items-center gap-4"><span class="text-xs font-bold text-slate-400 w-16">'+rank+'</span><span class="text-sm font-black uppercase text-slate-800">'+esc(u.name)+'</span></div><span class="text-amber-600 font-black text-sm">'+(u.balance||0)+'</span>';
+    list.appendChild(item);
+  });
+  d.classList.remove('hidden');
+  document.getElementById('scoreDisplay').classList.add('hidden');
+};
 
-window.checkPoints=async()=>{const u=document.getElementById('memberSearch').value.trim().toLowerCase();if(!u)return;const btn=document.getElementById('checkBtn');btn.innerText=t('js.accessing');try{const s=await getDoc(doc(db,'artifacts',appId,'public','data','scores',u));document.getElementById('resName').innerText=u.toUpperCase();if(s.exists()){const d=s.data();document.getElementById('resPoints').innerText=d.balance||0;document.getElementById('resReason').innerText=d.reason||t('js.member');}else{document.getElementById('resPoints').innerText='0';document.getElementById('resReason').innerText=t('js.notRegistered');}}catch(e){document.getElementById('resName').innerText=u.toUpperCase();document.getElementById('resPoints').innerText='?';document.getElementById('resReason').innerText=t('js.error')+e.message;}document.getElementById('scoreDisplay').classList.remove('hidden');document.getElementById('leaderboardDisplay').classList.add('hidden');btn.innerText=t('js.findCoins');};
+window.checkPoints=async()=>{
+  const u=document.getElementById('memberSearch').value.trim().toLowerCase();if(!u)return;
+  const btn=document.getElementById('checkBtn');btn.innerText=t('js.accessing');
+  try{
+    const s=await getDoc(doc(db,'artifacts',appId,'public','data','scores',u));
+    document.getElementById('resName').innerText=u.toUpperCase();
+    if(s.exists()){const d=s.data();document.getElementById('resPoints').innerText=d.balance||0;const reason=d['reason_'+currentLang]||d.reason||t('js.member');document.getElementById('resReason').innerText=reason;}
+    else{document.getElementById('resPoints').innerText='0';document.getElementById('resReason').innerText=t('js.notRegistered');}
+  }catch(e){document.getElementById('resName').innerText=u.toUpperCase();document.getElementById('resPoints').innerText='?';document.getElementById('resReason').innerText=t('js.error')+e.message;}
+  document.getElementById('scoreDisplay').classList.remove('hidden');
+  document.getElementById('leaderboardDisplay').classList.add('hidden');
+  btn.innerText=t('js.findCoins');
+};
 
-window.verifyAdmin=async()=>{const i=document.getElementById('adminPassInput').value;try{const s=await getDoc(doc(db,'artifacts',appId,'public','data','config','admin'));if(s.exists()&&i===s.data().password){showScreen('adminEditor');document.getElementById('errorLogin').classList.add('hidden');}else{document.getElementById('errorLogin').classList.remove('hidden');}}catch(e){document.getElementById('errorLogin').classList.remove('hidden');}};
+window.verifyAdmin=async()=>{
+  const i=document.getElementById('adminPassInput').value;
+  try{
+    const s=await getDoc(doc(db,'artifacts',appId,'public','data','config','admin'));
+    if(s.exists()&&i===s.data().password){showScreen('adminEditor');document.getElementById('errorLogin').classList.add('hidden');}
+    else{document.getElementById('errorLogin').classList.remove('hidden');}
+  }catch(e){document.getElementById('errorLogin').classList.remove('hidden');}
+};
 
-window.executeAdminAction=async(type)=>{const fb=document.getElementById('adminFeedback');fb.innerText=t('js.uploading');try{if(type==='coins'){const u=document.getElementById('targetUser').value.trim().toLowerCase();const v=parseInt(document.getElementById('targetVal').value)||0;const r=quillEditors.reason?quillEditors.reason.root.innerHTML.trim():'';const rEs=document.getElementById('targetReasonEs').value.trim();const rEn=document.getElementById('targetReasonEn').value.trim();const rRu=document.getElementById('targetReasonRu').value.trim();if(!u)throw t('js.missingUser');const data={balance:v,reason:r};if(rEs)data.reason_es=rEs;if(rEn)data.reason_en=rEn;if(rRu)data.reason_ru=rRu;await setDoc(doc(db,'artifacts',appId,'public','data','scores',u),data,{merge:true});}else{const data={seller:document.getElementById('mktSeller').value.trim(),item:document.getElementById('mktItem').value.trim(),price:parseInt(document.getElementById('mktPrice').value)||0,profile:document.getElementById('mktLichess').value.trim(),description:quillEditors.marketDesc?quillEditors.marketDesc.root.innerHTML.trim():'',timestamp:Date.now()};const dEs=document.getElementById('mktDescEs').value.trim();const dEn=document.getElementById('mktDescEn').value.trim();const dRu=document.getElementById('mktDescRu').value.trim();if(dEs)data.description_es=dEs;if(dEn)data.description_en=dEn;if(dRu)data.description_ru=dRu;if(!data.seller||!data.item)throw t('js.missingMarket');await addDoc(collection(db,'artifacts',appId,'public','data','market'),data);['mktSeller','mktItem','mktPrice','mktLichess','mktDescEs','mktDescEn','mktDescRu'].forEach(id=>document.getElementById(id).value='');if(quillEditors.marketDesc)quillEditors.marketDesc.root.innerHTML='';}fb.innerText=t('js.success');}catch(e){fb.innerText=t('js.error')+e;}setTimeout(()=>fb.innerText='',3000);};
+window.executeAdminAction=async(type)=>{
+  const fb=document.getElementById('adminFeedback');fb.innerText=t('js.uploading');
+  try{
+    if(type==='coins'){
+      const u=document.getElementById('targetUser').value.trim().toLowerCase();
+      const v=parseInt(document.getElementById('targetVal').value)||0;
+      const r=document.getElementById('targetReason').value.trim();
+      const rEs=document.getElementById('targetReasonEs').value.trim();
+      const rEn=document.getElementById('targetReasonEn').value.trim();
+      const rRu=document.getElementById('targetReasonRu').value.trim();
+      if(!u)throw t('js.missingUser');
+      const data={balance:v,reason:r};
+      if(rEs)data.reason_es=rEs;
+      if(rEn)data.reason_en=rEn;
+      if(rRu)data.reason_ru=rRu;
+      await setDoc(doc(db,'artifacts',appId,'public','data','scores',u),data,{merge:true});
+    }else{
+      const data={seller:document.getElementById('mktSeller').value.trim(),item:document.getElementById('mktItem').value.trim(),price:parseInt(document.getElementById('mktPrice').value)||0,profile:document.getElementById('mktLichess').value.trim(),description:document.getElementById('mktDesc').value.trim(),timestamp:Date.now()};
+      const dEs=document.getElementById('mktDescEs').value.trim();
+      const dEn=document.getElementById('mktDescEn').value.trim();
+      const dRu=document.getElementById('mktDescRu').value.trim();
+      if(dEs)data.description_es=dEs;
+      if(dEn)data.description_en=dEn;
+      if(dRu)data.description_ru=dRu;
+      if(!data.seller||!data.item)throw t('js.missingMarket');
+      await addDoc(collection(db,'artifacts',appId,'public','data','market'),data);
+      ['mktSeller','mktItem','mktPrice','mktLichess','mktDesc','mktDescEs','mktDescEn','mktDescRu'].forEach(id=>document.getElementById(id).value='');
+    }
+    fb.innerText=t('js.success');
+  }catch(e){fb.innerText=t('js.error')+e;}
+  setTimeout(()=>fb.innerText='',3000);
+};
 
 window.logoutAdmin=()=>{document.getElementById('adminPassInput').value='';showScreen('roleScreen');};
 
-// GAME 1
 let score1=0,game1Timer=null,game1Initialized=false;
 function initCatchHorsey(){const target=document.getElementById('targetHorsey');if(!target||game1Initialized)return;game1Initialized=true;target.onclick=hitHorsey;resetGame1();}
 function moveHorseyTarget(){const target=document.getElementById('targetHorsey');const container=document.getElementById('gameArea1');if(!target||!container)return;const maxX=Math.max(0,container.clientWidth-70);const maxY=Math.max(0,container.clientHeight-70);target.style.left=Math.floor(Math.random()*maxX)+'px';target.style.top=Math.floor(Math.random()*maxY)+'px';}
 window.hitHorsey=function(){score1+=1;const d=document.getElementById('scoreDisplay1');if(d)d.innerText=t('js.score')+score1;playSoundEffect('gift');moveHorseyTarget();};
 window.resetGame1=function(){score1=0;const d=document.getElementById('scoreDisplay1');if(d)d.innerText=t('js.score')+'0';moveHorseyTarget();if(game1Timer)clearInterval(game1Timer);game1Timer=setInterval(moveHorseyTarget,1000);};
 
-// GAME 2
 let sgCtx=null,sgAnimationId,sgScore=0,sgLives=3,sgIsPlaying=false,fallingItems=[],sgInitialized=false,playerX=0;
 const playerWidth=70,playerHeight=70;
 const santaCharacter=new Image();
@@ -744,17 +744,78 @@ santaCharacter.onload=()=>{santaCharacterLoaded=true;};
 santaCharacter.onerror=()=>{santaCharacterLoaded=false;};
 let snowflakes=[];
 function generateSnowflakes(canvas){snowflakes=[];const count=Math.floor(canvas.width/14);for(let i=0;i<count;i++){snowflakes.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*1.8+0.8,speed:Math.random()*0.7+0.3,drift:Math.random()*0.4-0.2});}}
-function drawWinterBackground(ctx,canvas){const g=ctx.createLinearGradient(0,0,0,canvas.height);g.addColorStop(0,'#1e3a5f');g.addColorStop(0.5,'#4a6fa5');g.addColorStop(1,'#b8d4e8');ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);ctx.beginPath();ctx.arc(canvas.width-45,45,20,0,Math.PI*2);ctx.fillStyle='#fef9e7';ctx.shadowColor='#fff8dc';ctx.shadowBlur=18;ctx.fill();ctx.shadowBlur=0;ctx.beginPath();ctx.moveTo(0,canvas.height);ctx.quadraticCurveTo(canvas.width*0.25,canvas.height-35,canvas.width*0.5,canvas.height-18);ctx.quadraticCurveTo(canvas.width*0.75,canvas.height-40,canvas.width,canvas.height-12);ctx.lineTo(canvas.width,canvas.height);ctx.closePath();ctx.fillStyle='#e8f4f8';ctx.fill();snowflakes.forEach(f=>{ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.85)';ctx.fill();f.y+=f.speed;f.x+=f.drift;if(f.y>canvas.height){f.y=-5;f.x=Math.random()*canvas.width;}if(f.x>canvas.width)f.x=0;if(f.x<0)f.x=canvas.width;});}
-function initSantaGame(){const canvas=document.getElementById('santaGameCanvas');if(!canvas||sgInitialized)return;sgInitialized=true;sgCtx=canvas.getContext('2d');resizeSgCanvas();canvas.addEventListener('mousemove',e=>{const r=canvas.getBoundingClientRect();playerX=e.clientX-r.left;});canvas.addEventListener('touchmove',e=>{e.preventDefault();const r=canvas.getBoundingClientRect();playerX=e.touches[0].clientX-r.left;},{passive:false});window.addEventListener('resize',resizeSgCanvas);if(sgCtx){drawWinterBackground(sgCtx,canvas);sgCtx.fillStyle='#fff';sgCtx.font='bold 16px Arial';sgCtx.textAlign='center';sgCtx.fillText(t('js.clickPlay'),canvas.width/2,canvas.height/2);}}
+function drawWinterBackground(ctx,canvas){
+  const g=ctx.createLinearGradient(0,0,0,canvas.height);
+  g.addColorStop(0,'#1e3a5f');g.addColorStop(0.5,'#4a6fa5');g.addColorStop(1,'#b8d4e8');
+  ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.beginPath();ctx.arc(canvas.width-45,45,20,0,Math.PI*2);
+  ctx.fillStyle='#fef9e7';ctx.shadowColor='#fff8dc';ctx.shadowBlur=18;ctx.fill();ctx.shadowBlur=0;
+  ctx.beginPath();ctx.moveTo(0,canvas.height);
+  ctx.quadraticCurveTo(canvas.width*0.25,canvas.height-35,canvas.width*0.5,canvas.height-18);
+  ctx.quadraticCurveTo(canvas.width*0.75,canvas.height-40,canvas.width,canvas.height-12);
+  ctx.lineTo(canvas.width,canvas.height);ctx.closePath();
+  ctx.fillStyle='#e8f4f8';ctx.fill();
+  snowflakes.forEach(f=>{ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.85)';ctx.fill();f.y+=f.speed;f.x+=f.drift;if(f.y>canvas.height){f.y=-5;f.x=Math.random()*canvas.width;}if(f.x>canvas.width)f.x=0;if(f.x<0)f.x=canvas.width;});
+}
+function initSantaGame(){
+  const canvas=document.getElementById('santaGameCanvas');
+  if(!canvas||sgInitialized)return;
+  sgInitialized=true;sgCtx=canvas.getContext('2d');resizeSgCanvas();
+  canvas.addEventListener('mousemove',e=>{const r=canvas.getBoundingClientRect();playerX=e.clientX-r.left;});
+  canvas.addEventListener('touchmove',e=>{e.preventDefault();const r=canvas.getBoundingClientRect();playerX=e.touches[0].clientX-r.left;},{passive:false});
+  window.addEventListener('resize',resizeSgCanvas);
+  if(sgCtx){drawWinterBackground(sgCtx,canvas);sgCtx.fillStyle='#fff';sgCtx.font='bold 16px Arial';sgCtx.textAlign='center';sgCtx.fillText(t('js.clickPlay'),canvas.width/2,canvas.height/2);}
+}
 function resizeSgCanvas(){const canvas=document.getElementById('santaGameCanvas');if(!canvas||!canvas.parentElement)return;const rect=canvas.parentElement.getBoundingClientRect();if(rect.width>0){canvas.width=rect.width;canvas.height=rect.height;playerX=canvas.width/2;generateSnowflakes(canvas);}}
 function spawnItem(){const canvas=document.getElementById('santaGameCanvas');if(!canvas)return;const isBomb=Math.random()<0.28;fallingItems.push({x:Math.random()*(canvas.width-30)+15,y:-25,speed:Math.random()*2+2,type:isBomb?'bomb':'gift',size:22});}
-function drawGift(ctx,x,y){ctx.fillStyle='#dc2626';ctx.fillRect(x-12,y-10,24,20);ctx.fillStyle='#fbbf24';ctx.fillRect(x-2,y-10,4,20);ctx.fillRect(x-12,y-2,24,4);ctx.beginPath();ctx.arc(x-4,y-13,4,0,Math.PI);ctx.strokeStyle='#fbbf24';ctx.lineWidth=2;ctx.stroke();ctx.beginPath();ctx.arc(x+4,y-13,4,0,Math.PI);ctx.stroke();}
+function drawGift(ctx,x,y){ctx.fillStyle='#dc2626';ctx.fillRect(x-12,y-10,24,20);ctx.fillStyle='#fbbf24';ctx.fillRect(x-2,y-10,4,20);ctx.fillRect(x-12,y-2,24,4);}
 function drawBomb(ctx,x,y){ctx.fillStyle='#1e293b';ctx.beginPath();ctx.arc(x,y,12,0,Math.PI*2);ctx.fill();ctx.fillStyle='rgba(255,255,255,0.3)';ctx.beginPath();ctx.arc(x-4,y-4,4,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#b45309';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(x+6,y-10);ctx.quadraticCurveTo(x+12,y-18,x+16,y-14);ctx.stroke();ctx.fillStyle='#f59e0b';ctx.beginPath();ctx.arc(x+16,y-14,3,0,Math.PI*2);ctx.fill();}
-function updateSantaGame(){const canvas=document.getElementById('santaGameCanvas');if(!canvas||!sgCtx||!sgIsPlaying||canvas.width===0)return;drawWinterBackground(sgCtx,canvas);const playerY=canvas.height-playerHeight-5;const playerXPos=playerX-playerWidth/2;const bob=Math.sin(Date.now()/200)*2;if(santaCharacterLoaded){sgCtx.drawImage(santaCharacter,playerXPos,playerY+bob,playerWidth,playerHeight);}else{sgCtx.fillStyle='#d97706';sgCtx.fillRect(playerXPos,playerY,playerWidth,playerHeight);sgCtx.fillStyle='#fff';sgCtx.font='bold 14px Arial';sgCtx.textAlign='center';sgCtx.fillText('SANTA',playerX,playerY+playerHeight/2+5);}for(let i=fallingItems.length-1;i>=0;i--){let item=fallingItems[i];item.y+=item.speed;if(item.type==='gift')drawGift(sgCtx,item.x,item.y);else drawBomb(sgCtx,item.x,item.y);if(item.y+16>canvas.height-playerHeight-5 && item.y-16<canvas.height-5 && item.x>playerX-playerWidth/2 && item.x<playerX+playerWidth/2){if(item.type==='gift'){sgScore+=1;playSoundEffect('gift');}else{sgLives-=1;playSoundEffect('bomb');sgCtx.fillStyle='rgba(231,76,60,0.3)';sgCtx.fillRect(0,0,canvas.width,canvas.height);}fallingItems.splice(i,1);updateSgDisplay();continue;}if(item.y>canvas.height+20)fallingItems.splice(i,1);}if(Math.random()<0.04)spawnItem();if(sgLives<=0){sgIsPlaying=false;sgCtx.fillStyle='rgba(0,0,0,0.7)';sgCtx.fillRect(0,0,canvas.width,canvas.height);sgCtx.fillStyle='#fbbf24';sgCtx.font='bold 28px Arial';sgCtx.textAlign='center';sgCtx.fillText(t('js.gameOver'),canvas.width/2,canvas.height/2);sgCtx.font='18px Arial';sgCtx.fillStyle='#fff';sgCtx.fillText(t('js.finalGifts')+sgScore,canvas.width/2,canvas.height/2+35);return;}sgAnimationId=requestAnimationFrame(updateSantaGame);}
+function updateSantaGame(){
+  const canvas=document.getElementById('santaGameCanvas');
+  if(!canvas||!sgCtx||!sgIsPlaying||canvas.width===0)return;
+  drawWinterBackground(sgCtx,canvas);
+  const playerY=canvas.height-playerHeight-5;const playerXPos=playerX-playerWidth/2;const bob=Math.sin(Date.now()/200)*2;
+  if(santaCharacterLoaded){sgCtx.drawImage(santaCharacter,playerXPos,playerY+bob,playerWidth,playerHeight);}
+  else{sgCtx.fillStyle='#d97706';sgCtx.fillRect(playerXPos,playerY,playerWidth,playerHeight);}
+  for(let i=fallingItems.length-1;i>=0;i--){
+    let item=fallingItems[i];item.y+=item.speed;
+    if(item.type==='gift')drawGift(sgCtx,item.x,item.y);else drawBomb(sgCtx,item.x,item.y);
+    if(item.y+16>canvas.height-playerHeight-5 && item.y-16<canvas.height-5 && item.x>playerX-playerWidth/2 && item.x<playerX+playerWidth/2){
+      if(item.type==='gift'){sgScore+=1;playSoundEffect('gift');}
+      else{sgLives-=1;playSoundEffect('bomb');sgCtx.fillStyle='rgba(231,76,60,0.3)';sgCtx.fillRect(0,0,canvas.width,canvas.height);}
+      fallingItems.splice(i,1);updateSgDisplay();continue;
+    }
+    if(item.y>canvas.height+20)fallingItems.splice(i,1);
+  }
+  if(Math.random()<0.04)spawnItem();
+  if(sgLives<=0){
+    sgIsPlaying=false;sgCtx.fillStyle='rgba(0,0,0,0.7)';sgCtx.fillRect(0,0,canvas.width,canvas.height);
+    sgCtx.fillStyle='#fbbf24';sgCtx.font='bold 28px Arial';sgCtx.textAlign='center';
+    sgCtx.fillText(t('js.gameOver'),canvas.width/2,canvas.height/2);
+    sgCtx.font='18px Arial';sgCtx.fillStyle='#fff';
+    sgCtx.fillText(t('js.finalGifts')+sgScore,canvas.width/2,canvas.height/2+35);
+    return;
+  }
+  sgAnimationId=requestAnimationFrame(updateSantaGame);
+}
 function updateSgDisplay(){const d=document.getElementById('scoreDisplay2');if(d)d.innerText=t('js.gifts')+sgScore+t('js.lives')+sgLives;}
-window.startSantaGame=function(){if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();sgScore=0;sgLives=3;fallingItems=[];sgIsPlaying=true;updateSgDisplay();if(sgAnimationId)cancelAnimationFrame(sgAnimationId);resizeSgCanvas();updateSantaGame();};
-function playSoundEffect(type){try{if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();const osc=audioCtx.createOscillator();const gain=audioCtx.createGain();osc.connect(gain);gain.connect(audioCtx.destination);if(type==='gift'){osc.type='sine';osc.frequency.setValueAtTime(880,audioCtx.currentTime);gain.gain.setValueAtTime(0.1,audioCtx.currentTime);gain.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+0.3);osc.start();osc.stop(audioCtx.currentTime+0.3);}else{osc.type='sawtooth';osc.frequency.setValueAtTime(100,audioCtx.currentTime);osc.frequency.exponentialRampToValueAtTime(10,audioCtx.currentTime+0.4);gain.gain.setValueAtTime(0.2,audioCtx.currentTime);gain.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+0.4);osc.start();osc.stop(audioCtx.currentTime+0.4);}}catch(e){}}
-function esc(str){if(!str)return'';return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');}
+window.startSantaGame=function(){
+  if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==='suspended')audioCtx.resume();
+  sgScore=0;sgLives=3;fallingItems=[];sgIsPlaying=true;
+  updateSgDisplay();if(sgAnimationId)cancelAnimationFrame(sgAnimationId);
+  resizeSgCanvas();updateSantaGame();
+};
+function playSoundEffect(type){
+  try{
+    if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state==='suspended')audioCtx.resume();
+    const osc=audioCtx.createOscillator();const gain=audioCtx.createGain();
+    osc.connect(gain);gain.connect(audioCtx.destination);
+    if(type==='gift'){osc.type='sine';osc.frequency.setValueAtTime(880,audioCtx.currentTime);gain.gain.setValueAtTime(0.1,audioCtx.currentTime);gain.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+0.3);osc.start();osc.stop(audioCtx.currentTime+0.3);}
+    else{osc.type='sawtooth';osc.frequency.setValueAtTime(100,audioCtx.currentTime);osc.frequency.exponentialRampToValueAtTime(10,audioCtx.currentTime+0.4);gain.gain.setValueAtTime(0.2,audioCtx.currentTime);gain.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+0.4);osc.start();osc.stop(audioCtx.currentTime+0.4);}
+  }catch(e){}
+}
 
 currentLang=detectLanguage();
 applyTranslations();
