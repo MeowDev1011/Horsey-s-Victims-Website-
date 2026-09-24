@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Firebase Diagnostic</title>
+<style>
+body{font-family:monospace;padding:20px;background:#1e293b;color:#fff;font-size:14px;line-height:1.6}
+.ok{color:#4ade80}.err{color:#f87171}.warn{color:#fbbf24}
+h1{color:#fbbf24}
+</style>
+</head>
+<body>
+<h1>🐴 Horsey Firebase Diagnostic</h1>
+<div id="out">Starting...</div>
+
+<script type="module">
+const out=document.getElementById('out');
+function log(msg,type=''){
+  out.innerHTML+=`<div class="${type}">${msg}</div>`;
+  console.log(msg);
+}
+out.innerHTML='';
+
+// Test 1: Internet
+log('1. Testing internet connection...');
+try{
+  const r=await fetch('https://www.google.com/generate_204',{mode:'no-cors'});
+  log('   ✅ Internet OK','ok');
+}catch(e){
+  log('   ❌ No internet: '+e.message,'err');
+}
+
+// Test 2: Firestore endpoint reachable
+log('2. Testing firestore.googleapis.com reachable...');
+try{
+  const r=await fetch('https://firestore.googleapis.com/',{mode:'no-cors'});
+  log('   ✅ Firestore endpoint reachable','ok');
+}catch(e){
+  log('   ❌ Cannot reach Firestore: '+e.message,'err');
+  log('   This is likely blocked by network/adblocker/VPN','warn');
+}
+
+// Test 3: gstatic.com (Firebase SDK CDN)
+log('3. Testing gstatic.com (Firebase SDK)...');
+try{
+  const r=await fetch('https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js',{method:'HEAD'});
+  log('   ✅ gstatic.com OK (status ' + r.status + ')','ok');
+}catch(e){
+  log('   ❌ gstatic.com failed: '+e.message,'err');
+}
+
+// Test 4: Firebase Init + Firestore read
+log('4. Testing Firebase init + Firestore read...');
+try{
+  const { initializeApp } = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js');
+  const { getFirestore, doc, getDoc } = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
+  const { getAuth, signInAnonymously } = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js');
+  
+  const firebaseConfig = {
+    apiKey: "AIzaSyA_ZFD3mnWGxwX9eSvUkViqS_o95f1kFCQ",
+    authDomain: "horsey-victims.firebaseapp.com",
+    projectId: "horsey-victims",
+    storageBucket: "horsey-victims.firebasestorage.app",
+    messagingSenderId: "586530411765",
+    appId: "1:586530411765:web:374a728ed312a53566a1bc"
+  };
+  
+  const app = initializeApp(firebaseConfig);
+  log('   ✅ Firebase app initialized','ok');
+  
+  const auth = getAuth(app);
+  log('5. Testing anonymous auth...');
+  try {
+    await signInAnonymously(auth);
+    log('   ✅ Anonymous auth OK','ok');
+  } catch(e) {
+    log('   ⚠️ Auth failed: '+e.code+' - '+e.message,'warn');
+    log('   → Check Authentication → Sign-in method → Anonymous enabled','warn');
+  }
+  
+  const db = getFirestore(app);
+  log('6. Testing Firestore read...');
+  try {
+    const snap = await getDoc(doc(db,'artifacts','horsey-dollars-v1','public','data','config','admin'));
+    log('   ✅ Firestore read OK (config exists: '+snap.exists()+')','ok');
+  } catch(e) {
+    log('   ❌ Firestore read failed','err');
+    log('   Code: '+e.code,'err');
+    log('   Message: '+e.message,'err');
+    if(e.code==='unavailable'){
+      log('   → Network cannot reach Firestore. Possible causes:','warn');
+      log('     · AdBlocker/VPN blocking firestore.googleapis.com','warn');
+      log('     · School/Work WiFi blocking Google APIs','warn');
+      log('     · Firestore Database not created in Firebase Console','warn');
+      log('     · Firestore API not enabled in Google Cloud','warn');
+    } else if(e.code==='permission-denied'){
+      log('   → Firestore Rules are blocking. Check rules.','warn');
+    } else if(e.code==='failed-precondition'){
+      log('   → Firestore Database not created. Go to console and create it.','warn');
+    }
+  }
+  
+  log('','ok');
+  log('═══ DIAGNOSTIC COMPLETE ═══','warn');
+  log('Screenshot this entire page and share.','warn');
+  
+} catch(e) {
+  log('   ❌ Firebase init failed: '+e.message,'err');
+}
+</script>
+</body>
+</html>
