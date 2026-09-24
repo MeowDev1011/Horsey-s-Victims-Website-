@@ -7,7 +7,6 @@
 <link rel="apple-touch-icon" href="horsey.png">
 <title>Horsey's Victims - Horsey Dollars System</title>
 
-<!-- ERROR HANDLER - must be FIRST so it catches everything -->
 <script>
 window.__errors=[];
 window.addEventListener('error',function(e){
@@ -26,11 +25,9 @@ window.addEventListener('unhandledrejection',function(e){
 
 <script src="https://cdn.tailwindcss.com"></script>
 
-<!-- Quill CSS + JS (jsdelivr, more reliable) -->
 <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
 
-<!-- CodeMirror CSS + JS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/theme/monokai.min.css">
 <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.js"></script>
@@ -39,7 +36,6 @@ window.addEventListener('unhandledrejection',function(e){
 <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/css/css.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
 
-<!-- 15 Fonts for Quill -->
 <link href="https://fonts.googleapis.com/css2?family=Roboto&family=Open+Sans&family=Lato&family=Montserrat&family=Crimson+Pro&family=DM+Sans&family=Source+Code+Pro&family=Oswald&family=Raleway&family=Poppins&family=Nunito&family=Ubuntu&family=Playfair+Display&family=Merriweather&family=Fira+Code&display=swap" rel="stylesheet">
 
 <style>
@@ -98,7 +94,6 @@ body{background-color:#f8fafc;color:#1e293b;font-family:'Segoe UI',system-ui,-ap
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 sm:p-8">
 
-<!-- SVG ICONS -->
 <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
 <symbol id="i-horse" viewBox="0 0 24 24"><path d="M19 22H5v-2h14v2M13.1 2.1c-.4-.1-.8-.1-1.2-.1-1.4 0-2.7.4-3.8 1.2-1.6 1.1-3 2.4-4.3 3.9C2.6 8.5 1.8 10.3 1.5 12.2c-.1.6-.2 1.2-.2 1.8h3c.6 0 1.2-.1 1.8-.3.6-.2 1.1-.5 1.6-.9.3-.3.7-.6 1-1v3.4H6.5c-.6 0-1.1.2-1.5.6-.4.4-.6.9-.6 1.5V21h14v-3.7c0-.6-.2-1.1-.6-1.5-.4-.4-.9-.6-1.5-.6h-2.2v-3.4c.5.6 1.1 1.1 1.7 1.4.7.4 1.4.6 2.1.7.4.1.8.1 1.2.1h4c.4 0 .7-.1.9-.4.2-.3.3-.6.3-.9 0-2.3-.7-4.5-2-6.3-1.3-1.8-3.1-3.2-5.1-4-.5-.2-1.1-.3-1.7-.3m-.1 4.9c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5S11.5 9.3 11.5 8.5s.7-1.5 1.5-1.5z"/></symbol>
 <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M18 2h-2V1h-8v1H6v2H2v3c0 3.3 2.7 6 6 6h.3c.7 1.7 2.2 3 4.2 3.4V19H8v2h8v-2h-4.5v-2.6c2-.4 3.5-1.7 4.2-3.4H16c3.3 0 6-2.7 6-6V4h-4V2M4 4h2v4c0 1.1-.9 2-2 2V4m18 4v2c-1.1 0-2-.9-2-2V4h2v4m-7-4h2v5c0 2.2-1.8 4-4 4s-4-1.8-4-4V4h6z"/></symbol>
@@ -113,6 +108,8 @@ body{background-color:#f8fafc;color:#1e293b;font-family:'Segoe UI',system-ui,-ap
 <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3m-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3m0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5m8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></symbol>
 <symbol id="i-diamond" viewBox="0 0 24 24"><path d="M19 3H5L2 9l10 12L22 9l-3-6M9.62 8L12 5.67 14.37 8H9.63M11 10v5.5L6.38 10H11m2 0h4.62L13 15.5V10m4.38-2L15.24 5h2.38l1.76 3h-2m-11 0H4.62l1.76-3h2.38L6.62 8z"/></symbol>
 <symbol id="i-flag" viewBox="0 0 24 24"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/></symbol>
+<symbol id="i-edit" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12z"/></symbol>
 </svg>
 
 <div id="langSwitcher" class="hidden fixed top-4 right-4 z-40 lang-switcher">
@@ -133,7 +130,6 @@ body{background-color:#f8fafc;color:#1e293b;font-family:'Segoe UI',system-ui,-ap
 </div>
 
 <div id="mainApp" class="hidden w-full max-w-3xl mx-auto fade-in">
-
 <div class="text-center mb-10">
 <img src="logo.png" alt="Logo" class="logo-img" onerror="this.style.display='none'">
 <h1 class="text-4xl md:text-6xl font-black italic tracking-tighter uppercase text-slate-800">Horsey's Victims</h1>
@@ -386,7 +382,15 @@ import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/1
 import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, addDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 let app,auth,db;
-try{app=initializeApp(firebaseConfig);auth=getAuth(app);db=getFirestore(app);}catch(e){console.error('FB init:',e.message);}
+try{
+  app=initializeApp(firebaseConfig);
+  auth=getAuth(app);
+  // FIX B1: especificar el nombre real de la base de datos ('default', NO '(default)')
+  db=getFirestore(app,'default');
+  console.log('Firebase OK, DB: default');
+}catch(e){
+  console.error('Firebase init failed:',e.message);
+}
 signInAnonymously(auth).catch(err=>console.warn('Auth:',err.code));
 
 const translations={
@@ -400,7 +404,6 @@ let allUsersData=[],marketData=[],cardsData=[],gamesData=[];
 
 function detectLanguage(){const s=localStorage.getItem('horsey_lang');if(s&&['en','es','ru'].includes(s))return s;const b=(navigator.language||'en').toLowerCase();if(b.startsWith('es'))return'es';if(b.startsWith('ru'))return'ru';return'en';}
 function t(key){return(translations[currentLang]&&translations[currentLang][key])||(translations.en[key])||key;}
-
 function esc(str){if(!str)return'';return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');}
 function getLocalizedContent(item,field){let c=item[field];if(currentLang!==item.lang&&item[field+'_'+currentLang])c=item[field+'_'+currentLang];return c||'';}
 
